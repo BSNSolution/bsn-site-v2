@@ -19,6 +19,17 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'))
 const AdminLogin = lazy(() => import('@/pages/admin/LoginPage'))
 const AdminDashboard = lazy(() => import('@/pages/admin/DashboardPage'))
+const HomeSectionsPage = lazy(() => import('@/pages/admin/HomeSectionsPage'))
+const AdminServicesPage = lazy(() => import('@/pages/admin/AdminServicesPage'))
+const AdminSolutionsPage = lazy(() => import('@/pages/admin/AdminSolutionsPage'))
+const AdminTestimonialsPage = lazy(() => import('@/pages/admin/AdminTestimonialsPage'))
+const AdminTeamPage = lazy(() => import('@/pages/admin/AdminTeamPage'))
+const AdminClientsPage = lazy(() => import('@/pages/admin/AdminClientsPage'))
+const AdminJobsPage = lazy(() => import('@/pages/admin/AdminJobsPage'))
+const AdminBlogPage = lazy(() => import('@/pages/admin/AdminBlogPage'))
+const AdminInboxPage = lazy(() => import('@/pages/admin/AdminInboxPage'))
+const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage'))
+const AdminUploadsPage = lazy(() => import('@/pages/admin/AdminUploadsPage'))
 
 // Components
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -242,13 +253,26 @@ function App() {
           />
           
           <Route
-            path="/admin/*"
+            path="/admin"
             element={
               <Suspense fallback={<PageLoader />}>
                 <AdminLayout />
               </Suspense>
             }
-          />
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="home" element={<HomeSectionsPage />} />
+            <Route path="services" element={<AdminServicesPage />} />
+            <Route path="solutions" element={<AdminSolutionsPage />} />
+            <Route path="testimonials" element={<AdminTestimonialsPage />} />
+            <Route path="team" element={<AdminTeamPage />} />
+            <Route path="clients" element={<AdminClientsPage />} />
+            <Route path="jobs" element={<AdminJobsPage />} />
+            <Route path="blog" element={<AdminBlogPage />} />
+            <Route path="inbox" element={<AdminInboxPage />} />
+            <Route path="uploads" element={<AdminUploadsPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
+          </Route>
 
           {/* 404 page */}
           <Route
