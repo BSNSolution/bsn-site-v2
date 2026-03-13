@@ -9,10 +9,11 @@ import { useAnalytics } from '@/hooks/use-analytics'
 import { cn } from '@/lib/utils'
 
 // Floating elements for visual interest
-const FloatingElement = ({ children, delay = 0, amplitude = 20 }: {
+const FloatingElement = ({ children, delay = 0, amplitude = 20, className = '' }: {
   children: React.ReactNode
   delay?: number
   amplitude?: number
+  className?: string
 }) => {
   return (
     <motion.div
@@ -26,7 +27,7 @@ const FloatingElement = ({ children, delay = 0, amplitude = 20 }: {
         ease: 'easeInOut',
         delay,
       }}
-      className="absolute"
+      className={`absolute ${className}`}
     >
       {children}
     </motion.div>
@@ -286,20 +287,20 @@ export default function HeroSection() {
                   className="relative p-8 backdrop-blur-2xl bg-white/[0.02] border-white/20 hover:bg-white/[0.05] transition-all duration-500"
                 >
                   {/* Floating elements */}
-                  <FloatingElement delay={0} amplitude={15}>
-                    <div className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-glow">
+                  <FloatingElement delay={0} amplitude={15} className="-top-4 -right-4 z-10">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-glow">
                       <Code className="h-8 w-8 text-white" />
                     </div>
                   </FloatingElement>
 
-                  <FloatingElement delay={1} amplitude={20}>
-                    <div className="absolute top-1/2 -left-6 w-12 h-12 bg-gradient-to-br from-accent to-primary rounded-xl flex items-center justify-center shadow-glow-lg">
+                  <FloatingElement delay={1} amplitude={20} className="top-1/3 -left-6 z-10">
+                    <div className="w-12 h-12 bg-gradient-to-br from-accent to-primary rounded-xl flex items-center justify-center shadow-glow-lg">
                       <Zap className="h-6 w-6 text-white" />
                     </div>
                   </FloatingElement>
 
-                  <FloatingElement delay={2} amplitude={25}>
-                    <div className="absolute -bottom-6 right-8 w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-glow">
+                  <FloatingElement delay={2} amplitude={25} className="-bottom-6 right-8 z-10">
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-glow">
                       <Rocket className="h-7 w-7 text-white" />
                     </div>
                   </FloatingElement>
