@@ -39,7 +39,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       {/* Background grain effect */}
-      <div className="absolute inset-0 bg-grain opacity-20" />
+      <div className="absolute inset-0 bg-grain opacity-[0.03]" />
       
       {/* Login form */}
       <motion.div
