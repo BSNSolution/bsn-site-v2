@@ -29,6 +29,7 @@ interface Testimonial {
 
 interface FormData {
   name: string
+  clientName: string
   role: string
   company: string
   content: string
@@ -44,6 +45,7 @@ export default function AdminTestimonialsPage() {
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null)
   const [formData, setFormData] = useState<FormData>({
     name: '',
+    clientName: '',
     role: '',
     company: '',
     content: '',
@@ -73,6 +75,7 @@ export default function AdminTestimonialsPage() {
   const resetForm = () => {
     setFormData({
       name: '',
+      clientName: '',
       role: '',
       company: '',
       content: '',
@@ -105,6 +108,7 @@ export default function AdminTestimonialsPage() {
     setEditingTestimonial(testimonial)
     setFormData({
       name: testimonial.name,
+      clientName: (testimonial as any).clientName || testimonial.name,
       role: testimonial.role,
       company: testimonial.company || '',
       content: testimonial.content,
@@ -217,6 +221,20 @@ export default function AdminTestimonialsPage() {
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                       className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                       required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Nome do Cliente *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.clientName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, clientName: e.target.value }))}
+                      className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                      required
+                      placeholder="Nome para exibição no depoimento"
                     />
                   </div>
 
