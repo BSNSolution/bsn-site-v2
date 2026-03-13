@@ -30,7 +30,7 @@ if (allowSelfSigned) {
 }
 
 // Criar transporter
-export const transporter = nodemailer.createTransporter(smtpConfig);
+export const transporter = nodemailer.createTransport(smtpConfig);
 
 // Verificar conexão SMTP
 export async function verifySMTP(): Promise<boolean> {
