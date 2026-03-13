@@ -129,3 +129,20 @@ Placeholder content é OK pro seed — o admin permite editar tudo depois.
 - /tmp/bsn-atm-site/ — monorepo de referência (copiar padrões de admin, API, docker)
 - /tmp/bsn-site/ — site atual (cores, conteúdo atual)
 - /tmp/bsn-site-api/ — API atual (padrões de rotas, schemas)
+
+## Skills de Design (OBRIGATÓRIO LER antes de fazer frontend)
+Referências de design em AI/references/:
+- **awwwards-design.md** — LEIA PRIMEIRO. Padrões de sites premiados, scroll animations, choreographed motion
+- **frontend-design-ultimate.md** — Anti-AI-slop, tipografia bold, designs memoráveis
+- **superdesign.md** — Guidelines de UI moderno, cores, layout
+- **lb-motion-skill.md** — Framer Motion patterns (animações)
+- **shadcn-ui.md** — Shadcn/ui best practices, forms, dark mode
+
+## MCPs disponíveis (via mcporter CLI)
+Você pode usar MCPs via: `mcporter call <server.tool> --args '{"key":"value"}' --output json`
+- **brave-search**: `mcporter call brave-search.brave_web_search --args '{"query":"..."}'` — busca web
+- **github**: `mcporter call github.<tool>` — operações GitHub (list_issues, create_pull_request, etc)
+- **filesystem**: `mcporter call filesystem.<tool>` — operações de arquivo seguras
+- **sqlite**: `mcporter call sqlite.query --args '{"sql":"..."}'` — banco SQLite local
+- **context7**: buscar docs atualizadas de qualquer lib
+- **dokploy**: gerenciar deploy (67 tools)

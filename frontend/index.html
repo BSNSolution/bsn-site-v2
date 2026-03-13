@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>BSN Solution - Desenvolvimento e Tecnologia</title>
+    <meta name="title" content="BSN Solution - Desenvolvimento e Tecnologia" />
+    <meta name="description" content="Especialistas em desenvolvimento web, mobile e soluções em tecnologia em Cuiabá-MT. Transformamos suas ideias em soluções digitais." />
+    <meta name="keywords" content="desenvolvimento web, aplicativo mobile, tecnologia, Cuiabá, BSN Solution, software, consultoria TI" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="Portuguese" />
+    <meta name="author" content="BSN Solution" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bsnsolution.com.br/" />
+    <meta property="og:title" content="BSN Solution - Desenvolvimento e Tecnologia" />
+    <meta property="og:description" content="Especialistas em desenvolvimento web, mobile e soluções em tecnologia em Cuiabá-MT" />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:site_name" content="BSN Solution" />
+    <meta property="og:locale" content="pt_BR" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://bsnsolution.com.br/" />
+    <meta property="twitter:title" content="BSN Solution - Desenvolvimento e Tecnologia" />
+    <meta property="twitter:description" content="Especialistas em desenvolvimento web, mobile e soluções em tecnologia em Cuiabá-MT" />
+    <meta property="twitter:image" content="/og-image.jpg" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#080808" />
+    <meta name="msapplication-TileColor" content="#080808" />
+    
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://api.fontshare.com/v2/css?f[]=clash-display@600&display=swap" as="style" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" as="style" />
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "BSN Solution",
+      "url": "https://bsnsolution.com.br",
+      "logo": "https://bsnsolution.com.br/logo.svg",
+      "description": "Especialistas em desenvolvimento web, mobile e soluções em tecnologia",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Cuiabá",
+        "addressRegion": "MT",
+        "addressCountry": "BR"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+55-65-99999-9999",
+        "contactType": "customer service",
+        "availableLanguage": ["Portuguese"]
+      },
+      "sameAs": [
+        "https://linkedin.com/company/bsn-solution",
+        "https://instagram.com/bsnsolution"
+      ],
+      "foundingDate": "2020",
+      "foundingLocation": {
+        "@type": "Place",
+        "name": "Cuiabá, MT, Brasil"
+      },
+      "areaServed": {
+        "@type": "Place",
+        "name": "Brasil"
+      },
+      "serviceType": [
+        "Desenvolvimento Web",
+        "Desenvolvimento Mobile",
+        "Consultoria em TI",
+        "UI/UX Design",
+        "DevOps",
+        "Inteligência Artificial"
+      ]
+    }
+    </script>
+    
+    <!-- Performance optimizations -->
+    <link rel="dns-prefetch" href="//localhost:3001" />
+    
+    <!-- Security headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    
+    <!-- Viewport meta for mobile optimization -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  </head>
+  <body class="min-h-screen bg-background font-sans antialiased">
+    <!-- Loading screen -->
+    <div id="loading" class="fixed inset-0 z-50 bg-background flex items-center justify-center">
+      <div class="flex flex-col items-center gap-4">
+        <div class="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-sm text-muted-foreground">Carregando BSN Solution...</p>
+      </div>
+    </div>
+    
+    <!-- React root -->
+    <div id="root"></div>
+    
+    <!-- Module script -->
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Hide loading when page loads -->
+    <script>
+      window.addEventListener('load', function() {
+        const loading = document.getElementById('loading');
+        if (loading) {
+          loading.style.transition = 'opacity 0.3s ease-out';
+          loading.style.opacity = '0';
+          setTimeout(() => {
+            loading.remove();
+          }, 300);
+        }
+      });
+      
+      // Analytics - Track page load time
+      window.addEventListener('load', function() {
+        if ('performance' in window) {
+          const loadTime = performance.now();
+          console.log(`Page loaded in ${Math.round(loadTime)}ms`);
+        }
+      });
+      
+      // Prevent FOUC (Flash of Unstyled Content)
+      document.documentElement.classList.add('loading');
+      window.addEventListener('DOMContentLoaded', function() {
+        document.documentElement.classList.remove('loading');
+      });
+    </script>
+    
+    <!-- Accessibility: Skip to main content -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md">
+      Pular para o conteúdo principal
+    </a>
+  </body>
+</html>

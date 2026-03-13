@@ -17,12 +17,16 @@
 - [x] **SKILLS PREMIUM LIDAS**: awwwards-design, frontend-design-ultimate, superdesign, lb-motion, shadcn-ui
 
 ### 🔄 Em Andamento
-- [ ] **Frontend AWWWARDS-LEVEL**: React + Vite + Framer Motion + Glassmorphism
-  - [ ] Typography distintiva (Clash Display, não Inter genérico)
-  - [ ] Scroll-triggered animations com stagger
-  - [ ] Glassmorphism pesado (bg-white/5 backdrop-blur-xl)
-  - [ ] Custom cursors e micro-interactions
-  - [ ] Parallax layers e reveal on enter
+- [x] **Estrutura Frontend PREMIUM**:
+  - [x] Vite + React + TypeScript + Framer Motion + shadcn/ui
+  - [x] Tema escuro BSN (#080808) com glassmorphism CSS variables
+  - [x] Typography: Clash Display (headlines) + Inter (body)
+  - [x] Tailwind config com animações custom e grain texture
+  - [x] Hooks AWWWARDS: custom cursor, scroll animations, analytics
+  - [x] API client completo com todas as rotas do backend
+  - [x] App routing com page transitions e lazy loading
+- [ ] **Páginas do site**: Home hero + seções + componentes
+- [ ] **Admin panel**: Dashboard + CRUD interfaces
 - [ ] Dockerfiles frontend e containerização final
 
 ### 🎯 Próximos Passos

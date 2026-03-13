@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* BSN Solution Dark Theme - AWWWARDS Level */
+    --background: 216 13% 3%;           /* #080808 - quase preto */
+    --foreground: 0 0% 96%;             /* #f5f5f5 - off-white */
+    
+    --card: 216 13% 7%;                 /* #111111 - cards escuros */
+    --card-foreground: 0 0% 96%;        /* #f5f5f5 */
+    
+    --popover: 216 13% 7%;              /* #111111 */
+    --popover-foreground: 0 0% 96%;     /* #f5f5f5 */
+    
+    --primary: 217 91% 60%;             /* #3b82f6 - azul BSN vibrante */
+    --primary-foreground: 0 0% 98%;     /* #fafafa */
+    
+    --secondary: 216 13% 10%;           /* #1a1a1a - cinza escuro */
+    --secondary-foreground: 0 0% 96%;   /* #f5f5f5 */
+    
+    --muted: 216 13% 10%;               /* #1a1a1a */
+    --muted-foreground: 0 0% 63%;       /* #a0a0a0 - texto secundário */
+    
+    --accent: 258 90% 66%;              /* #8b5cf6 - roxo accent */
+    --accent-foreground: 0 0% 98%;      /* #fafafa */
+    
+    --destructive: 0 84% 60%;           /* #ef4444 - vermelho */
+    --destructive-foreground: 0 0% 98%; /* #fafafa */
+    
+    --border: 216 13% 12%;              /* #1f2937 - border sutil */
+    --input: 216 13% 12%;               /* #1f2937 */
+    --ring: 217 91% 60%;                /* #3b82f6 - focus ring */
+    
+    --radius: 0.75rem;                  /* border radius padrão */
+  }
+
+  /* Garantir que sempre use dark theme */
+  .dark {
+    --background: 216 13% 3%;
+    --foreground: 0 0% 96%;
+    --card: 216 13% 7%;
+    --card-foreground: 0 0% 96%;
+    --popover: 216 13% 7%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 216 13% 10%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 216 13% 10%;
+    --muted-foreground: 0 0% 63%;
+    --accent: 258 90% 66%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 216 13% 12%;
+    --input: 216 13% 12%;
+    --ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    @apply dark; /* Force dark theme always */
+    scroll-behavior: smooth;
+  }
+
+  /* Grain texture overlay - AWWWARDS technique */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E") repeat;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/20 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/40;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-primary/30 text-foreground;
+  }
+}
+
+@layer components {
+  /* Glass card component - GLASSMORPHISM HEAVY */
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl;
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.37),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  /* Glass card with hover glow */
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300 hover:bg-white/10 hover:border-white/20;
+    @apply hover:shadow-glow hover:-translate-y-1;
+  }
+
+  /* Glass header */
+  .glass-header {
+    @apply bg-black/30 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50;
+  }
+
+  /* Gradient text - AWWWARDS style */
+  .gradient-text {
+    @apply bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent;
+  }
+
+  /* Magnetic button effect */
+  .magnetic {
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  /* Hero display typography */
+  .hero-text {
+    font-family: 'Clash Display', 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+  }
+
+  /* Section spacing */
+  .section-spacing {
+    @apply py-20 md:py-32 lg:py-40;
+  }
+
+  /* Container with max-width */
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@layer utilities {
+  /* Animation delays for staggered reveals */
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  .delay-300 { animation-delay: 0.3s; }
+  .delay-400 { animation-delay: 0.4s; }
+  .delay-500 { animation-delay: 0.5s; }
+
+  /* Text shadow for glass effect */
+  .text-shadow-glow {
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+
+  /* Backdrop blur variations */
+  .backdrop-blur-xs { backdrop-filter: blur(2px); }
+  .backdrop-blur-2xl { backdrop-filter: blur(40px); }
+  .backdrop-blur-3xl { backdrop-filter: blur(64px); }
+
+  /* Custom focus styles */
+  .focus-custom {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background;
+  }
+}
+
+/* Reduced motion support - ACCESSIBILITY */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .glass-card {
+    @apply bg-background border-foreground/50;
+  }
+}
+
+/* Print styles */
+@media print {
+  body::before {
+    display: none;
+  }
+  
+  .glass-card {
+    @apply bg-white border-black text-black;
+  }
+}
