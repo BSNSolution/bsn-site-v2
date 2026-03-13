@@ -110,27 +110,8 @@ export default function AdminLayout() {
     return <Navigate to="/admin/login" replace />
   }
 
-  const sidebarVariants = {
-    open: {
-      x: 0,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 40
-      }
-    },
-    closed: {
-      x: "-100%",
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 40
-      }
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex">
       {/* Mobile overlay */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -145,12 +126,12 @@ export default function AdminLayout() {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <motion.div
-        variants={sidebarVariants}
-        animate={sidebarOpen ? "open" : "closed"}
-        className={`fixed inset-y-0 left-0 z-30 w-64 bg-card border-r border-border lg:translate-x-0 lg:static lg:inset-0 ${
-          sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'
-        } transition-all duration-300`}
+      <div
+        className={`fixed inset-y-0 left-0 z-30 bg-card border-r border-border transition-all duration-300 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0 lg:static lg:inset-0 ${
+          sidebarCollapsed ? 'w-16' : 'w-64'
+        }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo / Header */}
@@ -241,10 +222,10 @@ export default function AdminLayout() {
             </button>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Main content */}
-      <div className={`lg:ml-64 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'} transition-all duration-300`}>
+      <div className="flex-1 min-w-0 transition-all duration-300">
         {/* Top bar */}
         <header className="glass-header">
           <div className="flex items-center justify-between p-4">
