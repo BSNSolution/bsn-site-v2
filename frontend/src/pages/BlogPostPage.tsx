@@ -35,7 +35,8 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const calculateReadTime = (content: string) => {
+const calculateReadTime = (content?: string) => {
+  if (!content) return 1
   const wordsPerMinute = 200
   const words = content.split(/\s+/).length
   return Math.ceil(words / wordsPerMinute)
@@ -330,7 +331,7 @@ export default function BlogPostPage() {
                   {/* If content is plain text, render as paragraphs */}
                   {post.content && !post.content.includes('<') && (
                     <div className="space-y-6">
-                      {post.content.split('\n\n').map((paragraph, index) => (
+                      {(post.content || '').split('\n\n').map((paragraph, index) => (
                         <p key={index} className="leading-relaxed">
                           {paragraph}
                         </p>

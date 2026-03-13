@@ -59,7 +59,7 @@ export default function AboutPage() {
       setIsLoading(true)
       const data = await teamApi.getTeam()
       if (data && data.team) {
-        setTeam(data.team.filter((member: TeamMember) => member.isActive))
+        setTeam(data.team.filter((member: TeamMember) => member.isActive !== false))
       }
     } catch (error) {
       console.error('Erro ao carregar equipe:', error)

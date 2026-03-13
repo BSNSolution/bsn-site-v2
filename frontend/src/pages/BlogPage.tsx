@@ -61,7 +61,8 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const calculateReadTime = (content: string) => {
+const calculateReadTime = (content?: string) => {
+  if (!content) return 1
   const wordsPerMinute = 200
   const words = content.split(/\s+/).length
   return Math.ceil(words / wordsPerMinute)

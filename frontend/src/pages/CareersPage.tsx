@@ -80,7 +80,7 @@ export default function CareersPage() {
       setIsLoading(true)
       const data = await jobsApi.getJobs()
       if (data && data.jobs) {
-        setJobs(data.jobs.filter((job: Job) => job.isActive))
+        setJobs(data.jobs.filter((job: Job) => job.isActive !== false))
       }
     } catch (error) {
       console.error('Erro ao carregar vagas:', error)
