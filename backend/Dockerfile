@@ -48,9 +48,8 @@ EXPOSE 3001
 ENV NODE_ENV=production
 ENV PORT=3001
 
-# Health check
-HEALTHCHECK --interval=10s --timeout=5s --start-period=40s --retries=5 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
+# No Docker healthcheck — Traefik handles routing health detection
+# Removing HEALTHCHECK prevents Docker Swarm restart loops
 
 # Start the server
 CMD ["/app/docker-entrypoint.sh"]
