@@ -13,21 +13,21 @@ declare module "fastify" {
   }
 }
 
-// Routes (vamos criar elas a seguir)
-// import authRoutes from "./routes/auth";
-// import homeRoutes from "./routes/home";
-// import servicesRoutes from "./routes/services";
-// import solutionsRoutes from "./routes/solutions";
-// import testimonialsRoutes from "./routes/testimonials";
-// import contactRoutes from "./routes/contact";
-// import uploadRoutes from "./routes/upload";
-// import siteSettingsRoutes from "./routes/site-settings";
-// import analyticsRoutes from "./routes/analytics";
-// import jobsRoutes from "./routes/jobs";
-// import clientsRoutes from "./routes/clients";
-// import inboxRoutes from "./routes/inbox";
-// import blogRoutes from "./routes/blog";
-// import teamRoutes from "./routes/team";
+// Routes
+import authRoutes from "./routes/auth";
+import homeRoutes from "./routes/home";
+import servicesRoutes from "./routes/services";
+import solutionsRoutes from "./routes/solutions";
+import testimonialsRoutes from "./routes/testimonials";
+import contactRoutes from "./routes/contact";
+import uploadRoutes from "./routes/upload";
+import siteSettingsRoutes from "./routes/site-settings";
+import analyticsRoutes from "./routes/analytics";
+import jobsRoutes from "./routes/jobs";
+import clientsRoutes from "./routes/clients";
+import inboxRoutes from "./routes/inbox";
+import blogRoutes from "./routes/blog";
+import teamRoutes from "./routes/team";
 
 dotenv.config();
 
@@ -71,21 +71,21 @@ fastify.setErrorHandler((error, request, reply) => {
   reply.send(error);
 });
 
-// Register routes (comentadas por enquanto até criarmos)
-// fastify.register(authRoutes, { prefix: "/api/auth" });
-// fastify.register(homeRoutes, { prefix: "/api" });
-// fastify.register(servicesRoutes, { prefix: "/api" });
-// fastify.register(solutionsRoutes, { prefix: "/api" });
-// fastify.register(testimonialsRoutes, { prefix: "/api" });
-// fastify.register(contactRoutes, { prefix: "/api" });
-// fastify.register(uploadRoutes, { prefix: "/api" });
-// fastify.register(siteSettingsRoutes, { prefix: "/api" });
-// fastify.register(analyticsRoutes, { prefix: "/api" });
-// fastify.register(jobsRoutes, { prefix: "/api" });
-// fastify.register(clientsRoutes, { prefix: "/api" });
-// fastify.register(inboxRoutes, { prefix: "/api" });
-// fastify.register(blogRoutes, { prefix: "/api" });
-// fastify.register(teamRoutes, { prefix: "/api" });
+// Register routes
+fastify.register(authRoutes, { prefix: "/api/auth" });
+fastify.register(homeRoutes, { prefix: "/api" });
+fastify.register(servicesRoutes, { prefix: "/api" });
+fastify.register(solutionsRoutes, { prefix: "/api" });
+fastify.register(testimonialsRoutes, { prefix: "/api" });
+fastify.register(contactRoutes, { prefix: "/api" });
+fastify.register(uploadRoutes, { prefix: "/api" });
+fastify.register(siteSettingsRoutes, { prefix: "/api" });
+fastify.register(analyticsRoutes, { prefix: "/api" });
+fastify.register(jobsRoutes, { prefix: "/api" });
+fastify.register(clientsRoutes, { prefix: "/api" });
+fastify.register(inboxRoutes, { prefix: "/api" });
+fastify.register(blogRoutes, { prefix: "/api" });
+fastify.register(teamRoutes, { prefix: "/api" });
 
 // Health check
 fastify.get("/health", async () => {
