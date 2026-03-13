@@ -15,6 +15,9 @@ RUN npm ci
 COPY . .
 RUN npx prisma generate
 RUN npm run build
+# Compile seed.ts to JS for production seeding
+RUN npx -p typescript tsc prisma/seed.ts --outDir prisma/compiled --esModuleInterop --module commonjs --target ES2022 --skipLibCheck --resolveJsonModule 2>/dev/null; \
+    mv prisma/compiled/seed.js prisma/seed.js 2>/dev/null || echo "seed compile skipped"
 
 # Production image
 FROM base AS runner
