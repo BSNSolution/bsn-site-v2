@@ -49,8 +49,8 @@ ENV NODE_ENV=production
 ENV PORT=3001
 
 # Health check
-HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=5 \
-  CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+HEALTHCHECK --interval=10s --timeout=5s --start-period=40s --retries=5 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
 
 # Start the server
 CMD ["/app/docker-entrypoint.sh"]
