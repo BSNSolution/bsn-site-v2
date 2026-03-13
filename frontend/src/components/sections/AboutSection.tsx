@@ -4,7 +4,6 @@ import { ArrowRight, Target, Users, Zap, Award } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useScrollAnimation, useStaggeredAnimation } from '@/hooks/use-scroll-animation'
-import { useMagneticEffect } from '@/hooks/use-cursor'
 import { useAnalytics } from '@/hooks/use-analytics'
 import { useRef } from 'react'
 
@@ -45,7 +44,6 @@ export default function AboutSection() {
   const { trackButtonClick } = useAnalytics()
   
   const ctaRef = useRef<HTMLAnchorElement>(null)
-  useMagneticEffect(ctaRef, 0.2)
 
   return (
     <section ref={ref} className="section-spacing relative overflow-hidden">

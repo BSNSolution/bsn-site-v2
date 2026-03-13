@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useScrollDirection } from '@/hooks/use-scroll-animation'
-import { useMagneticEffect } from '@/hooks/use-cursor'
 import { cn } from '@/lib/utils'
 import { useRef } from 'react'
 
@@ -23,14 +22,10 @@ const navLinks: NavLink[] = [
   { href: '/contato', label: 'Contato' },
 ]
 
-// Logo component with magnetic effect
+// Logo component
 function Logo() {
-  const logoRef = useRef<HTMLAnchorElement>(null)
-  useMagneticEffect(logoRef, 0.2)
-
   return (
     <Link
-      ref={logoRef}
       to="/"
       className="flex items-center gap-2 group transition-all duration-300"
     >
@@ -163,10 +158,8 @@ function DesktopNav() {
                 
                 {/* Active indicator */}
                 {isActive && (
-                  <motion.div
-                    layoutId="activeTab"
+                  <div
                     className="absolute inset-0 bg-white/10 border border-white/20 rounded-lg -z-10"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
               </Link>
@@ -183,11 +176,9 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const { scrollDirection, scrollY } = useScrollDirection()
-  const ctaRef = useRef<HTMLDivElement>(null)
+  const ctaRef = useRef<HTMLDivElement>(null) // kept ref for potential future use
 
   // Magnetic effect on CTA button
-  useMagneticEffect(ctaRef, 0.3)
-
   // Handle scroll state
   useEffect(() => {
     const handleScroll = () => {

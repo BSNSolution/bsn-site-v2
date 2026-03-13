@@ -8,7 +8,7 @@ import '@/styles/globals.css'
 
 // Components
 import App from './App'
-import { CustomCursor } from '@/hooks/use-cursor'
+// CustomCursor removed - was causing mouse lag
 import { AnalyticsProvider } from '@/hooks/use-analytics'
 import { Toaster } from 'sonner'
 
@@ -178,7 +178,7 @@ root.render(
         <BrowserRouter>
           <AnalyticsProvider>
             <App />
-            <CustomCursor />
+            {/* CustomCursor removed - causava lag no mouse */}
             <Toaster 
               theme="dark"
               position="top-right"

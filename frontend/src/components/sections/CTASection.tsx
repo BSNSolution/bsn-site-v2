@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Rocket } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
-import { useMagneticEffect } from '@/hooks/use-cursor'
 import { useRef } from 'react'
 
 export default function CTASection() {
@@ -13,7 +12,6 @@ export default function CTASection() {
   })
 
   const ctaRef = useRef<HTMLAnchorElement>(null)
-  useMagneticEffect(ctaRef, 0.3)
 
   return (
     <section ref={ref} className="section-spacing relative overflow-hidden">

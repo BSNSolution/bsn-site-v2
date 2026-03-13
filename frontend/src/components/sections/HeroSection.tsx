@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useScrollAnimation, useTextReveal, useCounterAnimation } from '@/hooks/use-scroll-animation'
-import { useMagneticEffect, useCursorText } from '@/hooks/use-cursor'
 import { useAnalytics } from '@/hooks/use-analytics'
 import { cn } from '@/lib/utils'
 
@@ -133,13 +132,10 @@ export default function HeroSection() {
   const ctaSecondaryRef = useRef<HTMLAnchorElement>(null)
   const videoRef = useRef<HTMLDivElement>(null)
   
-  useMagneticEffect(ctaPrimaryRef, 0.3)
-  useMagneticEffect(ctaSecondaryRef, 0.2)
-  useMagneticEffect(videoRef, 0.1)
 
   // Cursor text effects
-  const watchDemoProps = useCursorText('▶ Assistir')
-  const contactProps = useCursorText('📧 Contatar')
+  const watchDemoProps = {}
+  const contactProps = {}
 
   // Text reveal animation
   const { revealedText: titleText, isComplete } = useTextReveal(

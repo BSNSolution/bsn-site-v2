@@ -11,7 +11,6 @@ import {
   ExternalLink
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useMagneticEffect } from '@/hooks/use-cursor'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { cn } from '@/lib/utils'
 import { useRef } from 'react'
@@ -159,7 +158,6 @@ function SocialLinks() {
       <div className="flex items-center gap-3">
         {socialLinks.map((social, index) => {
           const buttonRef = useRef<HTMLAnchorElement>(null)
-          useMagneticEffect(buttonRef, 0.3)
           
           return (
             <motion.a
@@ -233,7 +231,6 @@ function NewsletterSignup() {
   })
 
   const submitRef = useRef<HTMLButtonElement>(null)
-  useMagneticEffect(submitRef, 0.2)
 
   return (
     <motion.div
@@ -276,7 +273,6 @@ export default function Footer() {
   })
 
   const backToTopRef = useRef<HTMLButtonElement>(null)
-  useMagneticEffect(backToTopRef, 0.3)
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
