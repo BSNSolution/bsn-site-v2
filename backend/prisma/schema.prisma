@@ -1,0 +1,339 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Usuários admin
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(ADMIN)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  blogPosts  BlogPost[]
+  messageReplies MessageReply[]
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+// Configurações do site
+model SiteSettings {
+  id              String  @id @default(uuid())
+  siteName        String  @default("BSN Solution")
+  siteDescription String?
+  logoUrl         String?
+  faviconUrl      String?
+  email           String?
+  phone           String?
+  address         String?
+  
+  // Redes sociais
+  facebookUrl     String?
+  instagramUrl    String?
+  linkedinUrl     String?
+  twitterUrl      String?
+  youtubeUrl      String?
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  
+  // Configurações gerais
+  maintenanceMode Boolean @default(false)
+  allowContactForm Boolean @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+// Seções da página home
+model HomeSection {
+  id          String      @id @default(uuid())
+  type        SectionType
+  title       String?
+  subtitle    String?
+  content     String?
+  imageUrl    String?
+  ctaText     String?
+  ctaUrl      String?
+  isVisible   Boolean     @default(true)
+  order       Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("home_sections")
+}
+
+enum SectionType {
+  HERO
+  ABOUT
+  SERVICES_PREVIEW
+  SOLUTIONS_PREVIEW
+  TESTIMONIALS_PREVIEW
+  CALL_TO_ACTION
+  STATS
+}
+
+// Serviços
+model Service {
+  id          String   @id @default(uuid())
+  title       String
+  subtitle    String?
+  description String
+  content     String?
+  imageUrl    String?
+  iconName    String?
+  isActive    Boolean  @default(true)
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("services")
+}
+
+// Soluções/Portfólio
+model Solution {
+  id          String   @id @default(uuid())
+  title       String
+  subtitle    String?
+  description String
+  content     String?
+  imageUrl    String?
+  technologies String[] // Array de tecnologias usadas
+  projectUrl  String?
+  githubUrl   String?
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("solutions")
+}
+
+// Depoimentos
+model Testimonial {
+  id         String   @id @default(uuid())
+  clientName String
+  clientRole String?
+  company    String?
+  content    String
+  rating     Int      @default(5)
+  avatarUrl  String?
+  isActive   Boolean  @default(true)
+  order      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+// Blog
+model BlogPost {
+  id          String       @id @default(uuid())
+  title       String
+  slug        String       @unique
+  excerpt     String?
+  content     String
+  coverImage  String?
+  tags        String[]
+  isPublished Boolean      @default(false)
+  isFeatured  Boolean      @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relacionamentos
+  authorId    String
+  author      User         @relation(fields: [authorId], references: [id])
+
+  @@map("blog_posts")
+}
+
+// Equipe
+model TeamMember {
+  id          String   @id @default(uuid())
+  name        String
+  role        String
+  bio         String?
+  imageUrl    String?
+  email       String?
+  linkedinUrl String?
+  twitterUrl  String?
+  githubUrl   String?
+  isActive    Boolean  @default(true)
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("team_members")
+}
+
+// Clientes (logos)
+model Client {
+  id        String   @id @default(uuid())
+  name      String
+  logoUrl   String
+  websiteUrl String?
+  isActive  Boolean  @default(true)
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("clients")
+}
+
+// Vagas
+model Job {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  requirements String?
+  benefits    String?
+  location    String?
+  type        JobType  @default(FULL_TIME)
+  salary      String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamentos
+  applications JobApplication[]
+
+  @@map("jobs")
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
+// Candidaturas
+model JobApplication {
+  id       String   @id @default(uuid())
+  name     String
+  email    String
+  phone    String?
+  message  String?
+  resumeUrl String?
+  status   ApplicationStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  jobId    String
+  job      Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@map("job_applications")
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  APPROVED
+  REJECTED
+}
+
+// Mensagens de contato
+model ContactMessage {
+  id        String      @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  status    MessageStatus @default(UNREAD)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  // Relacionamentos
+  replies   MessageReply[]
+
+  @@map("contact_messages")
+}
+
+enum MessageStatus {
+  UNREAD
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+// Respostas às mensagens
+model MessageReply {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  
+  // Relacionamentos
+  messageId String
+  message   ContactMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("message_replies")
+}
+
+// Uploads de imagem
+model UploadedImage {
+  id       String   @id @default(uuid())
+  filename String
+  originalName String?
+  mimeType String
+  size     Int
+  url      String
+  r2Key    String?
+  createdAt DateTime @default(now())
+
+  @@map("uploaded_images")
+}
+
+// Analytics simplificado
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  event     String
+  page      String?
+  userAgent String?
+  ip        String?
+  data      Json?
+  createdAt DateTime @default(now())
+
+  @@map("analytics_events")
+}
+
+// Menu do footer
+model FooterMenu {
+  id        String      @id @default(uuid())
+  title     String
+  url       String?
+  order     Int
+  isActive  Boolean     @default(true)
+  parentId  String?
+  parent    FooterMenu? @relation("FooterMenuHierarchy", fields: [parentId], references: [id])
+  children  FooterMenu[] @relation("FooterMenuHierarchy")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("footer_menus")
+}
