@@ -20,6 +20,9 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
+# Install OpenSSL 1.1 compat (required by Prisma engine on Alpine)
+RUN apk add --no-cache openssl1.1-compat 2>/dev/null || apk add --no-cache openssl
+
 # Create app user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 fastify
