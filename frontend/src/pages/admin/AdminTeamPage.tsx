@@ -73,9 +73,9 @@ export default function AdminTeamPage() {
   const loadTeam = async () => {
     try {
       setIsLoading(true)
-      const response = await teamApi.admin.getTeam()
-      if (response.data) {
-        setTeam(response.data)
+      const data = await teamApi.admin.getTeam()
+      if (data) {
+        setTeam(data.team || [])
       }
     } catch (error) {
       console.error('Error loading team:', error)

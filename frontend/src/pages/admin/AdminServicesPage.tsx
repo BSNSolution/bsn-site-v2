@@ -64,9 +64,9 @@ export default function AdminServicesPage() {
   const loadServices = async () => {
     try {
       setIsLoading(true)
-      const response = await servicesApi.admin.getServices()
-      if (response.data) {
-        setServices(response.data.sort((a: Service, b: Service) => a.order - b.order))
+      const data = await servicesApi.admin.getServices()
+      if (data) {
+        setServices((data.services || []).sort((a: Service, b: Service) => a.order - b.order))
       }
     } catch (error) {
       console.error('Error loading services:', error)

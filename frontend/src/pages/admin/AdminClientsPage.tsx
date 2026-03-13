@@ -14,9 +14,9 @@ export default function AdminClientsPage() {
   const loadClients = async () => {
     try {
       setIsLoading(true)
-      const response = await clientsApi.admin.getClients()
-      if (response.data) {
-        setClients(response.data)
+      const data = await clientsApi.admin.getClients()
+      if (data) {
+        setClients(data.clients || [])
       }
     } catch (error) {
       console.error('Error loading clients:', error)

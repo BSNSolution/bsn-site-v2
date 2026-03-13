@@ -138,23 +138,23 @@ export default function DashboardPage() {
           analyticsApi.admin.getRecent().catch(() => ({ data: [] })) // Fallback if no analytics
         ])
 
-        // Extract counts from responses
+        // Extract counts from responses (api functions return response.data directly)
         const newStats: DashboardStats = {
-          services: servicesRes.status === 'fulfilled' ? servicesRes.value.data?.length || 0 : 0,
-          solutions: solutionsRes.status === 'fulfilled' ? solutionsRes.value.data?.length || 0 : 0,
-          team: teamRes.status === 'fulfilled' ? teamRes.value.data?.length || 0 : 0,
-          blog: blogRes.status === 'fulfilled' ? blogRes.value.data?.pagination?.total || 0 : 0,
-          inbox: inboxRes.status === 'fulfilled' ? inboxRes.value.data?.pagination?.total || 0 : 0,
-          testimonials: testimonialsRes.status === 'fulfilled' ? testimonialsRes.value.data?.length || 0 : 0,
-          clients: clientsRes.status === 'fulfilled' ? clientsRes.value.data?.length || 0 : 0,
-          jobs: jobsRes.status === 'fulfilled' ? jobsRes.value.data?.length || 0 : 0
+          services: servicesRes.status === 'fulfilled' ? (servicesRes.value?.services?.length || 0) : 0,
+          solutions: solutionsRes.status === 'fulfilled' ? (solutionsRes.value?.solutions?.length || 0) : 0,
+          team: teamRes.status === 'fulfilled' ? (teamRes.value?.team?.length || 0) : 0,
+          blog: blogRes.status === 'fulfilled' ? (blogRes.value?.pagination?.total || blogRes.value?.posts?.length || 0) : 0,
+          inbox: inboxRes.status === 'fulfilled' ? (inboxRes.value?.pagination?.total || inboxRes.value?.messages?.length || 0) : 0,
+          testimonials: testimonialsRes.status === 'fulfilled' ? (testimonialsRes.value?.testimonials?.length || 0) : 0,
+          clients: clientsRes.status === 'fulfilled' ? (clientsRes.value?.clients?.length || 0) : 0,
+          jobs: jobsRes.status === 'fulfilled' ? (jobsRes.value?.jobs?.length || 0) : 0
         }
 
         setStats(newStats)
 
         // Process recent activity
-        if (activityRes.status === 'fulfilled' && activityRes.value.data) {
-          setRecentActivity(activityRes.value.data)
+        if (activityRes.status === 'fulfilled' && activityRes.value) {
+          setRecentActivity(activityRes.value.data || activityRes.value || [])
         }
 
       } catch (error) {

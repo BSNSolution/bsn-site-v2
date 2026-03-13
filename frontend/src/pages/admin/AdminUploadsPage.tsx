@@ -17,9 +17,9 @@ export default function AdminUploadsPage() {
   const loadUploads = async () => {
     try {
       setIsLoading(true)
-      const response = await uploadApi.admin.getUploads()
-      if (response.data) {
-        setUploads(response.data.data || response.data)
+      const data = await uploadApi.admin.getUploads()
+      if (data) {
+        setUploads(data.uploads || data.data || data || [])
       }
     } catch (error) {
       console.error('Error loading uploads:', error)
@@ -30,9 +30,9 @@ export default function AdminUploadsPage() {
 
   const loadStats = async () => {
     try {
-      const response = await uploadApi.admin.getStats()
-      if (response.data) {
-        setStats(response.data)
+      const statsData = await uploadApi.admin.getStats()
+      if (statsData) {
+        setStats(statsData)
       }
     } catch (error) {
       console.error('Error loading stats:', error)

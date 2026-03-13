@@ -15,9 +15,9 @@ export default function AdminInboxPage() {
   const loadMessages = async () => {
     try {
       setIsLoading(true)
-      const response = await inboxApi.admin.getMessages()
-      if (response.data) {
-        setMessages(response.data.data || response.data)
+      const data = await inboxApi.admin.getMessages()
+      if (data) {
+        setMessages(data.messages || [])
       }
     } catch (error) {
       console.error('Error loading messages:', error)

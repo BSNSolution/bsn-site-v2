@@ -18,11 +18,11 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const response = await authApi.login(email, password)
+      const data = await authApi.login(email, password)
       
-      // Store token
-      if (response.data?.token) {
-        localStorage.setItem('bsn-auth-token', response.data.token)
+      // Store token (authApi.login returns {token, user} directly)
+      if (data?.token) {
+        localStorage.setItem('bsn-auth-token', data.token)
         // Redirect to admin dashboard
         navigate('/admin')
       } else {

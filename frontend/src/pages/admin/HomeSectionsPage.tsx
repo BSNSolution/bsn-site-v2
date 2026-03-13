@@ -65,9 +65,9 @@ export default function HomeSectionsPage() {
   const loadSections = async () => {
     try {
       setIsLoading(true)
-      const response = await homeApi.admin.getSections()
-      if (response.data) {
-        setSections(response.data.sort((a: HomeSection, b: HomeSection) => a.order - b.order))
+      const data = await homeApi.admin.getSections()
+      if (data) {
+        setSections((data.sections || []).sort((a: HomeSection, b: HomeSection) => a.order - b.order))
       }
     } catch (error) {
       console.error('Error loading sections:', error)

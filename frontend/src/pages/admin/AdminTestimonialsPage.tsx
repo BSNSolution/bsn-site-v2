@@ -59,9 +59,9 @@ export default function AdminTestimonialsPage() {
   const loadTestimonials = async () => {
     try {
       setIsLoading(true)
-      const response = await testimonialsApi.admin.getTestimonials()
-      if (response.data) {
-        setTestimonials(response.data)
+      const data = await testimonialsApi.admin.getTestimonials()
+      if (data) {
+        setTestimonials(data.testimonials || [])
       }
     } catch (error) {
       console.error('Error loading testimonials:', error)

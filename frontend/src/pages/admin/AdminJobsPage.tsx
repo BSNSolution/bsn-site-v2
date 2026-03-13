@@ -14,9 +14,9 @@ export default function AdminJobsPage() {
   const loadJobs = async () => {
     try {
       setIsLoading(true)
-      const response = await jobsApi.admin.getJobs()
-      if (response.data) {
-        setJobs(response.data)
+      const data = await jobsApi.admin.getJobs()
+      if (data) {
+        setJobs(data.jobs || [])
       }
     } catch (error) {
       console.error('Error loading jobs:', error)

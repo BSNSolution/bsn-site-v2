@@ -67,9 +67,9 @@ export default function AdminLayout() {
           throw new Error('No token found')
         }
 
-        const response = await authApi.me()
-        if (response.data) {
-          setUser(response.data)
+        const userData = await authApi.me()
+        if (userData) {
+          setUser(userData)
         } else {
           throw new Error('Invalid user data')
         }

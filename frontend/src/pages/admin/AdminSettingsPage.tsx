@@ -15,9 +15,9 @@ export default function AdminSettingsPage() {
   const loadSettings = async () => {
     try {
       setIsLoading(true)
-      const response = await settingsApi.admin.getSettings()
-      if (response.data) {
-        setSettings(response.data)
+      const data = await settingsApi.admin.getSettings()
+      if (data) {
+        setSettings(data)
       }
     } catch (error) {
       console.error('Error loading settings:', error)

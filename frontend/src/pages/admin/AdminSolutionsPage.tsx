@@ -83,9 +83,9 @@ export default function AdminSolutionsPage() {
   const loadSolutions = async () => {
     try {
       setIsLoading(true)
-      const response = await solutionsApi.admin.getSolutions()
-      if (response.data) {
-        setSolutions(response.data)
+      const data = await solutionsApi.admin.getSolutions()
+      if (data) {
+        setSolutions(data.solutions || [])
       }
     } catch (error) {
       console.error('Error loading solutions:', error)

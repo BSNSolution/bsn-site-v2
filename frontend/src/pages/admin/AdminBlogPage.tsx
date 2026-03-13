@@ -14,9 +14,9 @@ export default function AdminBlogPage() {
   const loadPosts = async () => {
     try {
       setIsLoading(true)
-      const response = await blogApi.admin.getPosts()
-      if (response.data) {
-        setPosts(response.data.data || response.data)
+      const data = await blogApi.admin.getPosts()
+      if (data) {
+        setPosts(data.posts || [])
       }
     } catch (error) {
       console.error('Error loading posts:', error)
