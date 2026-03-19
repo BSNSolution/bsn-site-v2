@@ -53,7 +53,7 @@ export default function AboutSection() {
       </div>
 
       <div className="container-custom relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
           {/* Left side - Content */}
           <div className="lg:col-span-6 space-y-8">
             <motion.div
@@ -155,7 +155,7 @@ export default function AboutSection() {
           initial={{ opacity: 0, y: 50 }}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
           transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
-          className="mt-20 pt-16 border-t border-white/10"
+          className="mt-12 pt-8 md:mt-20 md:pt-16 border-t border-white/10"
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[

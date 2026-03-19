@@ -147,7 +147,7 @@ export default function HeroSection() {
   return (
     <section
       ref={ref}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-[80vh] lg:min-h-screen flex items-center justify-center overflow-hidden"
     >
       {/* Animated background */}
       <AnimatedGrid />
@@ -158,7 +158,7 @@ export default function HeroSection() {
         className="relative z-10 w-full"
       >
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[80vh]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center lg:min-h-[80vh]">
             {/* Left side - Main content */}
             <div className="lg:col-span-7 space-y-8">
               {/* Badge */}
