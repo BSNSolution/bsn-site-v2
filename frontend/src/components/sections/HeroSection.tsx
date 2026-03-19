@@ -284,22 +284,22 @@ export default function HeroSection() {
                 {/* Main glass card */}
                 <Card
                   variant="glass"
-                  className="relative p-8 backdrop-blur-2xl bg-white/[0.02] border-white/20 hover:bg-white/[0.05] transition-all duration-500"
+                  className="relative p-6 sm:p-8 backdrop-blur-2xl bg-white/[0.02] border-white/20 hover:bg-white/[0.05] transition-all duration-500"
                 >
-                  {/* Floating elements */}
-                  <FloatingElement delay={0} amplitude={15} className="-top-4 -right-4 z-10">
+                  {/* Floating elements - hidden on mobile to avoid overlap */}
+                  <FloatingElement delay={0} amplitude={15} className="-top-4 -right-4 z-10 hidden sm:block">
                     <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-glow">
                       <Code className="h-8 w-8 text-white" />
                     </div>
                   </FloatingElement>
 
-                  <FloatingElement delay={1} amplitude={20} className="top-1/3 -left-6 z-10">
+                  <FloatingElement delay={1} amplitude={20} className="top-1/3 -left-6 z-10 hidden sm:block">
                     <div className="w-12 h-12 bg-gradient-to-br from-accent to-primary rounded-xl flex items-center justify-center shadow-glow-lg">
                       <Zap className="h-6 w-6 text-white" />
                     </div>
                   </FloatingElement>
 
-                  <FloatingElement delay={2} amplitude={25} className="-bottom-6 right-8 z-10">
+                  <FloatingElement delay={2} amplitude={25} className="-bottom-6 right-8 z-10 hidden sm:block">
                     <div className="w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-glow">
                       <Rocket className="h-7 w-7 text-white" />
                     </div>
@@ -344,7 +344,7 @@ export default function HeroSection() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={shouldAnimate ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.8, delay: 1 }}
-                  className="absolute -bottom-8 -left-8 w-32 h-20 bg-black/80 backdrop-blur-xl rounded-xl border border-white/20 flex items-center justify-center cursor-pointer group hover:scale-105 transition-all duration-300"
+                  className="absolute -bottom-8 -left-8 w-32 h-20 bg-black/80 backdrop-blur-xl rounded-xl border border-white/20 hidden sm:flex items-center justify-center cursor-pointer group hover:scale-105 transition-all duration-300"
                   onClick={() => {
                     trackEvent('video_preview_click', { location: 'hero' })
                     // TODO: Open video modal
@@ -360,12 +360,12 @@ export default function HeroSection() {
         </div>
       </motion.div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator - hidden on mobile to avoid overlap */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ duration: 0.8, delay: 1.2 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden md:block"
       >
         <div className="flex flex-col items-center gap-2 text-muted-foreground">
           <span className="text-xs">Scroll para descobrir</span>
