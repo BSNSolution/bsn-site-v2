@@ -296,17 +296,13 @@ export default function Footer() {
           <div className="lg:col-span-2 space-y-6">
             <div className="space-y-4">
               {/* Logo */}
-              <Link to="/" className="inline-flex items-center gap-3 group">
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center font-display font-bold text-white group-hover:scale-110 transition-transform duration-300">
-                    BSN
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-xl blur-md opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10" />
-                </div>
+              <Link to="/" className="inline-flex items-center gap-4 group">
+                <img
+                  src="/logo-md.png"
+                  alt="BSN Solution"
+                  className="h-12 w-auto group-hover:scale-105 transition-transform duration-300"
+                />
                 <div>
-                  <div className="font-display font-bold text-xl text-foreground">
-                    BSN Solution
-                  </div>
                   <div className="text-sm text-muted-foreground">
                     Tecnologia & Inovação
                   </div>

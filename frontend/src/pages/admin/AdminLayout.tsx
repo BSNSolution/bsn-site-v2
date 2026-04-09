@@ -137,9 +137,11 @@ export default function AdminLayout() {
           {/* Logo / Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             {!sidebarCollapsed && (
-              <h1 className="font-display font-bold gradient-text text-xl">
-                BSN Admin
-              </h1>
+              <img
+                src="/logo-sm.png"
+                alt="BSN Admin"
+                className="h-8 w-auto"
+              />
             )}
             
             {/* Mobile close / Desktop collapse */}

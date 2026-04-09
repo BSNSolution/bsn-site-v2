@@ -51,14 +51,18 @@ export default function LoginPage() {
         <div className="glass-card p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <motion.h1
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-3xl font-display font-bold gradient-text mb-2"
+              className="flex justify-center mb-4"
             >
-              Admin BSN
-            </motion.h1>
+              <img
+                src="/logo-md.png"
+                alt="BSN Solution"
+                className="h-14 w-auto"
+              />
+            </motion.div>
             <p className="text-muted-foreground">
               Acesse o painel administrativo
             </p>

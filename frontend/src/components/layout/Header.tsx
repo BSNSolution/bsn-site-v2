@@ -27,19 +27,13 @@ function Logo() {
   return (
     <Link
       to="/"
-      className="flex items-center gap-2 group transition-all duration-300"
+      className="flex items-center group transition-all duration-300"
     >
-      {/* Logo icon/text */}
-      <div className="relative">
-        <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center font-display font-bold text-white text-sm group-hover:scale-110 transition-transform duration-300">
-          BSN
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-lg blur-md opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10" />
-      </div>
-      
-      <span className="font-display font-semibold text-lg text-foreground hidden sm:block">
-        BSN Solution
-      </span>
+      <img
+        src="/logo-sm.png"
+        alt="BSN Solution"
+        className="h-8 sm:h-9 w-auto group-hover:scale-105 transition-transform duration-300"
+      />
     </Link>
   )
 }

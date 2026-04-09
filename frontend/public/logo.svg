@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 267" fill="none">
+  <defs>
+    <!-- B gradient: pink-orange-red -->
+    <linearGradient id="grad-b1" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#FF6B8A"/>
+      <stop offset="50%" stop-color="#FF4D6D"/>
+      <stop offset="100%" stop-color="#E8364F"/>
+    </linearGradient>
+    <linearGradient id="grad-b2" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#FF8A5C"/>
+      <stop offset="40%" stop-color="#FF6B8A"/>
+      <stop offset="100%" stop-color="#D63384"/>
+    </linearGradient>
+    <!-- S gradient: blue-cyan -->
+    <linearGradient id="grad-s" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#2E86C1"/>
+      <stop offset="50%" stop-color="#2B7CB5"/>
+      <stop offset="100%" stop-color="#5DADE2"/>
+    </linearGradient>
+    <!-- N gradient: purple-blue -->
+    <linearGradient id="grad-n" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8E44AD"/>
+      <stop offset="40%" stop-color="#5B6ABF"/>
+      <stop offset="100%" stop-color="#3498DB"/>
+    </linearGradient>
+    <!-- B loop overlay gradient -->
+    <linearGradient id="grad-b-loop" x1="0.3" y1="0.2" x2="0.7" y2="0.8">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- B letter - dynamic looped shape -->
+  <path d="M45 35 C45 35, 95 28, 105 55 C115 82, 85 105, 55 108 C85 108, 120 118, 118 148 C116 178, 85 195, 45 195 L45 35Z" fill="url(#grad-b2)"/>
+  <!-- B inner loop/swirl -->
+  <path d="M58 58 C58 48, 88 42, 92 62 C96 82, 68 92, 58 88 L58 58Z" fill="url(#grad-b1)" opacity="0.9"/>
+  <path d="M58 120 C58 112, 92 108, 96 128 C100 148, 72 162, 56 158 L58 120Z" fill="url(#grad-b1)" opacity="0.85"/>
+  <!-- B highlight swirl -->
+  <ellipse cx="72" cy="68" rx="12" ry="10" fill="white" opacity="0.25"/>
+
+  <!-- S letter -->
+  <path d="M145 55 C175 30, 225 35, 225 65 C225 88, 195 95, 175 100 C155 105, 138 115, 138 138 C138 165, 165 178, 195 175 C215 173, 232 160, 232 145"
+        stroke="url(#grad-s)" stroke-width="38" stroke-linecap="round" fill="none"/>
+  <!-- S filled version for better rendering -->
+  <path d="M155 48 C175 32, 218 32, 222 60 C226 88, 195 92, 178 98 C160 104, 140 114, 140 140 C140 168, 170 182, 198 178 C218 175, 235 162, 230 140 L230 145 C232 168, 210 188, 185 190 C155 192, 125 175, 125 145 C125 115, 148 105, 168 98 C188 91, 210 85, 208 62 C206 42, 180 40, 162 48 Z" fill="url(#grad-s)"/>
+
+  <!-- N letter -->
+  <path d="M260 190 L260 50 L315 190 L315 50" stroke="url(#grad-n)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- N filled for cleaner look -->
+  <path d="M244 190 L244 50 C244 42, 258 42, 258 50 L258 138 L300 50 C304 42, 318 42, 318 50 L318 190 C318 198, 304 198, 304 190 L304 102 L262 190 C258 198, 244 198, 244 190Z" fill="url(#grad-n)"/>
+
+  <!-- SOLUTION text -->
+  <text x="200" y="228" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="28" font-weight="400" letter-spacing="8" fill="#2B7CB5">SOLUTION</text>
+</svg>

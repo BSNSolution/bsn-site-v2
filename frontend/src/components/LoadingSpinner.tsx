@@ -200,9 +200,11 @@ export function PageLoading({ message = 'Carregando...' }: { message?: string })
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-6">
         {/* Logo or brand */}
-        <div className="text-2xl font-display font-bold text-primary">
-          BSN Solution
-        </div>
+        <img
+          src="/logo-sm.png"
+          alt="BSN Solution"
+          className="h-10 w-auto"
+        />
         
         {/* Loading animation */}
         <LoadingSpinner size="lg" variant="dots" />
