@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { solutionsApi } from '@/lib/api'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface Solution {
   id: string
@@ -198,14 +199,8 @@ Autoatendimento integrado ao ERP" className="w-full mt-1 px-3 py-2 bg-black/40 b
                 <input type="text" value={form.ctaLabel} onChange={(e) => setForm({ ...form, ctaLabel: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
               </div>
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
-                  Ativo
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} />
-                  Em destaque
-                </label>
+                <Checkbox label="Ativo" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
+                <Checkbox label="Em destaque" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} />
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-xs text-muted-foreground">Ordem:</span>
                   <input type="number" value={form.order ?? ''} onChange={(e) => setForm({ ...form, order: e.target.value ? Number(e.target.value) : undefined })} className="w-20 px-2 py-1 bg-black/40 border border-white/10 rounded" />

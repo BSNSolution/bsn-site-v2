@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { jobsApi } from '@/lib/api'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface Job {
   id: string
@@ -193,10 +194,7 @@ export default function AdminJobsPage() {
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
-                  Ativo
-                </label>
+                <Checkbox label="Ativo" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-xs text-muted-foreground">Ordem:</span>
                   <input type="number" value={form.order ?? ''} onChange={(e) => setForm({ ...form, order: e.target.value ? Number(e.target.value) : undefined })} className="w-20 px-2 py-1 bg-black/40 border border-white/10 rounded" />

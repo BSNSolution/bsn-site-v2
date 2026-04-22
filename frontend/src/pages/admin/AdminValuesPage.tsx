@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { api } from '@/lib/api'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface Value {
   id: string
@@ -179,10 +180,7 @@ export default function AdminValuesPage() {
                   className="w-full mt-1 px-3 py-2 bg-background border border-border rounded"
                 />
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
-                Ativo
-              </label>
+              <Checkbox label="Ativo" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 hover:bg-muted rounded">
                   Cancelar

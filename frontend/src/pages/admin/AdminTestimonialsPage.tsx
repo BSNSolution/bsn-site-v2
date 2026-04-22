@@ -1,6 +1,8 @@
 import { useState, useEffect, FormEvent } from 'react'
-import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, Star } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { testimonialsApi } from '@/lib/api'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Rating } from '@/components/ui/rating'
 
 interface Testimonial {
   id: string
@@ -120,9 +122,7 @@ export default function AdminTestimonialsPage() {
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-medium">{t.clientName}</h3>
                   {t.company && <span className="text-xs text-muted-foreground">· {t.company}</span>}
-                  <div className="flex items-center gap-0.5">
-                    {Array.from({ length: t.rating }).map((_, i) => <Star key={i} className="h-3 w-3 text-amber-400 fill-amber-400" />)}
-                  </div>
+                  <Rating value={t.rating} readOnly size="sm" />
                   {!t.isActive && <span className="text-xs px-2 py-0.5 rounded bg-white/10">Inativo</span>}
                 </div>
                 {t.clientRole && <div className="text-xs text-muted-foreground">{t.clientRole}</div>}
@@ -166,10 +166,12 @@ export default function AdminTestimonialsPage() {
                 <label className="text-xs text-muted-foreground">Depoimento</label>
                 <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={3} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 items-end">
                 <div>
-                  <label className="text-xs text-muted-foreground">Rating (1-5)</label>
-                  <input type="number" min={1} max={5} value={form.rating} onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+                  <label className="text-xs text-muted-foreground">Rating</label>
+                  <div className="mt-2">
+                    <Rating value={form.rating} onChange={(v) => setForm({ ...form, rating: v })} size="lg" />
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">Ordem</label>
@@ -180,10 +182,7 @@ export default function AdminTestimonialsPage() {
                 <label className="text-xs text-muted-foreground">Avatar URL (opcional)</label>
                 <input type="url" value={form.avatarUrl} onChange={(e) => setForm({ ...form, avatarUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
-                Ativo
-              </label>
+              <Checkbox label="Ativo" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 hover:bg-white/10 rounded">Cancelar</button>
                 <button type="submit" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded"><Save className="h-4 w-4" /> Salvar</button>

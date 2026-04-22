@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Save } from 'lucide-react'
 import { homeExtrasApi } from '@/lib/api'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface Band {
   id?: string
@@ -79,10 +80,7 @@ export default function AdminHomeBandPage() {
           <label className="text-xs text-muted-foreground">Subtítulo mono (ao lado do CTA)</label>
           <input type="text" value={form.mono} onChange={(e) => setForm({ ...form, mono: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
-          Visível no site
-        </label>
+        <Checkbox label="Visível no site" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
         <button type="submit" disabled={saving} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded hover:opacity-90">
           <Save className="h-4 w-4" /> {saving ? 'Salvando...' : 'Salvar'}
         </button>

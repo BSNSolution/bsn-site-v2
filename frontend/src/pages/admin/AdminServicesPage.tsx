@@ -1,6 +1,8 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { servicesApi } from '@/lib/api'
+import { Checkbox } from '@/components/ui/checkbox'
+import { IconPicker } from '@/components/ui/icon-picker'
 
 interface Feature {
   title: string
@@ -42,7 +44,6 @@ interface FormData {
   order?: number
 }
 
-const ICON_OPTIONS = ['code', 'squad', 'auto', 'box', 'server', 'support', 'build']
 const SHARD_OPTIONS = ['v', 'c', 'm', 'a', 'e']
 const TILE_OPTIONS = ['t1', 't2', 't3', 't4', 't5', 't6', 't7']
 
@@ -234,9 +235,9 @@ export default function AdminServicesPage() {
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground">Ícone</label>
-                  <select value={form.iconName} onChange={(e) => setForm({ ...form, iconName: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
-                    {ICON_OPTIONS.map((i) => <option key={i} value={i}>{i}</option>)}
-                  </select>
+                  <div className="mt-1">
+                    <IconPicker value={form.iconName} onChange={(name) => setForm({ ...form, iconName: name })} />
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">Shard color</label>
@@ -289,11 +290,8 @@ export default function AdminServicesPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
-                  Ativo
-                </label>
+              <div className="flex items-center gap-4 flex-wrap">
+                <Checkbox label="Ativo" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-xs text-muted-foreground">Ordem:</span>
                   <input type="number" value={form.order ?? ''} onChange={(e) => setForm({ ...form, order: e.target.value ? Number(e.target.value) : undefined })} className="w-20 px-2 py-1 bg-black/40 border border-white/10 rounded" />

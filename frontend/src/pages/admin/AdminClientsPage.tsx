@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, ExternalLink } from 'lucide-react'
 import { clientsApi } from '@/lib/api'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface Client {
   id: string
@@ -137,10 +138,7 @@ export default function AdminClientsPage() {
                 <input type="url" value={form.websiteUrl} onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
               </div>
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
-                  Ativo
-                </label>
+                <Checkbox label="Ativo" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-xs text-muted-foreground">Ordem:</span>
                   <input type="number" value={form.order ?? ''} onChange={(e) => setForm({ ...form, order: e.target.value ? Number(e.target.value) : undefined })} className="w-20 px-2 py-1 bg-black/40 border border-white/10 rounded" />
