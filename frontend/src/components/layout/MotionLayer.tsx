@@ -93,8 +93,10 @@ export default function MotionLayer() {
     // 3) IntersectionObserver reveal — re-observado a cada run()
     document.querySelectorAll('[data-reveal], .h-accent').forEach((el) => io.observe(el))
 
-    // 4) Cursor spotlight nos cards
-    const spotTargets = '.glass, .tile, .node, .svc, .sol, .feat-card, .post, .person, .val, .job, .perk, .chan, .form-card, .doc, .clients-card, .process-step, .timeline-card'
+    // 4) Cursor spotlight nos cards (apenas cards-item, não containers/wrappers)
+    // Evita: .nav-inner.glass, .card-live, .card-pill, .band-inner, .feat-card (é seção),
+    // .mobile-sheet, e qualquer container que ocupe largura de seção
+    const spotTargets = '.tile, .node, .svc, .sol, .post, .person, .val, .job, .perk, .chan, .clients-card, .process-step, .timeline-card'
 
     if (pointerFine) {
       document.querySelectorAll(spotTargets).forEach((el) => {
@@ -227,7 +229,7 @@ export default function MotionLayer() {
       })
       if (pointerFine) {
         document.querySelectorAll(spotTargets).forEach((el) => {
-          if (el.closest('.nav-inner') || (el as HTMLElement).classList.contains('nav-inner')) return
+          if (el.closest('.nav-inner, .mobile-sheet, .band-inner, .bsn-footer')) return
           if (!el.querySelector(':scope > .bsn-spot')) {
             const spot = document.createElement('i')
             spot.className = 'bsn-spot'
