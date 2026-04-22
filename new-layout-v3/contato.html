@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Contato — BSN Solution</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/shared.css?v=3"/>
+<link rel="stylesheet" href="assets/motion.css?v=3">
+<script src="assets/bsn-bootstrap.js"></script>
+<style>
+  .hero-s{padding:80px 0 20px}
+  .hero-s h1{font-family:'Inter';font-weight:500;font-size:clamp(52px,7vw,104px);line-height:.96;letter-spacing:-.05em}
+  .hero-s h1 em{font-style:italic;font-weight:400;background:linear-gradient(110deg,var(--magenta),var(--violet),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero-s p{margin-top:24px;max-width:600px;font-size:17px;color:var(--ink-dim)}
+
+  .contact-wrap{padding:60px 0 80px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .channels{padding:40px;position:relative;overflow:hidden}
+  .channels .shard{position:absolute;width:400px;height:400px;border-radius:50%;filter:blur(90px);background:var(--violet);opacity:.4;top:-100px;left:-100px;pointer-events:none}
+  .channels .mono{margin-bottom:14px}
+  .chan-list{margin-top:32px;display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+  .chan{display:flex;justify-content:space-between;align-items:center;padding:20px 22px;background:rgba(10,10,18,.4);transition:.2s;cursor:pointer}
+  .chan:hover{background:rgba(255,255,255,.05)}
+  .chan .l{font-size:11px;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase}
+  .chan .v{font-size:16px;margin-top:4px}
+  .chan .arr{color:var(--ink-faint)}
+  .channels h2{font-family:'Inter';font-weight:500;font-size:clamp(30px,4vw,48px);line-height:1.05;letter-spacing:-.035em;position:relative}
+  .channels h2 em{font-style:italic;font-weight:400;color:var(--ink-dim)}
+  .channels .lede{margin-top:18px;font-size:15px;color:var(--ink-dim);line-height:1.55;max-width:440px;position:relative}
+
+  .form-card{padding:40px;position:relative;overflow:hidden}
+  .form-card .shard{position:absolute;width:400px;height:400px;border-radius:50%;filter:blur(90px);background:var(--cyan);opacity:.35;bottom:-120px;right:-100px;pointer-events:none}
+  .form{display:flex;flex-direction:column;gap:14px;position:relative;z-index:1}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:.14em;color:var(--ink-faint);text-transform:uppercase}
+  .field input,.field textarea,.field select{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:12px;padding:14px 16px;color:var(--ink);font-family:inherit;font-size:15px;outline:none;transition:.2s}
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:rgba(122,91,255,.6);background:rgba(122,91,255,.05)}
+  .field textarea{min-height:120px;resize:vertical}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+  .chip{padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:13px;cursor:pointer;background:rgba(255,255,255,.02);transition:.2s;user-select:none}
+  .chip:hover{background:rgba(255,255,255,.06)}
+  .chip.active{background:var(--ink);color:#0a0a12;border-color:var(--ink)}
+  .form .submit{margin-top:8px;align-self:flex-start}
+  .form-status{font-size:12px;color:var(--emerald);min-height:18px;font-family:'JetBrains Mono',monospace;letter-spacing:.08em}
+
+  @media(max-width:900px){.contact-wrap{grid-template-columns:1fr}}
+
+  
+  /* BSN-MOBILE-TWEAKS */
+  @media(max-width:640px){.hero-s{padding:40px 0 10px}.contact-wrap{padding:40px 0 60px}.channels,.form-card{padding:24px}.channels h2{font-size:28px}.chan{padding:16px 18px}}
+  /* /BSN-MOBILE-TWEAKS */
+
+  /* ======== SHARED FOOTER ======== */
+  .bsn-footer{margin-top:100px;padding:56px 0 32px;position:relative;border-top:1px solid var(--line)}
+  .bsn-footer .top{display:grid;grid-template-columns:1.4fr .9fr .9fr .9fr;gap:60px;padding-bottom:44px;border-bottom:1px solid var(--line)}
+  .bsn-footer .brand-col .logo-row{display:flex;align-items:center;gap:14px}
+  .bsn-footer .brand-col .logo-row img{height:40px;width:auto;display:block}
+  .bsn-footer .brand-col .logo-row .tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--ink-faint);text-transform:uppercase}
+  .bsn-footer .brand-col p{margin-top:18px;color:var(--ink-dim);font-size:14px;line-height:1.6;max-width:380px}
+  .bsn-footer .contact-block{margin-top:28px}
+  .bsn-footer .contact-block h4,.bsn-footer .link-col h4,.bsn-footer .news h4{font-family:'Inter',sans-serif;font-weight:500;font-size:15px;letter-spacing:-.01em;margin-bottom:16px;color:var(--ink)}
+  .bsn-footer .contact-block ul,.bsn-footer .link-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .bsn-footer .contact-block li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-dim)}
+  .bsn-footer .contact-block .ic{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .bsn-footer .contact-block .ic svg{width:14px;height:14px;stroke:var(--ink-dim);stroke-width:1.8;fill:none}
+  .bsn-footer .link-col a{color:var(--ink-dim);font-size:14px;transition:.2s;text-decoration:none}
+  .bsn-footer .link-col a:hover{color:var(--ink)}
+  .bsn-footer .mid{display:grid;grid-template-columns:1.4fr 1fr;gap:60px;padding:36px 0}
+  .bsn-footer .news h4{font-size:18px;letter-spacing:-.015em;margin-bottom:8px}
+  .bsn-footer .news p{color:var(--ink-dim);font-size:14px;margin-bottom:16px}
+  .bsn-footer .news-form{display:flex;gap:10px;max-width:500px}
+  .bsn-footer .news-form input{flex:1;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:12px;padding:13px 18px;color:var(--ink);font-family:inherit;font-size:14px;outline:none;transition:.2s}
+  .bsn-footer .news-form input:focus{border-color:rgba(122,91,255,.5);background:rgba(122,91,255,.05)}
+  .bsn-footer .news-form button{padding:13px 24px;border-radius:12px;border:none;background:var(--ink);color:#0a0a12;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:.2s;white-space:nowrap}
+  .bsn-footer .news-form button:hover{transform:translateY(-1px)}
+  .bsn-footer .social{display:flex;align-items:center;gap:14px;justify-self:end;align-self:center}
+  .bsn-footer .social .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--ink-faint);text-transform:uppercase}
+  .bsn-footer .social .icons{display:flex;gap:8px}
+  .bsn-footer .social a{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;transition:.2s;color:var(--ink-dim)}
+  .bsn-footer .social a:hover{background:rgba(255,255,255,.09);transform:translateY(-2px);border-color:var(--line-strong);color:var(--ink)}
+  .bsn-footer .social svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8}
+  .bsn-footer .bottom{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:24px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-faint)}
+  .bsn-footer .bottom a{color:var(--ink-faint);transition:.2s;text-decoration:none}
+  .bsn-footer .bottom a:hover{color:var(--ink)}
+  .bsn-footer .totop{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);cursor:pointer;transition:.2s;color:var(--ink-faint)}
+  .bsn-footer .totop:hover{background:rgba(255,255,255,.08);color:var(--ink)}
+  @media (max-width:1024px){
+    .bsn-footer .top{grid-template-columns:1fr 1fr;gap:40px}
+    .bsn-footer .mid{grid-template-columns:1fr;gap:32px}
+    .bsn-footer .social{justify-self:start}
+  }
+  @media (max-width:640px){
+    .bsn-footer{padding:40px 0 24px;margin-top:60px}
+    .bsn-footer .top{grid-template-columns:1fr;gap:32px;padding-bottom:32px}
+    .bsn-footer .news-form{flex-direction:column}
+    .bsn-footer .bottom{flex-direction:column;align-items:flex-start;gap:12px}
+  }
+</style></head>
+<body class="page">
+<div class="bg-glass"></div>
+<div class="page-shards"><div class="shard s1"></div><div class="shard s2"></div><div class="shard s3"></div></div>
+<div class="bg-grid"></div><div class="bg-noise"></div>
+
+<div class="shell nav-shell"><nav class="nav"><div class="nav-inner glass">
+  <a href="index.html" class="brand"><img src="assets/logo.png" alt="BSN" style="height:28px;display:block"/></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a><a href="servicos.html">Serviços</a>
+    <a href="solucoes.html">Soluções</a><a href="sobre.html">Sobre</a>
+    <a href="blog.html">Blog</a><a href="contato.html" class="active">Contato</a>
+  </div>
+  <a href="contato.html" class="nav-cta">Solicitar orçamento <span class="arr">↗</span></a>
+  <button class="nav-burger" aria-label="Abrir menu" onclick="document.body.classList.toggle('menu-open')"><span></span></button>
+</div></nav></div>
+
+<div class="mobile-sheet">
+  <div class="ms-links">
+    <a href="index.html">Home <span>01</span></a>
+    <a href="servicos.html">Serviços <span>02</span></a>
+    <a href="solucoes.html">Soluções <span>03</span></a>
+    <a href="sobre.html">Sobre <span>04</span></a>
+    <a href="blog.html">Blog <span>05</span></a>
+    <a href="contato.html" class="active">Contato <span>06</span></a>
+  </div>
+  <div class="ms-cta">
+    <span class="mono">Vamos conversar</span>
+    <a href="contato.html" class="cta">Solicitar orçamento ↗</a>
+  </div>
+</div>
+
+
+<section class="hero-s shell">
+  <div class="eyebrow mono"><span class="dot"></span><span>Contato · vamos conversar</span></div>
+  <h1>Seu próximo sistema<br/>começa com um <em>diagnóstico</em>.</h1>
+  <p>Conte o desafio. Em até 24 horas úteis, um parceiro da BSN responde com um próximo passo concreto — sem lengalenga comercial.</p>
+</section>
+
+<section class="contact-wrap shell">
+  <div class="channels glass">
+    <div class="shard"></div>
+    <div style="position:relative;z-index:1">
+      <div class="mono">CANAIS DIRETOS</div>
+      <h2>Fale com um <em>parceiro</em>, não com um formulário.</h2>
+      <p class="lede">Qualquer um dos canais abaixo chega no mesmo time que vai construir sua solução. Sem triagem comercial.</p>
+    </div>
+    <div class="chan-list">
+      <div class="chan"><div><div class="l">E-MAIL</div><div class="v">contato@bsnsolution.com.br</div></div><div class="arr">↗</div></div>
+      <div class="chan"><div><div class="l">WHATSAPP</div><div class="v">+55 11 99000-0000</div></div><div class="arr">↗</div></div>
+      <div class="chan"><div><div class="l">LINKEDIN</div><div class="v">/company/bsnsolution</div></div><div class="arr">↗</div></div>
+      <div class="chan"><div><div class="l">ENDEREÇO</div><div class="v">São Paulo · SP · Brasil</div></div><div class="arr">↗</div></div>
+    </div>
+  </div>
+
+  <div class="form-card glass">
+    <div class="shard"></div>
+    <form class="form" onsubmit="return submitForm(event)">
+      <div class="field"><label>Nome</label><input type="text" name="name" placeholder="Seu nome completo" required/></div>
+      <div class="field"><label>E-mail corporativo</label><input type="email" name="email" placeholder="nome@empresa.com.br" required/></div>
+      <div class="field"><label>Empresa</label><input type="text" name="company" placeholder="Nome da empresa"/></div>
+      <div class="field"><label>Tipo de projeto</label>
+        <div class="chips" id="chipGroup">
+          <div class="chip active" data-v="Sob medida">Sob medida</div>
+          <div class="chip" data-v="Squad">Squad</div>
+          <div class="chip" data-v="Automação">Automação</div>
+          <div class="chip" data-v="Consultoria">Consultoria</div>
+          <div class="chip" data-v="Infra">Infra</div>
+        </div>
+      </div>
+      <div class="field"><label>Conte seu desafio</label><textarea name="brief" placeholder="Objetivo, contexto, prazos..." required></textarea></div>
+      <button class="btn btn-primary submit" type="submit">Enviar briefing <span>↗</span></button>
+      <div class="form-status" id="formStatus"></div>
+    </form>
+  </div>
+</section>
+
+
+
+<script>
+  document.querySelectorAll('#chipGroup .chip').forEach(c=>c.addEventListener('click',()=>{
+    document.querySelectorAll('#chipGroup .chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  }));
+  function submitForm(e){
+    e.preventDefault();
+    const s=document.getElementById('formStatus');
+    s.textContent='ENVIANDO...';
+    setTimeout(()=>{s.textContent='✓ BRIEFING RECEBIDO — RETORNAMOS EM 24H';e.target.reset();
+      document.querySelectorAll('#chipGroup .chip').forEach((x,i)=>x.classList.toggle('active',i===0));},700);
+    return false;
+  }
+</script>
+<footer class="bsn-footer">
+  <div class="shell">
+    <div class="top">
+      <div class="brand-col">
+        <div class="logo-row">
+          <img src="assets/logo.png" alt="BSN Solution"/>
+          <span class="tag">Tecnologia &amp; Inovação</span>
+        </div>
+        <p>Transformamos ideias em soluções tecnológicas inovadoras. Especialistas em desenvolvimento sob medida, squads ágeis e consultoria estratégica em TI.</p>
+        <div class="contact-block">
+          <h4>Contato</h4>
+          <ul>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg></span>contato@bsnsolution.com.br</li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><path d="M5 4h3l2 5-2 1a12 12 0 0 0 6 6l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>+55 11 99000-0000</li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 22s7-7.5 7-13a7 7 0 1 0-14 0c0 5.5 7 13 7 13z"/><circle cx="12" cy="9" r="2.5"/></svg></span>São Paulo · SP · Brasil</li>
+          </ul>
+        </div>
+      </div>
+      <div class="link-col">
+        <h4>Serviços</h4>
+        <ul>
+          <li><a href="servicos.html#sob-medida">Desenvolvimento sob medida</a></li>
+          <li><a href="servicos.html#squads">Squads ágeis</a></li>
+          <li><a href="servicos.html#automacao">Automação de processos</a></li>
+          <li><a href="servicos.html#consultoria">Consultoria em tecnologia</a></li>
+          <li><a href="servicos.html#infra">Infraestrutura &amp; VPS</a></li>
+          <li><a href="servicos.html#suporte">Suporte contínuo</a></li>
+          <li><a href="servicos.html#outsourcing">Outsourcing de TI</a></li>
+        </ul>
+      </div>
+      <div class="link-col">
+        <h4>Empresa</h4>
+        <ul>
+          <li><a href="sobre.html">Sobre nós</a></li>
+          <li><a href="solucoes.html">Soluções verticais</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="carreiras.html">Carreiras</a></li>
+          <li><a href="contato.html">Contato</a></li>
+        </ul>
+      </div>
+      <div class="link-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacidade.html">Política de Privacidade</a></li>
+          <li><a href="termos.html">Termos de Uso</a></li>
+          <li><a href="privacidade.html#cookies">Política de Cookies</a></li>
+          <li><a href="privacidade.html#lgpd">Conformidade LGPD</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mid">
+      <div class="news">
+        <h4>Newsletter</h4>
+        <p>Receba insights técnicos e análises dos nossos projetos. Uma edição mensal, sem enchimento.</p>
+        <form class="news-form" onsubmit="event.preventDefault();var s=this.querySelector('button');var o=s.textContent;s.textContent='✓ Inscrito';setTimeout(function(){s.textContent=o},2500);this.reset();return false">
+          <input type="email" placeholder="seu@email.com" required/>
+          <button type="submit">Inscrever</button>
+        </form>
+      </div>
+      <div class="social">
+        <span class="label">Siga-nos</span>
+        <div class="icons">
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10v7M8 7v.01M12 17v-5a2 2 0 1 1 4 0v5M12 13v-3"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor"/></svg></a>
+          <a href="#" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M9 19c-4 1.5-4-2-6-2m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.7 4.7 0 0 0-1.3-3.3 4.4 4.4 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.8 11.8 0 0 0-6 0C7.3 2.7 6.3 3 6.3 3a4.4 4.4 0 0 0-.1 3.2A4.7 4.7 0 0 0 4.9 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a>
+          <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M3 21l1.5-5A8 8 0 1 1 8 20z"/><path d="M9 10c.5 2 2 3.5 4 4l1.5-1.5 2 1-1 2a2 2 0 0 1-2.5.5A8 8 0 0 1 7.5 11a2 2 0 0 1 .5-2.5l2-1 1 2L9 10z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <div>© 2026 BSN Solution · CNPJ 00.000.000/0001-00 · Todos os direitos reservados.</div>
+      <a href="#top" class="totop" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        Voltar ao topo
+      </a>
+    </div>
+  </div>
+</footer>
+</body></html>

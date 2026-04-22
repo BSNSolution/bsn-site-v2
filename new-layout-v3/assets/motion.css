@@ -1,0 +1,180 @@
+/* ============ BSN Motion Layer v2 ============
+   Mais vivo, sem poluir. Respeita prefers-reduced-motion.
+=============================================== */
+
+/* ---------- REVEAL ---------- */
+[data-reveal]{opacity:0;transform:translateY(14px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+[data-reveal].is-in{opacity:1;transform:none}
+[data-reveal="fade"]{transform:none}
+[data-reveal="left"]{transform:translateX(-18px)}
+[data-reveal="right"]{transform:translateX(18px)}
+[data-reveal="scale"]{transform:scale(.96)}
+[data-reveal="blur"]{filter:blur(8px);transform:translateY(14px)}
+[data-reveal="blur"].is-in{filter:blur(0);transform:none}
+[data-reveal].is-in[data-reveal="left"],
+[data-reveal].is-in[data-reveal="right"],
+[data-reveal].is-in[data-reveal="scale"]{transform:none}
+
+.reveal-group > [data-reveal]:nth-child(1){transition-delay:.05s}
+.reveal-group > [data-reveal]:nth-child(2){transition-delay:.12s}
+.reveal-group > [data-reveal]:nth-child(3){transition-delay:.19s}
+.reveal-group > [data-reveal]:nth-child(4){transition-delay:.26s}
+.reveal-group > [data-reveal]:nth-child(5){transition-delay:.33s}
+.reveal-group > [data-reveal]:nth-child(6){transition-delay:.40s}
+.reveal-group > [data-reveal]:nth-child(7){transition-delay:.47s}
+.reveal-group > [data-reveal]:nth-child(8){transition-delay:.54s}
+.reveal-group > [data-reveal]:nth-child(9){transition-delay:.61s}
+.reveal-group > [data-reveal]:nth-child(10){transition-delay:.68s}
+
+/* ---------- SPOTLIGHT (cursor-aware) ---------- */
+/* Cards seguem o cursor com uma luz suave. Usa custom props setadas por JS. */
+.glass,.tile,.node,.pane-card,.duo-right,.glass-panel,.prism-face,
+.svc,.sol,.feat-card,.post,.person,.val,.job,.perk,.chan,.form-card,.doc{
+  position:relative;
+  transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .3s ease,box-shadow .45s ease;
+}
+
+/* Spotlight layer — combina GLOW INTERNO (segue cursor) + BORDA LUMINOSA (no hover).
+   Estilo inspirado em cards do 3kbusiness: borda ciano fina + radial suave por dentro.
+   Injetado como primeiro filho dos cards pelo motion.js.
+   IMPORTANTE: fica fora do fluxo de grid/flex do pai (grid-area:1/-1; flex:none; display:block absolute). */
+.bsn-spot{
+  position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  grid-area:1 / 1 / -1 / -1;   /* não rouba célula do grid do pai */
+  grid-column:1 / -1;grid-row:1 / -1;
+  /* glow interno que segue o cursor */
+  background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),
+    rgba(120,200,255,.22),
+    rgba(120,200,255,.08) 35%,
+    transparent 65%);
+  opacity:0;transition:opacity .4s ease;
+  z-index:2;
+}
+.bsn-spot::after{
+  /* borda luminosa ciano que aparece no hover */
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  padding:1px;
+  background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),
+    rgba(120,220,255,.9),
+    rgba(120,220,255,.45) 30%,
+    rgba(120,220,255,.15) 55%,
+    rgba(120,220,255,.08) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+          mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite:exclude;
+}
+.glass:hover > .bsn-spot,.tile:hover > .bsn-spot,.node:hover > .bsn-spot,.pane-card:hover > .bsn-spot,
+.svc:hover > .bsn-spot,.sol:hover > .bsn-spot,.feat-card:hover > .bsn-spot,.post:hover > .bsn-spot,.person:hover > .bsn-spot,.val:hover > .bsn-spot,.job:hover > .bsn-spot,.perk:hover > .bsn-spot,.chan:hover > .bsn-spot,.form-card:hover > .bsn-spot,.doc:hover > .bsn-spot{opacity:1}
+/* Nav não tem spotlight */
+.nav-inner > .bsn-spot,.nav .glass > .bsn-spot{display:none !important}
+
+/* Keep card content above the spotlight */
+.glass > *:not(.bsn-spot),.tile > *:not(.bsn-spot),.node > *:not(.bsn-spot),.pane-card > *:not(.bsn-spot),
+.svc > *:not(.bsn-spot),.sol > *:not(.bsn-spot),.feat-card > *:not(.bsn-spot),.post > *:not(.bsn-spot),.person > *:not(.bsn-spot),.val > *:not(.bsn-spot),.job > *:not(.bsn-spot),.perk > *:not(.bsn-spot),.chan > *:not(.bsn-spot),.form-card > *:not(.bsn-spot),.doc > *:not(.bsn-spot){position:relative;z-index:3}
+
+.glass:hover,.tile:hover,.pane-card:hover,
+.svc:hover,.sol:hover,.feat-card:hover,.post:hover,.person:hover,.val:hover,.job:hover,.perk:hover,.chan:hover{transform:translateY(-4px);box-shadow:0 22px 60px -24px rgba(0,0,0,.55), 0 0 0 1px var(--line-strong) inset}
+/* Exceção: o nav não deve subir no hover */
+.nav .glass:hover,.nav-inner.glass:hover,.nav-inner:hover{transform:none !important;box-shadow:none !important}
+.node:hover{transform:translateY(-3px);box-shadow:0 16px 38px -16px rgba(122,91,255,.45)}
+
+/* ---------- BORDA ESTÁTICA — desativada (substituída pelo border spotlight) ---------- */
+.tile::after,.pane-card::after{display:none !important}
+
+/* ---------- BOTÕES ---------- */
+.btn{position:relative;overflow:hidden}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.16) 50%,transparent 80%);transform:translateX(-110%);transition:transform .7s ease;pointer-events:none}
+.btn:hover::after{transform:translateX(110%)}
+.btn span{display:inline-block;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.btn:hover span{transform:translate(3px,-2px)}
+.btn-primary{transition:transform .4s cubic-bezier(.2,.8,.2,1),box-shadow .4s ease,filter .3s ease}
+.btn-primary:hover{box-shadow:0 14px 40px -14px rgba(122,91,255,.6),0 0 0 1px rgba(255,255,255,.2) inset;filter:brightness(1.06)}
+
+/* ---------- LINKS ---------- */
+a.link-under,.bsn-footer .col a{position:relative}
+a.link-under::after{content:"";position:absolute;left:0;bottom:-3px;width:100%;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+a.link-under:hover::after{transform:scaleX(1);transform-origin:left}
+/* Explicitly disable nav-link underline (removed by request) */
+.nav a::after{display:none !important}
+
+/* ---------- DOT PULSE ---------- */
+.mono .dot,.eyebrow .dot,.cath-eyebrow .dot,.pulse .bullet,.whs-top .dot,.eyebrow.mono .dot{
+  animation:bsnDotPulse 2.4s ease-in-out infinite
+}
+@keyframes bsnDotPulse{0%,100%{box-shadow:0 0 10px currentColor;opacity:.9}50%{box-shadow:0 0 20px currentColor;opacity:1}}
+
+/* ---------- ÍCONES ---------- */
+.tile:hover .tile-icon,.node:hover .ico,.pane-card:hover .ico{transform:rotate(-4deg) scale(1.08)}
+.tile-icon,.node .ico,.pane-card .ico{transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+
+/* ---------- HEADER ---------- */
+.bsn-header{transition:background-color .3s ease,border-color .3s ease,backdrop-filter .3s ease,padding .3s ease}
+.bsn-header.is-scrolled{background-color:rgba(8,7,14,.78);border-bottom-color:var(--line-strong)}
+.nav a{transition:color .3s ease}
+
+/* ---------- H-ACCENT ---------- */
+.h-accent{position:relative}
+.h-accent::after{content:"";position:absolute;left:0;width:min(360px,60%);bottom:-.22em;height:2px;background:linear-gradient(90deg,var(--violet),var(--cyan),var(--magenta));transform-origin:left;transform:scaleX(0);transition:transform 1s cubic-bezier(.2,.8,.2,1) .15s;border-radius:2px;box-shadow:0 0 12px rgba(122,91,255,.35)}
+.h-accent.is-in::after{transform:scaleX(1)}
+/* Ensure section-head h2 gets the animated underline too */
+.section-head h2{position:relative}
+.section-head h2::after{content:"";position:absolute;left:0;width:min(360px,52%);bottom:-.22em;height:2px;background:linear-gradient(90deg,var(--violet),var(--cyan),var(--magenta));transform-origin:left;transform:scaleX(0);transition:transform 1s cubic-bezier(.2,.8,.2,1) .2s;border-radius:2px;box-shadow:0 0 12px rgba(122,91,255,.35)}
+.section-head h2.is-in::after,
+.section-head.is-in h2::after,
+[data-reveal].is-in.section-head h2::after{transform:scaleX(1)}
+
+/* ---------- SHIMMER em gradientes de texto vivos ---------- */
+.hero h1 .glow,.hero h1 em,.prism,.liquid,.aur h1 em,.whs h1 em,
+h1 em,h2 em,.cath h1 em{
+  background-size:200% 200%;
+  animation:bsnShimmer 12s ease-in-out infinite;
+}
+@keyframes bsnShimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+/* ---------- PAGE IN ---------- */
+body{animation:bsnPageIn .7s ease both}
+@keyframes bsnPageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- SCROLL PROGRESS BAR (disabled) ---------- */
+.bsn-scroll-bar{display:none !important}
+
+/* ---------- AMBIENT NOISE / GRAIN overlay ---------- */
+.bsn-grain{position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:.045;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E")}
+
+/* ---------- AMBIENT ORBS (2 pontos de luz lentos no fundo) ---------- */
+.bsn-ambient{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bsn-ambient .orb{position:absolute;width:560px;height:560px;border-radius:50%;filter:blur(120px);opacity:.18}
+.bsn-ambient .orb.a{background:var(--violet);top:-15%;left:-10%;animation:bsnOrbA 28s ease-in-out infinite}
+.bsn-ambient .orb.b{background:var(--cyan);bottom:-20%;right:-12%;animation:bsnOrbB 34s ease-in-out infinite}
+@keyframes bsnOrbA{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(80px,60px) scale(1.12)}}
+@keyframes bsnOrbB{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-60px,-40px) scale(1.15)}}
+
+/* ---------- MARQUEE pausa no hover ---------- */
+.marquee:hover .marquee-track{animation-play-state:paused}
+
+/* ---------- FOOTER LINKS (slide lateral no hover) ---------- */
+body .bsn-footer .col a,
+body .bsn-footer .link-col a,
+body .bsn-footer .link-col ul a,
+body .bsn-footer a{transition:color .3s ease, transform .35s cubic-bezier(.2,.8,.2,1) !important;display:inline-block;position:relative;will-change:transform}
+body .bsn-footer .col a:hover,
+body .bsn-footer .link-col a:hover,
+body .bsn-footer .link-col ul a:hover{color:var(--ink);transform:translateX(6px) !important}
+
+/* ---------- KBD-ish chip pulse ---------- */
+@keyframes bsnChipSheen{0%{background-position:-120% 0}100%{background-position:220% 0}}
+.pill,.chip,.balloon{position:relative;overflow:hidden}
+.pill::after,.chip::after,.balloon::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);background-size:200% 100%;animation:bsnChipSheen 6s linear infinite;opacity:0;transition:opacity .3s}
+.pill:hover::after,.chip:hover::after,.balloon:hover::after{opacity:1}
+
+/* ---------- LINE GROW underlines em stat numbers ---------- */
+.pane-card .bar i{transform-origin:left;animation:bsnBarGrow 1.2s cubic-bezier(.2,.8,.2,1) both}
+@keyframes bsnBarGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ---------- Accessibility ---------- */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+  [data-reveal]{opacity:1 !important;transform:none !important;filter:none !important}
+  .bsn-scroll-bar,.bsn-ambient,.bsn-grain{display:none}
+}

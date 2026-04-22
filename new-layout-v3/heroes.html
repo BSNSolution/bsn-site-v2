@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>5 propostas de Hero — BSN Solution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#f3eef7;--ink-dim:#a8a0b8;--ink-faint:#6a6478;--line:rgba(255,255,255,.08);--line-strong:rgba(255,255,255,.16);--violet:#7a5bff;--cyan:#26d9ff;--magenta:#ff4fb8;--amber:#ffb447;--emerald:#2ed39a;--bg:#08070e}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:40px 32px 80px}
+  header{max-width:1400px;margin:0 auto 40px;display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid var(--line)}
+  header h1{font-weight:500;font-size:34px;letter-spacing:-.035em;line-height:1.05}
+  header h1 em{font-style:italic;background:linear-gradient(110deg,var(--violet),var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{color:var(--ink-dim);font-size:15px;max-width:560px;margin-top:10px;line-height:1.55}
+  header .mono{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--ink-faint);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+  header .mono .dot{width:8px;height:8px;border-radius:50%;background:var(--emerald);box-shadow:0 0 12px var(--emerald)}
+  header .back a{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-dim);text-decoration:none;padding:10px 16px;border:1px solid var(--line);border-radius:999px}
+  header .back a:hover{color:var(--ink);border-color:var(--line-strong)}
+
+  .grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:28px}
+  .card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:.3s}
+  .card:hover{border-color:var(--line-strong);transform:translateY(-2px)}
+  .frame{position:relative;aspect-ratio:16/10;overflow:hidden;background:#000}
+  .frame iframe{position:absolute;top:0;left:0;width:1400px;height:875px;border:0;transform:scale(.34);transform-origin:top left;pointer-events:none}
+  .frame .click{position:absolute;inset:0;cursor:pointer;z-index:2}
+  .meta{padding:22px 22px 24px;display:flex;flex-direction:column;gap:14px}
+  .meta .num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--ink-faint);text-transform:uppercase}
+  .meta h3{font-weight:500;font-size:22px;letter-spacing:-.025em;line-height:1.2}
+  .meta p{color:var(--ink-dim);font-size:14px;line-height:1.55}
+  .meta .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+  .meta .tags span{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--ink-dim);text-transform:uppercase;padding:4px 10px;border:1px solid var(--line);border-radius:999px}
+  .meta .row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:4px;padding-top:14px;border-top:1px solid var(--line)}
+  .meta .row a{text-decoration:none;font-size:13px;color:var(--ink);font-weight:500;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--line-strong);border-radius:999px;transition:.2s}
+  .meta .row a:hover{background:rgba(255,255,255,.06)}
+  .meta .row a.primary{background:linear-gradient(135deg,var(--violet),var(--magenta));border-color:transparent}
+  .meta .row a.primary:hover{filter:brightness(1.1)}
+
+  footer{max-width:1400px;margin:60px auto 0;padding-top:32px;border-top:1px solid var(--line);text-align:center;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="mono"><span class="dot"></span><span>5 caminhos · mesma base de código</span></div>
+    <h1>Cinco propostas de <em>Hero</em> para a home da BSN.</h1>
+    <p>Cada tela abre a home completa com um tratamento diferente da área principal. O restante da página (serviços, mosaico, band, rodapé) permanece idêntico — só o hero muda, para comparação honesta.</p>
+  </div>
+  <div class="back"><a href="index.html">← voltar para a home atual</a></div>
+</header>
+
+<div class="grid">
+
+  <article class="card">
+    <div class="frame">
+      <iframe src="index-hero-1.html" loading="lazy"></iframe>
+      <a class="click" href="index-hero-1.html" aria-label="Abrir Hero 1"></a>
+    </div>
+    <div class="meta">
+      <div class="num">Opção 01 · clean</div>
+      <h3>Aurora Minimal · Centralizado</h3>
+      <p>Hero centralizado com duas auroras suaves de cor ao fundo, pill-eyebrow, manchete em 2 linhas com gradiente no destaque e dois CTAs. Respira o máximo possível.</p>
+      <div class="tags"><span>Centralizado</span><span>Minimal</span><span>Aurora</span></div>
+      <div class="row">
+        <a href="index-hero-1.html" class="primary">Abrir opção 01 ↗</a>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="frame">
+      <iframe src="index-hero-2.html" loading="lazy"></iframe>
+      <a class="click" href="index-hero-2.html" aria-label="Abrir Hero 2"></a>
+    </div>
+    <div class="meta">
+      <div class="num">Opção 02 · clean</div>
+      <h3>Duo Clean · Copy + 3 números</h3>
+      <p>Manchete e CTAs à esquerda, cartão de vidro único à direita com 3 números essenciais (uptime, projetos, primeiro release). Leitura rápida, zero poluição.</p>
+      <div class="tags"><span>Clean</span><span>2 colunas</span><span>Objetivo</span></div>
+      <div class="row">
+        <a href="index-hero-2.html" class="primary">Abrir opção 02 ↗</a>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="frame">
+      <iframe src="index-hero-3.html" loading="lazy"></iframe>
+      <a class="click" href="index-hero-3.html" aria-label="Abrir Hero 3"></a>
+    </div>
+    <div class="meta">
+      <div class="num">Opção 03</div>
+      <h3>Terminal · Engenharia pura</h3>
+      <p>Janela de terminal animada à direita mostrando um deploy real em tempo real (fetch, tests, build, uptime). Mensagem clara para um público técnico: "código que roda, equipe que entrega".</p>
+      <div class="tags"><span>Developer-first</span><span>Animação</span><span>Credibilidade</span></div>
+      <div class="row">
+        <a href="index-hero-3.html" class="primary">Abrir opção 03 ↗</a>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="frame">
+      <iframe src="index-hero-4.html" loading="lazy"></iframe>
+      <a class="click" href="index-hero-4.html" aria-label="Abrir Hero 4"></a>
+    </div>
+    <div class="meta">
+      <div class="num">Opção 04</div>
+      <h3>Órbita · Capacidades girando</h3>
+      <p>Três anéis concêntricos animados no fundo. Título central e 6 "nós" flutuantes ao redor, cada um linkando para um serviço. Metáfora visual: tudo gira em torno do mesmo eixo.</p>
+      <div class="tags"><span>Animação</span><span>Metáfora</span><span>Exploratório</span></div>
+      <div class="row">
+        <a href="index-hero-4.html" class="primary">Abrir opção 04 ↗</a>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <div class="frame">
+      <iframe src="index-hero-5.html" loading="lazy"></iframe>
+      <a class="click" href="index-hero-5.html" aria-label="Abrir Hero 5"></a>
+    </div>
+    <div class="meta">
+      <div class="num">Opção 05 · clean</div>
+      <h3>Whisper · Só a manchete</h3>
+      <p>Topo com 3 marcadores minimais, manchete serifada grande em 4 linhas e rodapé com assinatura + CTAs. Nenhum elemento gráfico — o silencêncio é o design.</p>
+      <div class="tags"><span>Silencioso</span><span>Tipografia</span><span>Manifesto</span></div>
+      <div class="row">
+        <a href="index-hero-5.html" class="primary">Abrir opção 05 ↗</a>
+      </div>
+    </div>
+  </article>
+
+</div>
+
+<footer>Clique em qualquer card para abrir a home inteira naquele tratamento · BSN Solution 2026</footer>
+</body>
+</html>
