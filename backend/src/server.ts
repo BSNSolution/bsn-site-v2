@@ -2,7 +2,7 @@ import Fastify, { FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import dotenv from "dotenv";
-import { authenticate, requireAdmin } from "./middleware/auth";
+import { authenticate, requireAdmin, requirePermission, requireAnyPermission } from "./middleware/auth";
 import { prisma } from "./lib/prisma";
 import { closeRedis } from "./lib/redis";
 
@@ -10,6 +10,8 @@ declare module "fastify" {
   interface FastifyInstance {
     authenticate: typeof authenticate;
     requireAdmin: typeof requireAdmin;
+    requirePermission: typeof requirePermission;
+    requireAnyPermission: typeof requireAnyPermission;
   }
 }
 
@@ -45,6 +47,8 @@ const fastify = Fastify({
 // Register authenticate and requireAdmin as decorators
 fastify.decorate("authenticate", authenticate);
 fastify.decorate("requireAdmin", requireAdmin);
+fastify.decorate("requirePermission", requirePermission);
+fastify.decorate("requireAnyPermission", requireAnyPermission);
 
 // Register plugins
 fastify.register(cors, {

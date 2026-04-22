@@ -272,7 +272,7 @@ export default function AdminBlogEditorPage() {
           </div>
 
           {/* Toolbar */}
-          <div className="glass p-2 flex flex-wrap gap-1 items-center sticky top-20 z-10">
+          <div className="editor-toolbar flex flex-wrap gap-1 items-center">
             <ToolbarBtn onClick={() => insertAtCursor('## ', '', 'Título')} icon={<Heading2 className="h-4 w-4" />} title="H2" />
             <ToolbarBtn onClick={() => insertAtCursor('### ', '', 'Subtítulo')} icon={<Heading3 className="h-4 w-4" />} title="H3" />
             <span className="w-px h-5 bg-white/10 mx-1" />
@@ -396,6 +396,22 @@ export default function AdminBlogEditorPage() {
       </div>
 
       <style>{`
+        .editor-toolbar {
+          background: rgba(10, 10, 16, 0.95);
+          backdrop-filter: blur(20px) saturate(140%);
+          -webkit-backdrop-filter: blur(20px) saturate(140%);
+          border: 1px solid var(--line-strong);
+          border-radius: 12px;
+          padding: 8px;
+          position: sticky;
+          top: 72px;
+          z-index: 25;
+          box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+        }
+        /* garante que a toolbar não se confunda com o card de título/slug acima */
+        .editor-toolbar + .grid {
+          margin-top: 0;
+        }
         .post-preview { color: var(--ink); line-height: 1.7; }
         .post-preview h1, .post-preview h2, .post-preview h3 {
           font-family: 'Inter', sans-serif; font-weight: 500; letter-spacing: -0.02em;
