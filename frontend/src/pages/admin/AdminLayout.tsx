@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   Home,
   Settings,
@@ -16,262 +15,248 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronLeft,
   User,
   Award,
   TrendingUp,
   Gift,
+  Radio,
+  MessageSquareQuote,
+  Quote as QuoteIcon,
+  Cpu,
+  Info,
+  ExternalLink,
 } from 'lucide-react'
 import { authApi } from '@/lib/api'
 
-interface User {
+interface UserPayload {
   id: string
   name: string
   email: string
   role: string
 }
 
-interface SidebarItem {
-  name: string
-  href: string
-  icon: any
-  badge?: number
+interface SidebarSection {
+  label: string
+  items: { name: string; href: string; icon: any }[]
 }
 
-const sidebarItems: SidebarItem[] = [
-  { name: 'Dashboard', href: '/admin', icon: BarChart3 },
-  { name: 'Seções Home', href: '/admin/home', icon: Home },
-  { name: 'KPIs da Home', href: '/admin/kpis', icon: TrendingUp },
-  { name: 'Serviços', href: '/admin/services', icon: Briefcase },
-  { name: 'Soluções', href: '/admin/solutions', icon: Settings },
-  { name: 'Valores', href: '/admin/values', icon: Award },
-  { name: 'Depoimentos', href: '/admin/testimonials', icon: Star },
-  { name: 'Equipe', href: '/admin/team', icon: Users },
-  { name: 'Clientes', href: '/admin/clients', icon: Building2 },
-  { name: 'Vagas', href: '/admin/jobs', icon: FileText },
-  { name: 'Benefícios', href: '/admin/perks', icon: Gift },
-  { name: 'Blog', href: '/admin/blog', icon: MessageCircle },
-  { name: 'Inbox', href: '/admin/inbox', icon: Inbox },
-  { name: 'Uploads', href: '/admin/uploads', icon: Upload },
-  { name: 'Configurações', href: '/admin/settings', icon: Settings },
+const SECTIONS: SidebarSection[] = [
+  {
+    label: 'Geral',
+    items: [
+      { name: 'Dashboard', href: '/admin', icon: BarChart3 },
+      { name: 'Inbox', href: '/admin/inbox', icon: Inbox },
+      { name: 'Configurações', href: '/admin/settings', icon: Settings },
+      { name: 'Uploads', href: '/admin/uploads', icon: Upload },
+    ],
+  },
+  {
+    label: 'Home',
+    items: [
+      { name: 'Seções Home', href: '/admin/home', icon: Home },
+      { name: 'KPIs', href: '/admin/kpis', icon: TrendingUp },
+      { name: 'Card ao vivo', href: '/admin/home-live', icon: Radio },
+      { name: 'Depoimento pill', href: '/admin/home-pill', icon: QuoteIcon },
+      { name: 'Filosofia (band)', href: '/admin/home-band', icon: MessageSquareQuote },
+      { name: 'Stack (marquee)', href: '/admin/stack', icon: Cpu },
+    ],
+  },
+  {
+    label: 'Conteúdo',
+    items: [
+      { name: 'Serviços', href: '/admin/services', icon: Briefcase },
+      { name: 'Soluções', href: '/admin/solutions', icon: Settings },
+      { name: 'Sobre (cards)', href: '/admin/about-cards', icon: Info },
+      { name: 'Valores', href: '/admin/values', icon: Award },
+      { name: 'Equipe', href: '/admin/team', icon: Users },
+      { name: 'Depoimentos', href: '/admin/testimonials', icon: Star },
+      { name: 'Clientes', href: '/admin/clients', icon: Building2 },
+    ],
+  },
+  {
+    label: 'Carreiras & Blog',
+    items: [
+      { name: 'Vagas', href: '/admin/jobs', icon: FileText },
+      { name: 'Benefícios', href: '/admin/perks', icon: Gift },
+      { name: 'Blog', href: '/admin/blog', icon: MessageCircle },
+    ],
+  },
 ]
 
 export default function AdminLayout() {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserPayload | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Check authentication on mount
   useEffect(() => {
-    const checkAuth = async () => {
+    (async () => {
       try {
         const token = localStorage.getItem('bsn-auth-token')
-        if (!token) {
-          throw new Error('No token found')
-        }
-
-        const userData = await authApi.me()
-        if (userData) {
-          setUser(userData)
-        } else {
-          throw new Error('Invalid user data')
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error)
+        if (!token) throw new Error('No token')
+        const data = await authApi.me()
+        if (data) setUser(data)
+      } catch {
         localStorage.removeItem('bsn-auth-token')
-        return <Navigate to="/admin/login" replace />
       } finally {
         setIsLoading(false)
       }
-    }
-
-    checkAuth()
+    })()
   }, [])
 
-  const handleLogout = async () => {
-    try {
-      await authApi.logout()
-    } catch (error) {
-      console.error('Logout failed:', error)
-    } finally {
-      localStorage.removeItem('bsn-auth-token')
-      navigate('/admin/login')
-    }
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [location.pathname])
+
+  async function handleLogout() {
+    try { await authApi.logout() } catch { /* ignore */ }
+    localStorage.removeItem('bsn-auth-token')
+    navigate('/admin/login')
   }
 
-  // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="admin-shell">
+        <SiteBgLayers />
+        <div className="min-h-screen flex items-center justify-center relative z-10">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-white/30 border-t-white" />
+        </div>
       </div>
     )
   }
 
-  // Redirect if not authenticated
-  if (!user) {
-    return <Navigate to="/admin/login" replace />
-  }
+  if (!user) return <Navigate to="/admin/login" replace />
+
+  const currentPage = SECTIONS.flatMap((s) => s.items).find((i) => {
+    if (i.href === '/admin') return location.pathname === '/admin'
+    return location.pathname.startsWith(i.href)
+  })
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="admin-shell">
+      <SiteBgLayers />
+
       {/* Mobile overlay */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-20 bg-black/50 lg:hidden"
-          />
-        )}
-      </AnimatePresence>
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+        />
+      )}
 
       {/* Sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 z-30 bg-card border-r border-border transition-all duration-300 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 lg:static lg:inset-0 ${
-          sidebarCollapsed ? 'w-16' : 'w-64'
-        }`}
+      <aside
+        className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}
       >
-        <div className="flex flex-col h-full">
-          {/* Logo / Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border">
-            {!sidebarCollapsed && (
-              <img
-                src="/logo-sm.png"
-                alt="BSN Admin"
-                className="h-8 w-auto"
-              />
-            )}
-            
-            {/* Mobile close / Desktop collapse */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="hidden lg:block p-1 hover:bg-muted rounded-md transition-colors"
-              >
-                <ChevronLeft className={`h-4 w-4 transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} />
-              </button>
-              
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="lg:hidden p-1 hover:bg-muted rounded-md transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+        <div className="admin-sidebar-inner">
+          <div className="flex items-center justify-between px-4 py-5">
+            <a href="/" className="flex items-center gap-2">
+              <img src="/assets/logo.png" alt="BSN" style={{ height: 32, width: 'auto' }} />
+            </a>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-white/10">
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4">
-            <ul className="space-y-2">
-              {sidebarItems.map((item) => {
-                const Icon = item.icon
-                const isActive = location.pathname === item.href || 
-                  (item.href !== '/admin' && location.pathname.startsWith(item.href))
-                
-                return (
-                  <li key={item.href}>
-                    <button
-                      onClick={() => {
-                        navigate(item.href)
-                        setSidebarOpen(false)
-                      }}
-                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200 hover:bg-muted ${
-                        isActive ? 'bg-primary text-primary-foreground' : 'text-foreground'
-                      }`}
-                    >
-                      <Icon className="h-5 w-5 flex-shrink-0" />
-                      {!sidebarCollapsed && (
-                        <span className="truncate">
-                          {item.name}
-                        </span>
-                      )}
-                      {item.badge && !sidebarCollapsed && (
-                        <span className="ml-auto bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded-full">
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
+          <nav className="flex-1 overflow-y-auto px-3 pb-3">
+            {SECTIONS.map((section) => (
+              <div key={section.label} className="mb-4">
+                <div className="px-3 py-2 text-[10px] font-mono uppercase tracking-wider text-white/40">
+                  {section.label}
+                </div>
+                <ul className="space-y-0.5">
+                  {section.items.map((item) => {
+                    const Icon = item.icon
+                    const isActive =
+                      item.href === '/admin'
+                        ? location.pathname === '/admin'
+                        : location.pathname.startsWith(item.href)
+                    return (
+                      <li key={item.href}>
+                        <button
+                          onClick={() => navigate(item.href)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                            isActive
+                              ? 'bg-white/10 text-white'
+                              : 'text-white/70 hover:bg-white/5 hover:text-white'
+                          }`}
+                        >
+                          <Icon className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{item.name}</span>
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            ))}
           </nav>
 
-          {/* User / Logout */}
-          <div className="border-t border-border p-4">
-            {!sidebarCollapsed && (
-              <div className="mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <User className="h-4 w-4 text-primary-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{user.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                  </div>
-                </div>
+          <div className="border-t border-white/10 p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center">
+                <User className="h-4 w-4 text-white" />
               </div>
-            )}
-            
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate text-white">{user.name}</p>
+                <p className="text-xs text-white/50 truncate">{user.email}</p>
+              </div>
+            </div>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2 text-left text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
             >
-              <LogOut className="h-5 w-5 flex-shrink-0" />
-              {!sidebarCollapsed && <span>Sair</span>}
+              <LogOut className="h-4 w-4" /> Sair
             </button>
           </div>
         </div>
-      </div>
+      </aside>
 
-      {/* Main content */}
-      <div className="flex-1 min-w-0 transition-all duration-300">
-        {/* Top bar */}
-        <header className="glass-header">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-4">
-              {/* Mobile menu button */}
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 hover:bg-muted rounded-md transition-colors"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              
-              {/* Page title */}
-              <h2 className="text-lg font-semibold">
-                {sidebarItems.find(item => 
-                  location.pathname === item.href || 
-                  (item.href !== '/admin' && location.pathname.startsWith(item.href))
-                )?.name || 'Admin'}
-              </h2>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => window.open('/', '_blank')}
-                className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 rounded-lg transition-colors"
-              >
-                Ver Site
-              </button>
-            </div>
+      {/* Main area */}
+      <div className="admin-main">
+        <header className="admin-topbar glass">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 hover:bg-white/10 rounded"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <h2 className="text-base sm:text-lg font-semibold">{currentPage?.name ?? 'Admin'}</h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition"
+            >
+              <ExternalLink className="h-3.5 w-3.5" /> Ver site
+            </a>
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="p-6">
+        <main className="admin-content">
           <Outlet />
         </main>
       </div>
     </div>
+  )
+}
+
+function SiteBgLayers() {
+  return (
+    <>
+      <div className="bg-glass" />
+      <div className="bg-aurora" />
+      <div className="page-shards">
+        <div className="shard s1" />
+        <div className="shard s2" />
+        <div className="shard s3" />
+      </div>
+      <div className="bg-grid" />
+      <div className="bg-noise" />
+    </>
   )
 }

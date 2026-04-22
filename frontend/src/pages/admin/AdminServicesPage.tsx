@@ -1,522 +1,315 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  EyeOff,
-  GripVertical,
-  Save,
-  X,
-  Briefcase,
-  ExternalLink
-} from 'lucide-react'
+import { useState, useEffect, FormEvent } from 'react'
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { servicesApi } from '@/lib/api'
+
+interface Feature {
+  title: string
+  description: string
+}
 
 interface Service {
   id: string
   title: string
+  subtitle?: string | null
   description: string
-  icon?: string
-  image?: string
-  features?: string[]
-  price?: string
-  duration?: string
-  active: boolean
+  iconName?: string | null
+  anchor?: string | null
+  numLabel?: string | null
+  shardColor?: string | null
+  ctaLabel?: string | null
+  features?: Feature[] | null
+  tileClass?: string | null
+  homePill?: string | null
+  homePillTags?: string[]
+  isActive: boolean
   order: number
-  createdAt: string
-  updatedAt: string
 }
 
 interface FormData {
   title: string
+  subtitle: string
   description: string
-  icon: string
-  image: string
-  features: string[]
-  price: string
-  duration: string
-  active: boolean
+  iconName: string
+  anchor: string
+  numLabel: string
+  shardColor: string
+  ctaLabel: string
+  features: Feature[]
+  tileClass: string
+  homePill: string
+  homePillTags: string
+  isActive: boolean
+  order?: number
+}
+
+const ICON_OPTIONS = ['code', 'squad', 'auto', 'box', 'server', 'support', 'build']
+const SHARD_OPTIONS = ['v', 'c', 'm', 'a', 'e']
+const TILE_OPTIONS = ['t1', 't2', 't3', 't4', 't5', 't6', 't7']
+
+const EMPTY_FORM: FormData = {
+  title: '',
+  subtitle: '',
+  description: '',
+  iconName: 'code',
+  anchor: '',
+  numLabel: '',
+  shardColor: 'v',
+  ctaLabel: 'Falar sobre um projeto ↗',
+  features: [
+    { title: '', description: '' },
+    { title: '', description: '' },
+    { title: '', description: '' },
+    { title: '', description: '' },
+  ],
+  tileClass: 't1',
+  homePill: '',
+  homePillTags: '',
+  isActive: true,
 }
 
 export default function AdminServicesPage() {
-  const [services, setServices] = useState<Service[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [items, setItems] = useState<Service[]>([])
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [editingService, setEditingService] = useState<Service | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    title: '',
-    description: '',
-    icon: '',
-    image: '',
-    features: [],
-    price: '',
-    duration: '',
-    active: true
-  })
-  const [draggedService, setDraggedService] = useState<Service | null>(null)
+  const [editing, setEditing] = useState<Service | null>(null)
+  const [form, setForm] = useState<FormData>(EMPTY_FORM)
 
   useEffect(() => {
-    loadServices()
+    load()
   }, [])
 
-  const loadServices = async () => {
+  async function load() {
     try {
-      setIsLoading(true)
-      const data = await servicesApi.admin.getServices()
-      if (data) {
-        setServices((data.services || []).sort((a: Service, b: Service) => a.order - b.order))
-      }
-    } catch (error) {
-      console.error('Error loading services:', error)
+      setLoading(true)
+      const res = await servicesApi.admin.getServices()
+      setItems(res.services ?? [])
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      description: '',
-      icon: '',
-      image: '',
-      features: [],
-      price: '',
-      duration: '',
-      active: true
-    })
-    setEditingService(null)
-    setShowForm(false)
+  function openCreate() {
+    setEditing(null)
+    setForm(EMPTY_FORM)
+    setShowForm(true)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    try {
-      if (editingService) {
-        await servicesApi.admin.updateService(editingService.id, formData)
-      } else {
-        await servicesApi.admin.createService(formData)
-      }
-      
-      await loadServices()
-      resetForm()
-    } catch (error) {
-      console.error('Error saving service:', error)
-    }
-  }
-
-  const handleEdit = (service: Service) => {
-    setEditingService(service)
-    setFormData({
-      title: service.title,
-      description: service.description,
-      icon: service.icon || '',
-      image: service.image || '',
-      features: service.features || [],
-      price: service.price || '',
-      duration: service.duration || '',
-      active: service.active
+  function openEdit(svc: Service) {
+    setEditing(svc)
+    const features: Feature[] = Array.isArray(svc.features) ? svc.features : []
+    const padded = [...features]
+    while (padded.length < 4) padded.push({ title: '', description: '' })
+    setForm({
+      title: svc.title,
+      subtitle: svc.subtitle ?? '',
+      description: svc.description,
+      iconName: svc.iconName ?? 'code',
+      anchor: svc.anchor ?? '',
+      numLabel: svc.numLabel ?? '',
+      shardColor: svc.shardColor ?? 'v',
+      ctaLabel: svc.ctaLabel ?? '',
+      features: padded.slice(0, 4),
+      tileClass: svc.tileClass ?? 't1',
+      homePill: svc.homePill ?? '',
+      homePillTags: (svc.homePillTags ?? []).join(', '),
+      isActive: svc.isActive,
+      order: svc.order,
     })
     setShowForm(true)
   }
 
-  const handleDelete = async (service: Service) => {
-    if (!confirm(`Tem certeza que deseja excluir o serviço "${service.title}"?`)) {
-      return
-    }
-
-    try {
-      await servicesApi.admin.deleteService(service.id)
-      await loadServices()
-    } catch (error) {
-      console.error('Error deleting service:', error)
-    }
-  }
-
-  const handleToggle = async (service: Service) => {
-    try {
-      await servicesApi.admin.toggleService(service.id)
-      await loadServices()
-    } catch (error) {
-      console.error('Error toggling service:', error)
-    }
-  }
-
-  const handleReorder = async (newServices: Service[]) => {
-    try {
-      const items = newServices.map((service, index) => ({
-        id: service.id,
-        order: index + 1
-      }))
-      
-      await servicesApi.admin.reorderServices(items)
-      setServices(newServices)
-    } catch (error) {
-      console.error('Error reordering services:', error)
-    }
-  }
-
-  const handleDragStart = (service: Service) => {
-    setDraggedService(service)
-  }
-
-  const handleDragOver = (e: React.DragEvent, targetService: Service) => {
+  async function submit(e: FormEvent) {
     e.preventDefault()
-    
-    if (!draggedService || draggedService.id === targetService.id) {
-      return
+    const payload = {
+      ...form,
+      features: form.features.filter((f) => f.title.trim() || f.description.trim()),
+      homePillTags: form.homePillTags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean),
     }
-
-    const draggedIndex = services.findIndex(s => s.id === draggedService.id)
-    const targetIndex = services.findIndex(s => s.id === targetService.id)
-
-    const newServices = [...services]
-    const [draggedItem] = newServices.splice(draggedIndex, 1)
-    newServices.splice(targetIndex, 0, draggedItem)
-
-    setServices(newServices)
-  }
-
-  const handleDragEnd = () => {
-    if (draggedService) {
-      handleReorder(services)
+    try {
+      if (editing) {
+        await servicesApi.admin.updateService(editing.id, payload)
+      } else {
+        await servicesApi.admin.createService(payload)
+      }
+      setShowForm(false)
+      load()
+    } catch (err: any) {
+      alert(err?.response?.data?.error || 'Erro ao salvar')
     }
-    setDraggedService(null)
   }
 
-  const addFeature = () => {
-    setFormData(prev => ({
-      ...prev,
-      features: [...prev.features, '']
-    }))
+  async function remove(id: string) {
+    if (!confirm('Remover este serviço?')) return
+    await servicesApi.admin.deleteService(id)
+    load()
   }
 
-  const removeFeature = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index)
-    }))
+  async function toggle(id: string) {
+    await servicesApi.admin.toggleService(id)
+    load()
   }
 
-  const updateFeature = (index: number, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      features: prev.features.map((feature, i) => i === index ? value : feature)
-    }))
+  function updateFeature(idx: number, field: 'title' | 'description', value: string) {
+    const features = [...form.features]
+    features[idx] = { ...features[idx], [field]: value }
+    setForm({ ...form, features })
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold gradient-text">Serviços</h1>
-          <p className="text-muted-foreground">Gerencie os serviços oferecidos</p>
+          <h1 className="text-2xl font-semibold">Serviços</h1>
+          <p className="text-sm text-muted-foreground">Controle as 7 frentes exibidas na home (mosaico) e na página /servicos.</p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          Novo Serviço
+        <button onClick={openCreate} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90">
+          <Plus className="h-4 w-4" /> Novo serviço
         </button>
       </div>
 
-      {/* Form Modal */}
-      <AnimatePresence>
-        {showForm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="glass-card p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold">
-                  {editingService ? 'Editar Serviço' : 'Novo Serviço'}
-                </h2>
-                <button
-                  onClick={resetForm}
-                  className="p-2 hover:bg-muted rounded-lg transition-colors"
-                >
-                  <X className="h-4 w-4" />
+      {loading ? (
+        <div className="p-8 text-center text-muted-foreground">Carregando...</div>
+      ) : (
+        <div className="grid gap-3">
+          {items.map((svc) => (
+            <div key={svc.id} className="glass p-4 flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-mono text-muted-foreground">{svc.numLabel}</span>
+                  <h3 className="font-medium">{svc.title}</h3>
+                  {!svc.isActive && <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-muted-foreground">Inativo</span>}
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-2">{svc.description}</p>
+                <div className="flex gap-2 mt-2 text-xs text-muted-foreground flex-wrap">
+                  <span>tile: {svc.tileClass ?? '—'}</span>
+                  <span>· cor: {svc.shardColor ?? '—'}</span>
+                  <span>· ícone: {svc.iconName ?? '—'}</span>
+                  <span>· ordem: {svc.order}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => toggle(svc.id)} className="p-2 hover:bg-white/10 rounded">
+                  {svc.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                </button>
+                <button onClick={() => openEdit(svc)} className="p-2 hover:bg-white/10 rounded">
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button onClick={() => remove(svc.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded">
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </div>
+            </div>
+          ))}
+          {items.length === 0 && <div className="p-8 text-center text-muted-foreground">Nenhum serviço.</div>}
+        </div>
+      )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Título *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Ícone (Lucide React)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.icon}
-                      onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-                      className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      placeholder="ex: Briefcase, Code, Smartphone"
-                    />
-                  </div>
-                </div>
-
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-4 overflow-y-auto" onClick={() => setShowForm(false)}>
+          <div className="glass max-w-2xl w-full p-6 my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">{editing ? 'Editar serviço' : 'Novo serviço'}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 hover:bg-white/10 rounded">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <form onSubmit={submit} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Descrição *
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    rows={4}
-                    className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none"
-                    required
-                  />
+                  <label className="text-xs text-muted-foreground">Título completo</label>
+                  <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    URL da Imagem
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.image}
-                    onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-                    className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                    placeholder="https://exemplo.com/imagem.jpg"
-                  />
+                  <label className="text-xs text-muted-foreground">Subtítulo (2ª linha do h2)</label>
+                  <input type="text" value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Preço
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.price}
-                      onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                      className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      placeholder="ex: R$ 1.500,00 ou Sob consulta"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Duração
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.duration}
-                      onChange={(e) => setFormData(prev => ({ ...prev, duration: e.target.value }))}
-                      className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      placeholder="ex: 2-4 semanas"
-                    />
-                  </div>
-                </div>
-
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Descrição / lede</label>
+                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium">
-                      Características/Recursos
-                    </label>
-                    <button
-                      type="button"
-                      onClick={addFeature}
-                      className="text-xs bg-primary/10 hover:bg-primary/20 text-primary px-2 py-1 rounded transition-colors"
-                    >
-                      Adicionar
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {formData.features.map((feature, index) => (
-                      <div key={index} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={feature}
-                          onChange={(e) => updateFeature(index, e.target.value)}
-                          className="flex-1 px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                          placeholder="Característica do serviço"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeFeature(index)}
-                          className="px-3 py-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                    {formData.features.length === 0 && (
-                      <p className="text-sm text-muted-foreground italic">
-                        Nenhuma característica adicionada
-                      </p>
-                    )}
-                  </div>
+                  <label className="text-xs text-muted-foreground">Ícone</label>
+                  <select value={form.iconName} onChange={(e) => setForm({ ...form, iconName: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
+                    {ICON_OPTIONS.map((i) => <option key={i} value={i}>{i}</option>)}
+                  </select>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="active"
-                    checked={formData.active}
-                    onChange={(e) => setFormData(prev => ({ ...prev, active: e.target.checked }))}
-                    className="w-4 h-4 text-primary bg-input border-border rounded focus:ring-primary/50 focus:ring-2"
-                  />
-                  <label htmlFor="active" className="text-sm font-medium">
-                    Serviço ativo
-                  </label>
+                <div>
+                  <label className="text-xs text-muted-foreground">Shard color</label>
+                  <select value={form.shardColor} onChange={(e) => setForm({ ...form, shardColor: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
+                    {SHARD_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
                 </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    <Save className="h-4 w-4" />
-                    Salvar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="flex items-center gap-2 bg-muted hover:bg-muted/80 text-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    Cancelar
-                  </button>
+                <div>
+                  <label className="text-xs text-muted-foreground">Tile class</label>
+                  <select value={form.tileClass} onChange={(e) => setForm({ ...form, tileClass: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
+                    {TILE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
                 </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground">Anchor (URL)</label>
+                  <input type="text" value={form.anchor} onChange={(e) => setForm({ ...form, anchor: e.target.value })} placeholder="ex: sob-medida" className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Num label</label>
+                  <input type="text" value={form.numLabel} onChange={(e) => setForm({ ...form, numLabel: e.target.value })} placeholder="SVC · 01" className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">CTA label</label>
+                  <input type="text" value={form.ctaLabel} onChange={(e) => setForm({ ...form, ctaLabel: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+                </div>
+              </div>
 
-      {/* Services List */}
-      <div className="glass-card">
-        {isLoading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-            <p className="text-muted-foreground mt-2">Carregando serviços...</p>
-          </div>
-        ) : services.length === 0 ? (
-          <div className="p-8 text-center">
-            <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <p className="text-muted-foreground">Nenhum serviço encontrado</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border">
-            {services.map((service, index) => (
-              <motion.div
-                key={service.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: index * 0.1 }}
-                draggable
-                onDragStart={() => handleDragStart(service)}
-                onDragOver={(e) => handleDragOver(e, service)}
-                onDragEnd={handleDragEnd}
-                className="p-4 flex items-center gap-4 hover:bg-muted/50 transition-colors cursor-move"
-              >
-                <GripVertical className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                
-                {service.image && (
-                  <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    <img 
-                      src={service.image} 
-                      alt={service.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        target.style.display = 'none'
-                        target.parentElement!.innerHTML = `<div class="w-6 h-6 text-muted-foreground">${service.icon ? service.icon : '<Briefcase />'}</div>`
-                      }}
-                    />
-                  </div>
-                )}
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-medium">{service.title}</h3>
-                    {service.price && (
-                      <span className="px-2 py-1 text-xs bg-green-500/10 text-green-500 rounded border border-green-500/20">
-                        {service.price}
-                      </span>
-                    )}
-                    {!service.active && (
-                      <span className="px-2 py-1 text-xs bg-muted/50 rounded text-muted-foreground">
-                        Inativo
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                    {service.description}
-                  </p>
-                  {service.features && service.features.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {service.features.slice(0, 3).map((feature, i) => (
-                        <span key={i} className="px-2 py-1 text-xs bg-primary/10 text-primary rounded">
-                          {feature}
-                        </span>
-                      ))}
-                      {service.features.length > 3 && (
-                        <span className="px-2 py-1 text-xs bg-muted text-muted-foreground rounded">
-                          +{service.features.length - 3} mais
-                        </span>
-                      )}
+              <div>
+                <label className="text-xs text-muted-foreground">Features (4 bullets 2x2 da página de serviços)</label>
+                <div className="grid grid-cols-2 gap-3 mt-1">
+                  {form.features.map((f, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <input type="text" value={f.title} onChange={(e) => updateFeature(idx, 'title', e.target.value)} placeholder={`Título #${idx + 1}`} className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded text-sm" />
+                      <input type="text" value={f.description} onChange={(e) => updateFeature(idx, 'description', e.target.value)} placeholder="Descrição" className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded text-sm" />
                     </div>
-                  )}
+                  ))}
                 </div>
+              </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleToggle(service)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                    title={service.active ? 'Desativar' : 'Ativar'}
-                  >
-                    {service.active ? (
-                      <Eye className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleEdit(service)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                    title="Editar"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(service)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors text-destructive"
-                    title="Excluir"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground">Home pill (badge)</label>
+                  <input type="text" value={form.homePill} onChange={(e) => setForm({ ...form, homePill: e.target.value })} placeholder="SLA 24/7" className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
                 </div>
-              </motion.div>
-            ))}
+                <div>
+                  <label className="text-xs text-muted-foreground">Home tags (separadas por vírgula)</label>
+                  <input type="text" value={form.homePillTags} onChange={(e) => setForm({ ...form, homePillTags: e.target.value })} placeholder="Dev, DevOps, QA" className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
+                  Ativo
+                </label>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-xs text-muted-foreground">Ordem:</span>
+                  <input type="number" value={form.order ?? ''} onChange={(e) => setForm({ ...form, order: e.target.value ? Number(e.target.value) : undefined })} className="w-20 px-2 py-1 bg-black/40 border border-white/10 rounded" />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 hover:bg-white/10 rounded">Cancelar</button>
+                <button type="submit" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded">
+                  <Save className="h-4 w-4" /> Salvar
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

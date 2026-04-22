@@ -194,4 +194,13 @@ export const CacheKeys = {
 
   // Perks (benefícios carreira)
   perks: "perks",
+
+  // Home Live Card / Brand Pill / Band / Stack items
+  homeLive: "home-live",
+  homePill: "home-pill",
+  homeBand: "home-band",
+  stack: "stack",
+
+  // About cards
+  aboutCards: "about-cards",
 };

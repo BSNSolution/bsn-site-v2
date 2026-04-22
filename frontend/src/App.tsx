@@ -33,6 +33,11 @@ const AdminUploadsPage = lazy(() => import('@/pages/admin/AdminUploadsPage'))
 const AdminValuesPage = lazy(() => import('@/pages/admin/AdminValuesPage'))
 const AdminKPIsPage = lazy(() => import('@/pages/admin/AdminKPIsPage'))
 const AdminPerksPage = lazy(() => import('@/pages/admin/AdminPerksPage'))
+const AdminHomeLivePage = lazy(() => import('@/pages/admin/AdminHomeLivePage'))
+const AdminHomePillPage = lazy(() => import('@/pages/admin/AdminHomePillPage'))
+const AdminHomeBandPage = lazy(() => import('@/pages/admin/AdminHomeBandPage'))
+const AdminStackPage = lazy(() => import('@/pages/admin/AdminStackPage'))
+const AdminAboutCardsPage = lazy(() => import('@/pages/admin/AdminAboutCardsPage'))
 
 // Components
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -283,6 +288,11 @@ function App() {
             <Route path="values" element={<AdminValuesPage />} />
             <Route path="kpis" element={<AdminKPIsPage />} />
             <Route path="perks" element={<AdminPerksPage />} />
+            <Route path="home-live" element={<AdminHomeLivePage />} />
+            <Route path="home-pill" element={<AdminHomePillPage />} />
+            <Route path="home-band" element={<AdminHomeBandPage />} />
+            <Route path="stack" element={<AdminStackPage />} />
+            <Route path="about-cards" element={<AdminAboutCardsPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
           </Route>
 

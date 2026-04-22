@@ -793,6 +793,25 @@ body.menu-open .nav-burger span::after {
     pointer-events: none;
     transition: opacity 0.3s;
   }
+  .mobile-sheet .ms-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .mobile-sheet .ms-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
   body.menu-open .mobile-sheet {
     opacity: 1;
     pointer-events: auto;
@@ -884,7 +903,8 @@ body.menu-open .nav-burger span::after {
     border-radius: 18px;
   }
   .hero-s {
-    padding: 48px 0 20px !important;
+    padding-top: 48px !important;
+    padding-bottom: 20px !important;
   }
   .hero-s h1 {
     font-size: clamp(36px, 10vw, 52px) !important;
@@ -941,7 +961,8 @@ body.menu-open .nav-burger span::after {
 
 /* HOME HERO */
 .home-hero {
-  padding: 60px 0 80px;
+  padding-top: 60px;
+  padding-bottom: 80px;
   position: relative;
 }
 
@@ -1268,7 +1289,8 @@ body.menu-open .nav-burger span::after {
 
 /* mosaic */
 .vitral {
-  padding: 120px 0 60px;
+  padding-top: 120px;
+  padding-bottom: 60px;
 }
 
 .mosaic {
@@ -1425,7 +1447,8 @@ body.menu-open .nav-burger span::after {
 
 /* band */
 .band {
-  padding: 80px 0;
+  padding-top: 80px;
+  padding-bottom: 80px;
 }
 
 .band-inner {
@@ -1479,7 +1502,8 @@ body.menu-open .nav-burger span::after {
 
 /* stack marquee */
 .stack {
-  padding: 60px 0;
+  padding-top: 60px;
+  padding-bottom: 60px;
 }
 
 .marquee {
@@ -1525,7 +1549,8 @@ body.menu-open .nav-burger span::after {
 
 /* generic inner-page hero */
 .hero-s {
-  padding: 80px 0 40px;
+  padding-top: 80px;
+  padding-bottom: 40px;
 }
 
 .hero-s h1 {
@@ -1555,7 +1580,8 @@ body.menu-open .nav-burger span::after {
 
 /* Services page */
 .svc-grid {
-  padding: 60px 0;
+  padding-top: 60px;
+  padding-bottom: 60px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -1651,7 +1677,8 @@ body.menu-open .nav-burger span::after {
 
 /* Solutions page */
 .sol-grid {
-  padding: 60px 0;
+  padding-top: 60px;
+  padding-bottom: 60px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
@@ -1747,7 +1774,8 @@ body.menu-open .nav-burger span::after {
 
 /* About page */
 .about-grid {
-  padding: 60px 0;
+  padding-top: 60px;
+  padding-bottom: 60px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
@@ -1791,7 +1819,8 @@ body.menu-open .nav-burger span::after {
 .about-grid .c4 .shard { background: var(--amber); bottom: -60px; right: -60px; }
 
 .values {
-  padding: 80px 0;
+  padding-top: 80px;
+  padding-bottom: 80px;
 }
 .values .head h2 {
   font-family: 'Inter', sans-serif;
@@ -1844,7 +1873,8 @@ body.menu-open .nav-burger span::after {
 }
 
 .team {
-  padding: 80px 0;
+  padding-top: 80px;
+  padding-bottom: 80px;
 }
 .team .head h2 {
   font-family: 'Inter', sans-serif;
@@ -1906,7 +1936,8 @@ body.menu-open .nav-burger span::after {
 
 /* Blog page */
 .feat {
-  padding: 60px 0;
+  padding-top: 60px;
+  padding-bottom: 60px;
 }
 .feat-card {
   padding: 48px;
@@ -1983,7 +2014,8 @@ body.menu-open .nav-burger span::after {
 }
 
 .posts {
-  padding: 40px 0 80px;
+  padding-top: 40px;
+  padding-bottom: 80px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
@@ -2042,7 +2074,8 @@ body.menu-open .nav-burger span::after {
 
 /* Contact page */
 .contact-wrap {
-  padding: 60px 0 80px;
+  padding-top: 60px;
+  padding-bottom: 80px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
@@ -2222,7 +2255,8 @@ body.menu-open .nav-burger span::after {
 
 /* Careers page */
 .perks {
-  padding: 40px 0;
+  padding-top: 40px;
+  padding-bottom: 40px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
@@ -2246,7 +2280,8 @@ body.menu-open .nav-burger span::after {
   margin-top: 8px;
 }
 .jobs {
-  padding: 40px 0 80px;
+  padding-top: 40px;
+  padding-bottom: 80px;
 }
 .jobs h2 {
   font-family: 'Inter', sans-serif;
@@ -2290,7 +2325,8 @@ body.menu-open .nav-burger span::after {
 
 /* Legal pages */
 .legal {
-  padding: 80px 0;
+  padding-top: 80px;
+  padding-bottom: 80px;
 }
 .legal h1 {
   font-family: 'Inter', sans-serif;
@@ -2346,34 +2382,131 @@ body.menu-open .nav-burger span::after {
 }
 
 @media (max-width: 640px) {
-  .vitral { padding: 64px 0 32px; }
+  .vitral { padding-top: 64px; padding-bottom: 32px; }
   .band-inner { padding: 32px 24px; }
-  .home-hero { padding: 40px 0 40px; }
+  .home-hero { padding-top: 40px; padding-bottom: 40px; }
   .home-hero .left { padding: 24px 0 0; }
   .hero-meta > div { padding: 18px 20px; }
   .svc { padding: 22px; gap: 24px; }
   .svc h2 { font-size: 26px; }
-  .svc-grid { padding: 32px 0; gap: 12px; }
-  .sol-grid { padding: 32px 0; gap: 12px; }
+  .svc-grid { padding-top: 32px; padding-bottom: 32px; gap: 12px; }
+  .sol-grid { padding-top: 32px; padding-bottom: 32px; gap: 12px; }
   .sol { padding: 24px; min-height: 0; }
-  .about-grid { padding: 32px 0; }
+  .about-grid { padding-top: 32px; padding-bottom: 32px; }
   .about-grid .card { padding: 24px; min-height: 0; }
-  .values, .team { padding: 48px 0; }
+  .values, .team { padding-top: 48px; padding-bottom: 48px; }
   .val, .person { padding: 22px; min-height: 0; }
   .val .vn { font-size: 36px; }
   .feat-card { padding: 24px; gap: 24px; }
   .post { padding: 22px; }
   .posts { gap: 12px; }
-  .contact-wrap { padding: 40px 0 60px; }
+  .contact-wrap { padding-top: 40px; padding-bottom: 60px; }
   .channels, .form-card { padding: 24px; }
   .channels h2 { font-size: 28px; }
   .chan { padding: 16px 18px; }
   .perks { grid-template-columns: 1fr !important; gap: 12px; }
   .perk { padding: 22px; }
   .job { padding: 22px; gap: 14px; }
-  .legal { padding: 48px 0; }
+  .legal { padding-top: 48px; padding-bottom: 48px; }
   .doc { padding: 28px 22px; }
   .doc h2 { font-size: 22px; }
+}
+
+/* ============================================================
+   Admin panel — glassmorphism layout
+   ============================================================ */
+.admin-shell {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  color: var(--ink);
+}
+
+.admin-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 280px;
+  z-index: 40;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.admin-sidebar.open {
+  transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+  .admin-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    transform: none;
+    flex-shrink: 0;
+  }
+}
+
+.admin-sidebar-inner {
+  height: 100vh;
+  background: rgba(12, 12, 20, 0.75);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  margin: 16px 16px 0;
+  border-radius: 14px;
+  position: sticky;
+  top: 12px;
+  z-index: 20;
+}
+
+@media (max-width: 760px) {
+  .admin-topbar {
+    margin: 12px;
+    padding: 10px 14px;
+  }
+}
+
+.admin-content {
+  padding: 24px;
+  flex: 1;
+}
+
+@media (max-width: 760px) {
+  .admin-content {
+    padding: 16px;
+  }
+}
+
+/* shadcn overrides — usar tokens do site ao invés de HSL defaults */
+.admin-shell .bg-card {
+  background: rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(20px) saturate(160%);
+}
+.admin-shell .bg-background {
+  background: transparent !important;
+}
+.admin-shell .bg-muted {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+.admin-shell .border-border {
+  border-color: var(--line) !important;
 }
 
 /* ============================================================

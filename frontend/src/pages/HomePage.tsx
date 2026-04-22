@@ -4,7 +4,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { useAnalytics } from '@/hooks/use-analytics'
 import { useEffect } from 'react'
-import { api } from '@/lib/api'
+import { api, homeExtrasApi, stackApi } from '@/lib/api'
 
 interface Service {
   id: string
@@ -12,6 +12,11 @@ interface Service {
   subtitle?: string | null
   description: string
   iconName?: string | null
+  anchor?: string | null
+  numLabel?: string | null
+  tileClass?: string | null
+  homePill?: string | null
+  homePillTags?: string[]
   order: number
 }
 
@@ -24,93 +29,35 @@ interface KPI {
   order: number
 }
 
-const DEFAULT_SERVICES: Service[] = [
-  {
-    id: '1',
-    title: 'Desenvolvimento de software sob medida',
-    description:
-      'Sistemas construídos para a realidade da sua operação — de portais complexos a módulos de integração e dashboards executivos.',
-    iconName: 'code',
-    order: 1,
-  },
-  {
-    id: '2',
-    title: 'Squads ágeis multidisciplinares',
-    description: 'Times plug-and-play que integram ao seu fluxo em até 5 dias úteis.',
-    iconName: 'squad',
-    order: 2,
-  },
-  {
-    id: '3',
-    title: 'Automação de processos',
-    description: 'Integramos sistemas e orquestramos fluxos que devolvem horas à equipe.',
-    iconName: 'auto',
-    order: 3,
-  },
-  {
-    id: '4',
-    title: 'Consultoria em tecnologia',
-    description: 'Diagnóstico que alinha processos, infraestrutura e inovação.',
-    iconName: 'box',
-    order: 4,
-  },
-  {
-    id: '5',
-    title: 'Infraestrutura & VPS gerenciada',
-    description: 'Servidores dimensionados para sua carga, com backups e monitoramento.',
-    iconName: 'server',
-    order: 5,
-  },
-  {
-    id: '6',
-    title: 'Suporte técnico e evolução contínua',
-    description: 'Planos que acompanham o crescimento — adicione funcionalidades a qualquer momento.',
-    iconName: 'support',
-    order: 6,
-  },
-  {
-    id: '7',
-    title: 'Outsourcing de TI e alocação estratégica',
-    description:
-      'Mantenha o foco no core do seu negócio. Nossos especialistas assumem demandas específicas com previsibilidade de custo e prazo.',
-    iconName: 'build',
-    order: 7,
-  },
-]
+interface LiveCardRow {
+  label: string
+  value: string
+  highlight?: string | null
+}
 
-const DEFAULT_KPIS: KPI[] = [
-  { id: '1', label: 'EXPERIÊNCIA', value: '12', suffix: '+', caption: 'anos entregando software de missão crítica', order: 1 },
-  { id: '2', label: 'PORTFÓLIO', value: '80', suffix: '+', caption: 'projetos entregues em 14 setores', order: 2 },
-  { id: '3', label: 'VELOCIDADE', value: '5', suffix: 'dias', caption: 'para integrar um squad ao seu time', order: 3 },
-  { id: '4', label: 'COBERTURA', value: '24', suffix: '/7', caption: 'suporte, monitoramento e evolução contínua', order: 4 },
-]
+interface LiveCard {
+  id: string
+  label: string
+  title: string
+  rows: LiveCardRow[]
+}
 
-const STACK = [
-  'TypeScript',
-  'Node.js',
-  'React',
-  'Next.js',
-  'Python',
-  'Django',
-  'PostgreSQL',
-  'Redis',
-  'AWS',
-  'Kubernetes',
-  'Terraform',
-  'Kafka',
-]
+interface BrandPill {
+  id: string
+  personName: string
+  company?: string | null
+  quote: string
+  avatarUrl?: string | null
+}
 
-const SERVICE_ANCHORS = [
-  '/servicos#sob-medida',
-  '/servicos#squads',
-  '/servicos#automacao',
-  '/servicos#consultoria',
-  '/servicos#infra',
-  '/servicos#suporte',
-  '/servicos#outsourcing',
-]
-
-const TILE_CLASSES = ['t1', 't2', 't3', 't4', 't5', 't6', 't7']
+interface HomeBand {
+  id: string
+  eyebrow: string
+  title: string
+  ctaLabel: string
+  ctaUrl: string
+  mono: string
+}
 
 const ICONS: Record<string, JSX.Element> = {
   code: (
@@ -155,9 +102,9 @@ const ICONS: Record<string, JSX.Element> = {
   ),
 }
 
-function iconFor(iconName?: string | null, fallback: string = 'code') {
-  const key = iconName && ICONS[iconName] ? iconName : fallback
-  return ICONS[key] ?? ICONS[fallback]
+function iconFor(iconName?: string | null) {
+  if (iconName && ICONS[iconName]) return ICONS[iconName]
+  return ICONS.code
 }
 
 export default function HomePage() {
@@ -170,25 +117,46 @@ export default function HomePage() {
 
   const servicesQuery = useQuery<{ services: Service[] }>({
     queryKey: ['services-home'],
-    queryFn: async () => {
-      const res = await api.get('/services')
-      return res.data
-    },
+    queryFn: async () => (await api.get('/services')).data,
     staleTime: 5 * 60 * 1000,
   })
 
   const kpiQuery = useQuery<{ kpis: KPI[] }>({
     queryKey: ['kpis-home'],
-    queryFn: async () => {
-      const res = await api.get('/kpis')
-      return res.data
-    },
+    queryFn: async () => (await api.get('/kpis')).data,
     staleTime: 5 * 60 * 1000,
-    retry: false,
   })
 
-  const services = (servicesQuery.data?.services?.length ? servicesQuery.data.services : DEFAULT_SERVICES).slice(0, 7)
-  const kpis = (kpiQuery.data?.kpis?.length ? kpiQuery.data.kpis : DEFAULT_KPIS).slice(0, 4)
+  const liveCardQuery = useQuery<{ card: LiveCard | null }>({
+    queryKey: ['home-live-card'],
+    queryFn: homeExtrasApi.getLiveCard,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const pillQuery = useQuery<{ pill: BrandPill | null }>({
+    queryKey: ['home-brand-pill'],
+    queryFn: homeExtrasApi.getBrandPill,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const bandQuery = useQuery<{ band: HomeBand | null }>({
+    queryKey: ['home-band'],
+    queryFn: homeExtrasApi.getBand,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const stackQuery = useQuery<{ items: { id: string; name: string }[] }>({
+    queryKey: ['stack-items'],
+    queryFn: stackApi.getItems,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const services = (servicesQuery.data?.services ?? []).slice(0, 7)
+  const kpis = kpiQuery.data?.kpis ?? []
+  const live = liveCardQuery.data?.card
+  const pill = pillQuery.data?.pill
+  const band = bandQuery.data?.band
+  const stack = stackQuery.data?.items ?? []
 
   return (
     <div className="page">
@@ -231,128 +199,136 @@ export default function HomePage() {
           </div>
 
           <aside className="right">
-            <div className="card-live glass">
-              <div className="shard" />
-              <div className="pulse">
-                <span className="bullet" />
-                <span>Ao vivo · operação 24/7</span>
+            {live && (
+              <div className="card-live glass">
+                <div className="shard" />
+                <div className="pulse">
+                  <span className="bullet" />
+                  <span>{live.label}</span>
+                </div>
+                <h4>{live.title}</h4>
+                <div className="ticker">
+                  {live.rows.map((row, idx) => (
+                    <div key={idx} className="row">
+                      <span>{row.label}</span>
+                      <b className={row.highlight === 'up' ? 'up' : ''}>{row.value}</b>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <h4>Monitoramos 32 projetos em produção agora mesmo.</h4>
-              <div className="ticker">
-                <div className="row"><span>Uptime · ano</span><b className="up">99.97%</b></div>
-                <div className="row"><span>Deploys · semana</span><b>147</b></div>
-                <div className="row"><span>Tickets resolvidos</span><b className="up">↑ 12%</b></div>
+            )}
+            {pill && (
+              <div className="card-pill glass">
+                <div className="shard" />
+                <div className="av" style={pill.avatarUrl ? { backgroundImage: `url(${pill.avatarUrl})`, backgroundSize: 'cover' } : undefined} />
+                <div className="t">
+                  <b>{pill.personName}</b>
+                  {pill.company ? ` · ${pill.company}` : ''}
+                  <br />
+                  {pill.quote}
+                </div>
               </div>
-            </div>
-            <div className="card-pill glass">
-              <div className="shard" />
-              <div className="av" />
-              <div className="t">
-                <b>Carolina Menezes</b> · FinCo
-                <br />
-                "Ritmo de entrega 3× superior ao esperado."
-              </div>
-            </div>
+            )}
           </aside>
         </div>
 
-        <div className="hero-meta">
-          {kpis.map((kpi) => (
-            <div key={kpi.id}>
-              <div className="km">{kpi.label}</div>
-              <div className="k">
-                {kpi.value}
-                {kpi.suffix && <em>{kpi.suffix}</em>}
-              </div>
-              <div className="l">{kpi.caption}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="vitral shell">
-        <div className="section-head">
-          <h2 className="display">
-            Um mosaico de capacidades técnicas,{' '}
-            <span className="dim">uma única entrega de valor.</span>
-          </h2>
-          <p className="lede">
-            Cada vidraça do nosso vitral é uma competência afiada — montadas juntas, viram soluções sob medida para o
-            seu problema de negócio.
-          </p>
-        </div>
-
-        <div className="mosaic">
-          {services.map((svc, i) => (
-            <Link
-              key={svc.id}
-              to={SERVICE_ANCHORS[i] ?? '/servicos'}
-              className={`tile glass ${TILE_CLASSES[i] ?? 't' + (i + 1)}`}
-            >
-              <div className="tile-body">
-                <div className="tile-head">
-                  <div>
-                    <div className="svc-num">SVC · {String(i + 1).padStart(2, '0')}</div>
-                    <h3 style={{ marginTop: 10 }}>{svc.title}</h3>
-                    {(i === 0 || i === 6) && (
-                      <p style={{ marginTop: 8, maxWidth: i === 0 ? 420 : 480 }}>{svc.description}</p>
-                    )}
-                    {i !== 0 && i !== 6 && <p>{svc.description}</p>}
-                  </div>
-                  <div className="tile-icon">{iconFor(svc.iconName, ['code','squad','auto','box','server','support','build'][i])}</div>
+        {kpis.length > 0 && (
+          <div className="hero-meta">
+            {kpis.map((kpi) => (
+              <div key={kpi.id}>
+                <div className="km">{kpi.label}</div>
+                <div className="k">
+                  {kpi.value}
+                  {kpi.suffix && <em>{kpi.suffix}</em>}
                 </div>
-                {i === 0 && <span className="pill">Ver detalhes →</span>}
-                {i === 1 && <span className="pill">Plug &amp; play</span>}
-                {i === 5 && <span className="pill">SLA 24/7</span>}
-                {i === 6 && (
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <span className="pill">Dev</span>
-                    <span className="pill">DevOps</span>
-                    <span className="pill">QA</span>
-                    <span className="pill">Data</span>
-                    <span className="pill">Produto</span>
-                  </div>
-                )}
+                <div className="l">{kpi.caption}</div>
               </div>
-            </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
-      <section className="band shell">
-        <div className="band-inner glass">
-          <div className="band-shard a" />
-          <div className="band-shard b" />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div className="mono" style={{ marginBottom: 18 }}>FILOSOFIA</div>
+      {services.length > 0 && (
+        <section className="vitral shell">
+          <div className="section-head">
             <h2 className="display">
-              Software fácil de usar. <em>Difícil de ignorar.</em>
-              <br />
-              Feito para durar tanto quanto sua empresa.
+              Um mosaico de capacidades técnicas,{' '}
+              <span className="dim">uma única entrega de valor.</span>
             </h2>
-            <div className="band-cta">
-              <Link to="/contato" className="btn btn-primary">
-                Conversar com um especialista <span>↗</span>
-              </Link>
-              <span className="mono">Diagnóstico inicial gratuito · 45 min</span>
+            <p className="lede">
+              Cada vidraça do nosso vitral é uma competência afiada — montadas juntas, viram soluções sob medida para o
+              seu problema de negócio.
+            </p>
+          </div>
+
+          <div className="mosaic">
+            {services.map((svc, i) => {
+              const tileClass = svc.tileClass || `t${i + 1}`
+              const href = svc.anchor ? `/servicos#${svc.anchor}` : '/servicos'
+              return (
+                <Link
+                  key={svc.id}
+                  to={href}
+                  className={`tile glass ${tileClass}`}
+                >
+                  <div className="tile-body">
+                    <div className="tile-head">
+                      <div>
+                        <div className="svc-num">{svc.numLabel || `SVC · ${String(i + 1).padStart(2, '0')}`}</div>
+                        <h3 style={{ marginTop: 10 }}>{svc.title}</h3>
+                        {(i === 0 || i === 6) && (
+                          <p style={{ marginTop: 8, maxWidth: i === 0 ? 420 : 480 }}>{svc.description}</p>
+                        )}
+                        {i !== 0 && i !== 6 && <p>{svc.description}</p>}
+                      </div>
+                      <div className="tile-icon">{iconFor(svc.iconName)}</div>
+                    </div>
+                    {svc.homePill && <span className="pill">{svc.homePill}</span>}
+                    {svc.homePillTags && svc.homePillTags.length > 0 && (
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        {svc.homePillTags.map((t) => (
+                          <span key={t} className="pill">{t}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      {band && (
+        <section className="band shell">
+          <div className="band-inner glass">
+            <div className="band-shard a" />
+            <div className="band-shard b" />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div className="mono" style={{ marginBottom: 18 }}>{band.eyebrow}</div>
+              <h2 className="display" dangerouslySetInnerHTML={{ __html: band.title }} />
+              <div className="band-cta">
+                <Link to={band.ctaUrl} className="btn btn-primary">
+                  {band.ctaLabel}
+                </Link>
+                <span className="mono">{band.mono}</span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="stack shell">
-        <div className="mono" style={{ marginBottom: 18 }}>STACK &amp; FERRAMENTAS QUE DOMINAMOS</div>
-        <div className="marquee">
-          <div className="marquee-track">
-            {STACK.map((t, idx) => (
-              <span key={`a-${idx}-${t}`}>{t}</span>
-            ))}
-            {STACK.map((t, idx) => (
-              <span key={`b-${idx}-${t}`}>{t}</span>
-            ))}
+      {stack.length > 0 && (
+        <section className="stack shell">
+          <div className="mono" style={{ marginBottom: 18 }}>STACK &amp; FERRAMENTAS QUE DOMINAMOS</div>
+          <div className="marquee">
+            <div className="marquee-track">
+              {stack.map((t) => <span key={`a-${t.id}`}>{t.name}</span>)}
+              {stack.map((t) => <span key={`b-${t.id}`}>{t.name}</span>)}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <Footer />
     </div>

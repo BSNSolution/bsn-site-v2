@@ -17,6 +17,10 @@ const solutionSchema = z.object({
   technologies: z.array(z.string()).optional().default([]),
   projectUrl: optionalUrl,
   githubUrl: optionalUrl,
+  tag: z.string().optional().nullable(),
+  colorClass: z.string().optional().nullable(),
+  bullets: z.array(z.string()).optional().default([]),
+  ctaLabel: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
   order: z.number().optional(),
@@ -31,18 +35,6 @@ export default async function solutionsRoutes(fastify: FastifyInstance) {
         const solutions = await prisma.solution.findMany({
           where: { isActive: true },
           orderBy: { order: "asc" },
-          select: {
-            id: true,
-            title: true,
-            subtitle: true,
-            description: true,
-            imageUrl: true,
-            technologies: true,
-            projectUrl: true,
-            githubUrl: true,
-            isFeatured: true,
-            order: true,
-          },
         });
         return { solutions };
       },
@@ -62,17 +54,6 @@ export default async function solutionsRoutes(fastify: FastifyInstance) {
             isFeatured: true,
           },
           orderBy: { order: "asc" },
-          select: {
-            id: true,
-            title: true,
-            subtitle: true,
-            description: true,
-            imageUrl: true,
-            technologies: true,
-            projectUrl: true,
-            githubUrl: true,
-            order: true,
-          },
         });
         return { solutions };
       },

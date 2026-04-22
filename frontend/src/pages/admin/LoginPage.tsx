@@ -1,161 +1,170 @@
-import { useState } from 'react'
+import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { Eye, EyeOff, LogIn, Mail, Lock } from 'lucide-react'
 import { authApi } from '@/lib/api'
 
 export default function LoginPage() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    setIsLoading(true)
     setError('')
-
+    setLoading(true)
     try {
-      const data = await authApi.login(email, password)
-      
-      // Store token (authApi.login returns {token, user} directly)
-      if (data?.token) {
-        localStorage.setItem('bsn-auth-token', data.token)
-        // Redirect to admin dashboard
-        navigate('/admin')
-      } else {
-        throw new Error('Token não recebido')
-      }
+      const res = await authApi.login(email, password)
+      const token = res?.token
+      if (!token) throw new Error('Credenciais inválidas')
+      localStorage.setItem('bsn-auth-token', token)
+      navigate('/admin')
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Erro ao fazer login'
-      setError(errorMessage)
+      setError(err?.response?.data?.error || 'Falha ao fazer login. Verifique as credenciais.')
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      {/* Background grain effect */}
-      <div className="absolute inset-0 bg-grain opacity-[0.03]" />
-      
-      {/* Login form */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="w-full max-w-md relative z-10"
-      >
-        <div className="glass-card p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex justify-center mb-4"
-            >
-              <img
-                src="/logo-md.png"
-                alt="BSN Solution"
-                className="h-14 w-auto"
-              />
-            </motion.div>
-            <p className="text-muted-foreground">
-              Acesse o painel administrativo
+    <div className="page login-page">
+      <div className="bg-glass" />
+      <div className="bg-aurora" />
+      <div className="page-shards">
+        <div className="shard s1" />
+        <div className="shard s2" />
+        <div className="shard s3" />
+      </div>
+      <div className="bg-grid" />
+      <div className="bg-noise" />
+
+      <div className="shell" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+        <div className="glass" style={{ width: '100%', maxWidth: 440, padding: 40, position: 'relative' }}>
+          <div style={{ textAlign: 'center', marginBottom: 32 }}>
+            <img src="/assets/logo.png" alt="BSN Solution" style={{ height: 48, width: 'auto', display: 'inline-block', marginBottom: 16 }} />
+            <div className="mono" style={{ marginTop: 8 }}>ACESSO RESTRITO · PAINEL DE CONTROLE</div>
+            <h1 style={{ fontSize: 32, letterSpacing: '-0.03em', fontWeight: 500, marginTop: 12 }}>
+              Entre no <em className="prism" style={{ fontStyle: 'italic', fontWeight: 400 }}>admin</em>
+            </h1>
+            <p style={{ color: 'var(--ink-dim)', fontSize: 14, marginTop: 8 }}>
+              Gerencie todo o conteúdo do site BSN Solution.
             </p>
           </div>
 
-          {/* Error message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg mb-6"
-            >
-              {error}
-            </motion.div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="field">
+              <label>Email</label>
+              <div style={{ position: 'relative' }}>
+                <Mail style={{ position: 'absolute', top: '50%', left: 14, transform: 'translateY(-50%)', width: 16, height: 16, color: 'var(--ink-faint)', pointerEvents: 'none' }} />
                 <input
-                  id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@bsnsolution.com.br"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                  placeholder="seu@email.com"
+                  disabled={loading}
+                  autoComplete="email"
+                  style={{ paddingLeft: 40 }}
                 />
               </div>
             </div>
 
-            {/* Password field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
-                Senha
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <div className="field">
+              <label>Senha</label>
+              <div style={{ position: 'relative' }}>
+                <Lock style={{ position: 'absolute', top: '50%', left: 14, transform: 'translateY(-50%)', width: 16, height: 16, color: 'var(--ink-faint)', pointerEvents: 'none' }} />
                 <input
-                  id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-12 py-3 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                   placeholder="••••••••"
+                  required
+                  disabled={loading}
+                  autoComplete="current-password"
+                  style={{ paddingLeft: 40, paddingRight: 40 }}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => setShowPassword((v) => !v)}
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    right: 10,
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--ink-faint)',
+                    cursor: 'pointer',
+                    padding: 6,
+                    borderRadius: 6,
+                  }}
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Submit button */}
-            <motion.button
+            {error && (
+              <div style={{
+                padding: '10px 14px',
+                borderRadius: 10,
+                background: 'rgba(239, 68, 68, 0.12)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                color: '#fca5a5',
+                fontSize: 13,
+              }}>
+                {error}
+              </div>
+            )}
+
+            <button
               type="submit"
-              disabled={isLoading || !email || !password}
-              whileHover={!isLoading ? { scale: 1.02 } : {}}
-              whileTap={!isLoading ? { scale: 0.98 } : {}}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}
+              disabled={loading}
             >
-              {isLoading ? (
+              {loading ? 'Entrando...' : (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-                  Entrando...
-                </>
-              ) : (
-                <>
-                  <LogIn className="h-5 w-5" />
-                  Entrar
+                  <LogIn className="h-4 w-4" /> Entrar
                 </>
               )}
-            </motion.button>
+            </button>
           </form>
 
-          {/* Footer */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-muted-foreground">
-              BSN Solution © {new Date().getFullYear()}
-            </p>
+          <div style={{ marginTop: 24, textAlign: 'center' }}>
+            <a href="/" className="mono" style={{ textDecoration: 'none' }}>← Voltar ao site</a>
           </div>
         </div>
-      </motion.div>
+      </div>
+
+      <style>{`
+        .login-page .field { display: flex; flex-direction: column; gap: 6px; }
+        .login-page .field label {
+          font-size: 11px;
+          font-family: 'JetBrains Mono', monospace;
+          letter-spacing: 0.14em;
+          color: var(--ink-faint);
+          text-transform: uppercase;
+        }
+        .login-page .field input {
+          background: rgba(0, 0, 0, 0.35);
+          border: 1px solid var(--line);
+          border-radius: 12px;
+          padding: 14px 16px;
+          color: var(--ink);
+          font-family: inherit;
+          font-size: 15px;
+          outline: none;
+          transition: 0.2s;
+          width: 100%;
+        }
+        .login-page .field input:focus {
+          border-color: rgba(122, 91, 255, 0.6);
+          background: rgba(122, 91, 255, 0.06);
+        }
+      `}</style>
     </div>
   )
 }

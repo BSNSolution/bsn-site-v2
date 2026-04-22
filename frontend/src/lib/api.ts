@@ -59,6 +59,43 @@ export interface PaginationResponse<T> {
   }
 }
 
+// ===== CMS extras (new layout) =====
+export const homeExtrasApi = {
+  getLiveCard: async () => (await api.get('/home/live-card')).data,
+  getBrandPill: async () => (await api.get('/home/brand-pill')).data,
+  getBand: async () => (await api.get('/home/band')).data,
+  admin: {
+    getLiveCard: async () => (await api.get('/admin/home/live-card')).data,
+    saveLiveCard: async (data: any) => (await api.put('/admin/home/live-card', data)).data,
+    getBrandPill: async () => (await api.get('/admin/home/brand-pill')).data,
+    saveBrandPill: async (data: any) => (await api.put('/admin/home/brand-pill', data)).data,
+    getBand: async () => (await api.get('/admin/home/band')).data,
+    saveBand: async (data: any) => (await api.put('/admin/home/band', data)).data,
+  },
+}
+
+export const stackApi = {
+  getItems: async () => (await api.get('/stack')).data,
+  admin: {
+    getItems: async () => (await api.get('/admin/stack')).data,
+    create: async (data: any) => (await api.post('/admin/stack', data)).data,
+    update: async (id: string, data: any) => (await api.put(`/admin/stack/${id}`, data)).data,
+    remove: async (id: string) => (await api.delete(`/admin/stack/${id}`)).data,
+    toggle: async (id: string) => (await api.patch(`/admin/stack/${id}/toggle`)).data,
+  },
+}
+
+export const aboutCardsApi = {
+  getCards: async () => (await api.get('/about-cards')).data,
+  admin: {
+    getCards: async () => (await api.get('/admin/about-cards')).data,
+    create: async (data: any) => (await api.post('/admin/about-cards', data)).data,
+    update: async (id: string, data: any) => (await api.put(`/admin/about-cards/${id}`, data)).data,
+    remove: async (id: string) => (await api.delete(`/admin/about-cards/${id}`)).data,
+    toggle: async (id: string) => (await api.patch(`/admin/about-cards/${id}/toggle`)).data,
+  },
+}
+
 // Auth API
 export const authApi = {
   login: async (email: string, password: string) => {

@@ -18,22 +18,8 @@ interface Job {
   type: string
   isActive: boolean
   requirements?: string | null
+  order?: number
 }
-
-const DEFAULT_PERKS: Perk[] = [
-  { id: '1', title: 'Remoto-first', description: 'Trabalhe de onde for mais produtivo. Encontros presenciais trimestrais opcionais.', order: 1 },
-  { id: '2', title: 'Aprendizado contínuo', description: 'R$ 5.000/ano para cursos, livros, conferências. Sem burocracia.', order: 2 },
-  { id: '3', title: 'Equipamento top', description: 'MacBook Pro, monitor, cadeira ergonômica. Tudo que precisa.', order: 3 },
-  { id: '4', title: 'Participação real', description: 'Plano de stock options para sêniores e lideranças após o ciclo.', order: 4 },
-]
-
-const DEFAULT_JOBS: Job[] = [
-  { id: '1', title: 'Engenheiro(a) de Software Sênior', description: '', type: 'FULL_TIME', isActive: true, location: 'REMOTO', requirements: 'TypeScript · Node · React' },
-  { id: '2', title: 'SRE / DevOps Pleno', description: '', type: 'FULL_TIME', isActive: true, location: 'REMOTO', requirements: 'AWS · K8s · Terraform' },
-  { id: '3', title: 'Product Designer Sênior', description: '', type: 'FULL_TIME', isActive: true, location: 'REMOTO', requirements: 'Figma · Pesquisa · Sistemas' },
-  { id: '4', title: 'QA Automation Pleno', description: '', type: 'FULL_TIME', isActive: true, location: 'REMOTO', requirements: 'Playwright · Cypress' },
-  { id: '5', title: 'Product Manager', description: '', type: 'FULL_TIME', isActive: true, location: 'SP · HÍBRIDO', requirements: 'B2B · Fintech · Coop' },
-]
 
 export default function CareersPage() {
   const jobsQuery = useQuery<{ jobs?: Job[] }>({
@@ -44,16 +30,12 @@ export default function CareersPage() {
 
   const perksQuery = useQuery<{ perks: Perk[] }>({
     queryKey: ['perks-public'],
-    queryFn: async () => {
-      const res = await api.get('/perks')
-      return res.data
-    },
+    queryFn: async () => (await api.get('/perks')).data,
     staleTime: 5 * 60 * 1000,
-    retry: false,
   })
 
-  const jobs = (jobsQuery.data?.jobs?.length ? jobsQuery.data.jobs : DEFAULT_JOBS).filter((j) => j.isActive)
-  const perks = (perksQuery.data?.perks?.length ? perksQuery.data.perks : DEFAULT_PERKS).slice(0, 4)
+  const jobs = (jobsQuery.data?.jobs ?? []).filter((j) => j.isActive)
+  const perks = perksQuery.data?.perks ?? []
 
   return (
     <div className="page">
@@ -75,14 +57,16 @@ export default function CareersPage() {
         </p>
       </section>
 
-      <section className="perks shell">
-        {perks.map((perk) => (
-          <div key={perk.id} className="perk glass">
-            <h4>{perk.title}</h4>
-            <p>{perk.description}</p>
-          </div>
-        ))}
-      </section>
+      {perks.length > 0 && (
+        <section className="perks shell">
+          {perks.map((perk) => (
+            <div key={perk.id} className="perk glass">
+              <h4>{perk.title}</h4>
+              <p>{perk.description}</p>
+            </div>
+          ))}
+        </section>
+      )}
 
       <section className="jobs shell">
         <h2>Vagas abertas · {jobs.length}</h2>

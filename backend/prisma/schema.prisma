@@ -96,11 +96,25 @@ enum SectionType {
 model Service {
   id          String   @id @default(uuid())
   title       String
-  subtitle    String?
-  description String
+  subtitle    String?  // ex: "sob medida" — segunda linha do h2 da página de serviço
+  description String   // lede/resumo
   content     String?
   imageUrl    String?
   iconName    String?
+  // Anchor para a URL da página /servicos (ex: "sob-medida", "squads")
+  anchor      String?
+  // Número exibido (ex: "SVC · 01")
+  numLabel    String?
+  // Classe de cor da shard: v (violet), c (cyan), m (magenta), a (amber), e (emerald)
+  shardColor  String?  @default("v")
+  // Label da CTA que aparece no card de serviço
+  ctaLabel    String?  @default("Falar sobre um projeto ↗")
+  // Lista de 4 features (bullets 2x2) — array JSON de {title, description}
+  features    Json?
+  // Tile class (t1..t7) + pills para o mosaico da home
+  tileClass   String?
+  homePill    String?  // ex: "Plug & play", "SLA 24/7"
+  homePillTags String[] // para o tile 7 (Dev, DevOps, QA, Data, Produto)
   isActive    Boolean  @default(true)
   order       Int
   createdAt   DateTime @default(now())
@@ -120,6 +134,14 @@ model Solution {
   technologies String[] // Array de tecnologias usadas
   projectUrl  String?
   githubUrl   String?
+  // Tag (ex: COOPERATIVISMO, CONSÓRCIOS) exibida acima do título
+  tag         String?
+  // Classe de cor (a..f)
+  colorClass  String?  @default("a")
+  // Bullets exibidos como lista com square colorido no card
+  bullets     String[]
+  // Label da CTA
+  ctaLabel    String?  @default("Ver demo →")
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   order       Int
@@ -179,6 +201,8 @@ model TeamMember {
   linkedinUrl String?
   twitterUrl  String?
   githubUrl   String?
+  // Variante do avatar gradient quando não tem imagem: "default" (violet→magenta), "b" (cyan→emerald), "c" (amber→magenta)
+  avatarVariant String? @default("default")
   isActive    Boolean  @default(true)
   order       Int
   createdAt   DateTime @default(now())
@@ -206,12 +230,13 @@ model Job {
   id          String   @id @default(uuid())
   title       String
   description String
-  requirements String?
+  requirements String?  // ex: "TypeScript · Node · React"
   benefits    String?
-  location    String?
+  location    String?  // ex: "REMOTO", "SP · HÍBRIDO"
   type        JobType  @default(FULL_TIME)
   salary      String?
   isActive    Boolean  @default(true)
+  order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -321,6 +346,78 @@ model AnalyticsEvent {
   createdAt DateTime @default(now())
 
   @@map("analytics_events")
+}
+
+// Card "ao vivo" exibido no hero direito da home
+model HomeLiveCard {
+  id         String   @id @default(uuid())
+  label      String   @default("Ao vivo · operação 24/7")
+  title      String   @default("Monitoramos 32 projetos em produção agora mesmo.")
+  // Cada linha: {label, value, highlight: "up" | null}
+  rows       Json
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("home_live_cards")
+}
+
+// Cartão lateral (pill) de depoimento no hero direito da home
+model HomeBrandPill {
+  id         String   @id @default(uuid())
+  personName String   @default("Carolina Menezes")
+  company    String?  @default("FinCo")
+  quote      String   @default("\"Ritmo de entrega 3× superior ao esperado.\"")
+  avatarUrl  String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("home_brand_pills")
+}
+
+// Seção "Filosofia" (band) da home
+model HomeBand {
+  id         String   @id @default(uuid())
+  eyebrow    String   @default("FILOSOFIA")
+  // Usa HTML para permitir <em> e <br>
+  title      String   @default("Software fácil de usar. <em>Difícil de ignorar.</em><br>Feito para durar tanto quanto sua empresa.")
+  ctaLabel   String   @default("Conversar com um especialista ↗")
+  ctaUrl     String   @default("/contato")
+  mono       String   @default("Diagnóstico inicial gratuito · 45 min")
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("home_bands")
+}
+
+// Items de stack no marquee da home
+model StackItem {
+  id        String   @id @default(uuid())
+  name      String
+  isActive  Boolean  @default(true)
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stack_items")
+}
+
+// Cards "Sobre" da página /sobre (Missão/Visão/Forma/Evitamos)
+model AboutCard {
+  id          String   @id @default(uuid())
+  tag         String   // ex: "MISSÃO", "VISÃO"
+  title       String
+  description String
+  // Classe de cor/posição (c1, c2, c3, c4)
+  colorClass  String   @default("c1")
+  isActive    Boolean  @default(true)
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("about_cards")
 }
 
 // Valores / Princípios (página Sobre)

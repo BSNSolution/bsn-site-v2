@@ -13,6 +13,7 @@ const jobSchema = z.object({
   type: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP', 'FREELANCE']).optional(),
   salary: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
+  order: z.number().optional(),
 });
 
 const jobApplicationSchema = z.object({
@@ -37,16 +38,7 @@ export default async function jobsRoutes(fastify: FastifyInstance) {
       async () => {
         const jobs = await prisma.job.findMany({
           where: { isActive: true },
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            location: true,
-            type: true,
-            salary: true,
-            createdAt: true,
-          },
+          orderBy: [{ order: "asc" }, { createdAt: "desc" }],
         });
         return { jobs };
       },

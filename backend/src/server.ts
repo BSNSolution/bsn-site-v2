@@ -31,6 +31,9 @@ import teamRoutes from "./routes/team";
 import valuesRoutes from "./routes/values";
 import kpisRoutes from "./routes/kpis";
 import perksRoutes from "./routes/perks";
+import homeExtrasRoutes from "./routes/home-extras";
+import stackItemsRoutes from "./routes/stack-items";
+import aboutCardsRoutes from "./routes/about-cards";
 
 dotenv.config();
 
@@ -92,6 +95,9 @@ fastify.register(teamRoutes, { prefix: "/api" });
 fastify.register(valuesRoutes, { prefix: "/api" });
 fastify.register(kpisRoutes, { prefix: "/api" });
 fastify.register(perksRoutes, { prefix: "/api" });
+fastify.register(homeExtrasRoutes, { prefix: "/api" });
+fastify.register(stackItemsRoutes, { prefix: "/api" });
+fastify.register(aboutCardsRoutes, { prefix: "/api" });
 
 // Health check
 fastify.get("/health", async () => {

@@ -17,6 +17,7 @@ const teamMemberSchema = z.object({
   linkedinUrl: optionalUrl,
   twitterUrl: optionalUrl,
   githubUrl: optionalUrl,
+  avatarVariant: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   order: z.number().optional(),
 });
@@ -30,17 +31,6 @@ export default async function teamRoutes(fastify: FastifyInstance) {
         const team = await prisma.teamMember.findMany({
           where: { isActive: true },
           orderBy: { order: "asc" },
-          select: {
-            id: true,
-            name: true,
-            role: true,
-            bio: true,
-            imageUrl: true,
-            linkedinUrl: true,
-            twitterUrl: true,
-            githubUrl: true,
-            order: true,
-          },
         });
         return { team };
       },

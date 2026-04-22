@@ -1,25 +1,18 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Plus, Edit, Trash2, Eye, EyeOff, MessageCircle, Star, StarOff, X } from 'lucide-react'
-import { blogApi, authApi } from '@/lib/api'
+import { useState, useEffect, FormEvent } from 'react'
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, Star } from 'lucide-react'
+import { blogApi } from '@/lib/api'
 
-interface BlogPost {
+interface Post {
   id: string
   title: string
   slug: string
-  excerpt: string
+  excerpt?: string | null
   content: string
-  imageUrl?: string
+  coverImage?: string | null
   tags: string[]
-  author: {
-    id: string
-    name: string
-  }
-  authorId: string
-  published: boolean
-  featured: boolean
-  createdAt: string
-  updatedAt: string
+  isPublished: boolean
+  isFeatured: boolean
+  publishedAt?: string | null
 }
 
 interface FormData {
@@ -27,459 +20,196 @@ interface FormData {
   slug: string
   excerpt: string
   content: string
-  imageUrl: string
+  coverImage: string
   tags: string
-  authorId: string
+  isPublished: boolean
+  isFeatured: boolean
+}
+
+const EMPTY_FORM: FormData = {
+  title: '',
+  slug: '',
+  excerpt: '',
+  content: '',
+  coverImage: '',
+  tags: '',
+  isPublished: false,
+  isFeatured: false,
+}
+
+function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 export default function AdminBlogPage() {
-  const [posts, setPosts] = useState<BlogPost[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [showModal, setShowModal] = useState(false)
-  const [editingPost, setEditingPost] = useState<BlogPost | null>(null)
-  const [currentUserId, setCurrentUserId] = useState<string>('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formData, setFormData] = useState<FormData>({
-    title: '',
-    slug: '',
-    excerpt: '',
-    content: '',
-    imageUrl: '',
-    tags: '',
-    authorId: ''
-  })
+  const [items, setItems] = useState<Post[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editing, setEditing] = useState<Post | null>(null)
+  const [form, setForm] = useState<FormData>(EMPTY_FORM)
 
-  useEffect(() => {
-    loadPosts()
-    loadCurrentUser()
-  }, [])
+  useEffect(() => { load() }, [])
 
-  const loadCurrentUser = async () => {
+  async function load() {
     try {
-      const user = await authApi.me()
-      if (user && user.id) {
-        setCurrentUserId(user.id)
-        setFormData(prev => ({ ...prev, authorId: user.id }))
-      }
-    } catch (error) {
-      console.error('Error loading current user:', error)
-    }
+      setLoading(true)
+      const res = await blogApi.admin.getPosts()
+      setItems(res.posts ?? [])
+    } finally { setLoading(false) }
   }
 
-  const loadPosts = async () => {
-    try {
-      setIsLoading(true)
-      const data = await blogApi.admin.getPosts()
-      if (data) {
-        setPosts(data.posts || [])
-      }
-    } catch (error) {
-      console.error('Error loading posts:', error)
-    } finally {
-      setIsLoading(false)
-    }
+  function openCreate() {
+    setEditing(null); setForm(EMPTY_FORM); setShowForm(true)
   }
 
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove accents
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single
-      .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => {
-      const newData = { ...prev, [name]: value }
-      
-      // Auto-generate slug when title changes
-      if (name === 'title' && !editingPost) {
-        newData.slug = generateSlug(value)
-      }
-      
-      return newData
+  function openEdit(p: Post) {
+    setEditing(p)
+    setForm({
+      title: p.title,
+      slug: p.slug,
+      excerpt: p.excerpt ?? '',
+      content: p.content,
+      coverImage: p.coverImage ?? '',
+      tags: p.tags.join(', '),
+      isPublished: p.isPublished,
+      isFeatured: p.isFeatured,
     })
+    setShowForm(true)
   }
 
-  const openCreateModal = () => {
-    setEditingPost(null)
-    setFormData({
-      title: '',
-      slug: '',
-      excerpt: '',
-      content: '',
-      imageUrl: '',
-      tags: '',
-      authorId: currentUserId
-    })
-    setShowModal(true)
-  }
-
-  const openEditModal = (post: BlogPost) => {
-    setEditingPost(post)
-    setFormData({
-      title: post.title,
-      slug: post.slug,
-      excerpt: post.excerpt,
-      content: post.content,
-      imageUrl: post.imageUrl || '',
-      tags: post.tags.join(', '),
-      authorId: post.authorId
-    })
-    setShowModal(true)
-  }
-
-  const closeModal = () => {
-    setShowModal(false)
-    setEditingPost(null)
-    setFormData({
-      title: '',
-      slug: '',
-      excerpt: '',
-      content: '',
-      imageUrl: '',
-      tags: '',
-      authorId: currentUserId
-    })
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function submit(e: FormEvent) {
     e.preventDefault()
-    
-    if (!formData.title.trim() || !formData.content.trim()) {
-      return
+    const payload = {
+      ...form,
+      slug: form.slug || slugify(form.title),
+      excerpt: form.excerpt || null,
+      coverImage: form.coverImage || null,
+      tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
+      publishedAt: form.isPublished ? new Date().toISOString() : null,
     }
-
     try {
-      setIsSubmitting(true)
-
-      const submitData = {
-        title: formData.title,
-        slug: formData.slug || generateSlug(formData.title),
-        excerpt: formData.excerpt,
-        content: formData.content,
-        imageUrl: formData.imageUrl,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-        authorId: formData.authorId || currentUserId
-      }
-
-      if (editingPost) {
-        await blogApi.admin.updatePost(editingPost.id, submitData)
-      } else {
-        await blogApi.admin.createPost(submitData)
-      }
-
-      await loadPosts()
-      closeModal()
-    } catch (error) {
-      console.error('Error saving post:', error)
-    } finally {
-      setIsSubmitting(false)
+      if (editing) await blogApi.admin.updatePost(editing.id, payload)
+      else await blogApi.admin.createPost(payload)
+      setShowForm(false); load()
+    } catch (err: any) {
+      alert(err?.response?.data?.error || 'Erro ao salvar')
     }
   }
 
-  const handleDelete = async (post: BlogPost) => {
-    if (!window.confirm(`Tem certeza que deseja excluir o post "${post.title}"?`)) {
-      return
-    }
-
-    try {
-      await blogApi.admin.deletePost(post.id)
-      await loadPosts()
-    } catch (error) {
-      console.error('Error deleting post:', error)
-    }
+  async function remove(id: string) {
+    if (!confirm('Remover este post?')) return
+    await blogApi.admin.deletePost(id); load()
   }
 
-  const handleTogglePublished = async (post: BlogPost) => {
-    try {
-      await blogApi.admin.togglePublished(post.id)
-      await loadPosts()
-    } catch (error) {
-      console.error('Error toggling published:', error)
-    }
+  async function togglePublished(id: string) {
+    await blogApi.admin.togglePublished(id); load()
   }
 
-  const handleToggleFeatured = async (post: BlogPost) => {
-    try {
-      await blogApi.admin.toggleFeatured(post.id)
-      await loadPosts()
-    } catch (error) {
-      console.error('Error toggling featured:', error)
-    }
+  async function toggleFeatured(id: string) {
+    await blogApi.admin.toggleFeatured(id); load()
   }
 
   return (
-    <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold gradient-text">Blog</h1>
-            <p className="text-muted-foreground">Gerencie os posts do blog</p>
-          </div>
-          <button
-            onClick={openCreateModal}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            Novo Post
-          </button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Blog</h1>
+          <p className="text-sm text-muted-foreground">Posts exibidos em /blog.</p>
         </div>
-
-        <div className="glass-card">
-          {isLoading ? (
-            <div className="p-8 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-              <p className="text-muted-foreground mt-2">Carregando posts...</p>
-            </div>
-          ) : posts.length === 0 ? (
-            <div className="p-8 text-center">
-              <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-              <p className="text-muted-foreground">Nenhum post encontrado</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-border">
-              {posts.map((post: BlogPost, index) => (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="p-4 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-medium">{post.title}</h3>
-                        {post.featured && (
-                          <span className="px-2 py-1 text-xs bg-yellow-500/10 text-yellow-500 rounded border border-yellow-500/20 flex items-center gap-1">
-                            <Star className="h-3 w-3" />
-                            Destaque
-                          </span>
-                        )}
-                        {post.published ? (
-                          <span className="px-2 py-1 text-xs bg-green-500/10 text-green-500 rounded border border-green-500/20">
-                            Publicado
-                          </span>
-                        ) : (
-                          <span className="px-2 py-1 text-xs bg-muted/50 rounded text-muted-foreground">
-                            Rascunho
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt || post.content}</p>
-                      {post.tags && post.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {post.tags.map((tag: string) => (
-                            <span key={tag} className="px-2 py-1 text-xs bg-primary/10 text-primary rounded">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 ml-4">
-                      <button
-                        onClick={() => handleToggleFeatured(post)}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors"
-                        title={post.featured ? 'Remover destaque' : 'Destacar'}
-                      >
-                        {post.featured ? (
-                          <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                        ) : (
-                          <StarOff className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => handleTogglePublished(post)}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors"
-                        title={post.published ? 'Despublicar' : 'Publicar'}
-                      >
-                        {post.published ? (
-                          <Eye className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => openEditModal(post)}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors"
-                        title="Editar"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(post)}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors text-destructive"
-                        title="Excluir"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+        <button onClick={openCreate} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90">
+          <Plus className="h-4 w-4" /> Novo post
+        </button>
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="glass-card p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold">
-                {editingPost ? 'Editar Post' : 'Novo Post'}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="p-2 hover:bg-muted rounded-lg transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
+      {loading ? (
+        <div className="p-8 text-center text-muted-foreground">Carregando...</div>
+      ) : (
+        <div className="grid gap-3">
+          {items.map((p) => (
+            <div key={p.id} className="glass p-4 flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  {p.isFeatured && <span className="text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">Destaque</span>}
+                  <h3 className="font-medium">{p.title}</h3>
+                  {!p.isPublished && <span className="text-xs px-2 py-0.5 rounded bg-white/10">Rascunho</span>}
+                </div>
+                {p.excerpt && <p className="text-sm text-muted-foreground line-clamp-1">{p.excerpt}</p>}
+                <div className="flex gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
+                  <span>/{p.slug}</span>
+                  {p.tags.map((t) => <span key={t}>· {t}</span>)}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => toggleFeatured(p.id)} className={`p-2 rounded hover:bg-white/10 ${p.isFeatured ? 'text-primary' : ''}`} title="Destaque">
+                  <Star className="h-4 w-4" />
+                </button>
+                <button onClick={() => togglePublished(p.id)} className="p-2 hover:bg-white/10 rounded" title={p.isPublished ? 'Despublicar' : 'Publicar'}>
+                  {p.isPublished ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                </button>
+                <button onClick={() => openEdit(p)} className="p-2 hover:bg-white/10 rounded"><Edit className="h-4 w-4" /></button>
+                <button onClick={() => remove(p.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
+              </div>
             </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="title" className="block text-sm font-medium mb-2">
-                    Título *
-                  </label>
-                  <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    placeholder="Título do post"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="slug" className="block text-sm font-medium mb-2">
-                    Slug (URL)
-                  </label>
-                  <input
-                    type="text"
-                    id="slug"
-                    name="slug"
-                    value={formData.slug}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    placeholder="slug-da-url"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Deixe vazio para gerar automaticamente
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="excerpt" className="block text-sm font-medium mb-2">
-                  Resumo
-                </label>
-                <textarea
-                  id="excerpt"
-                  name="excerpt"
-                  value={formData.excerpt}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 resize-vertical"
-                  placeholder="Breve descrição do post..."
-                />
-              </div>
-
-              <div>
-                <label htmlFor="content" className="block text-sm font-medium mb-2">
-                  Conteúdo *
-                </label>
-                <textarea
-                  id="content"
-                  name="content"
-                  value={formData.content}
-                  onChange={handleInputChange}
-                  required
-                  rows={12}
-                  className="w-full px-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 resize-vertical"
-                  placeholder="Conteúdo do post..."
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="imageUrl" className="block text-sm font-medium mb-2">
-                    URL da imagem
-                  </label>
-                  <input
-                    type="url"
-                    id="imageUrl"
-                    name="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    placeholder="https://exemplo.com/imagem.jpg"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="tags" className="block text-sm font-medium mb-2">
-                    Tags
-                  </label>
-                  <input
-                    type="text"
-                    id="tags"
-                    name="tags"
-                    value={formData.tags}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    placeholder="tag1, tag2, tag3"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Separadas por vírgula
-                  </p>
-                </div>
-              </div>
-
-              {/* Hidden authorId field */}
-              <input
-                type="hidden"
-                name="authorId"
-                value={formData.authorId}
-              />
-
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="flex-1 px-6 py-3 glass-card hover:bg-white/10 rounded-lg font-medium transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-primary/50 text-primary-foreground rounded-lg font-semibold transition-colors"
-                >
-                  {isSubmitting ? 'Salvando...' : editingPost ? 'Atualizar' : 'Criar'}
-                </button>
-              </div>
-            </form>
-          </motion.div>
+          ))}
+          {items.length === 0 && <div className="p-8 text-center text-muted-foreground">Nenhum post.</div>}
         </div>
       )}
-    </>
+
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-4 overflow-y-auto" onClick={() => setShowForm(false)}>
+          <div className="glass max-w-2xl w-full p-6 my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">{editing ? 'Editar post' : 'Novo post'}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 hover:bg-white/10 rounded"><X className="h-5 w-5" /></button>
+            </div>
+            <form onSubmit={submit} className="space-y-3">
+              <div>
+                <label className="text-xs text-muted-foreground">Título</label>
+                <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value, slug: form.slug || slugify(e.target.value) })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Slug</label>
+                <input type="text" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Resumo (excerpt)</label>
+                <textarea value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} rows={2} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Conteúdo</label>
+                <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={6} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">URL da imagem de capa</label>
+                <input type="url" value={form.coverImage} onChange={(e) => setForm({ ...form, coverImage: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Tags (separadas por vírgula)</label>
+                <input type="text" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="Arquitetura, Produto" className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              </div>
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={form.isPublished} onChange={(e) => setForm({ ...form, isPublished: e.target.checked })} />
+                  Publicado
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={form.isFeatured} onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })} />
+                  Em destaque (long read)
+                </label>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 hover:bg-white/10 rounded">Cancelar</button>
+                <button type="submit" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded"><Save className="h-4 w-4" /> Salvar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

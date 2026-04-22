@@ -9,6 +9,11 @@ const optionalUrl = z.preprocess(
   z.string().url().nullable().optional()
 );
 
+const featureSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+});
+
 const serviceSchema = z.object({
   title: z.string().min(1, "Título é obrigatório"),
   subtitle: z.string().optional().nullable(),
@@ -16,6 +21,14 @@ const serviceSchema = z.object({
   content: z.string().optional().nullable(),
   imageUrl: optionalUrl,
   iconName: z.string().optional().nullable(),
+  anchor: z.string().optional().nullable(),
+  numLabel: z.string().optional().nullable(),
+  shardColor: z.string().optional().nullable(),
+  ctaLabel: z.string().optional().nullable(),
+  features: z.array(featureSchema).optional().nullable(),
+  tileClass: z.string().optional().nullable(),
+  homePill: z.string().optional().nullable(),
+  homePillTags: z.array(z.string()).optional(),
   isActive: z.boolean().optional(),
   order: z.number().optional(),
 });
@@ -29,16 +42,6 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
         const services = await prisma.service.findMany({
           where: { isActive: true },
           orderBy: { order: "asc" },
-          select: {
-            id: true,
-            title: true,
-            subtitle: true,
-            description: true,
-            content: true,
-            imageUrl: true,
-            iconName: true,
-            order: true,
-          },
         });
         return { services };
       },
