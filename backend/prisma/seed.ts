@@ -24,7 +24,124 @@ async function main() {
     }
   }
 
-  // 1. Admin
+  // 0. Permissões do sistema
+  const permissionDefs = [
+    // Dashboard / sistema
+    { category: 'Sistema', slug: 'dashboard.view', label: 'Ver dashboard' },
+    { category: 'Sistema', slug: 'settings.read', label: 'Ver configurações' },
+    { category: 'Sistema', slug: 'settings.write', label: 'Editar configurações' },
+    { category: 'Sistema', slug: 'uploads.read', label: 'Ver uploads' },
+    { category: 'Sistema', slug: 'uploads.write', label: 'Enviar e remover uploads' },
+    { category: 'Sistema', slug: 'analytics.view', label: 'Ver analytics' },
+    // Usuários & permissões
+    { category: 'Usuários', slug: 'users.read', label: 'Listar usuários' },
+    { category: 'Usuários', slug: 'users.write', label: 'Criar/editar usuários' },
+    { category: 'Usuários', slug: 'users.delete', label: 'Excluir usuários' },
+    { category: 'Usuários', slug: 'groups.read', label: 'Listar grupos de permissões' },
+    { category: 'Usuários', slug: 'groups.write', label: 'Criar/editar grupos' },
+    { category: 'Usuários', slug: 'groups.delete', label: 'Excluir grupos' },
+    // Conteúdo — Home
+    { category: 'Home', slug: 'home.read', label: 'Ver seções da home' },
+    { category: 'Home', slug: 'home.write', label: 'Editar seções da home' },
+    { category: 'Home', slug: 'home.kpis.write', label: 'Editar KPIs, live card, pill, band e stack' },
+    // Conteúdo — Serviços
+    { category: 'Serviços', slug: 'services.read', label: 'Ver serviços' },
+    { category: 'Serviços', slug: 'services.write', label: 'Criar/editar serviços' },
+    // Conteúdo — Soluções
+    { category: 'Soluções', slug: 'solutions.read', label: 'Ver soluções' },
+    { category: 'Soluções', slug: 'solutions.write', label: 'Criar/editar soluções' },
+    // Conteúdo — Sobre
+    { category: 'Sobre', slug: 'about.read', label: 'Ver página Sobre' },
+    { category: 'Sobre', slug: 'about.write', label: 'Editar cards, valores e equipe' },
+    // Blog
+    { category: 'Blog', slug: 'blog.read', label: 'Ver posts' },
+    { category: 'Blog', slug: 'blog.write', label: 'Criar/editar posts' },
+    { category: 'Blog', slug: 'blog.publish', label: 'Publicar / destacar posts' },
+    { category: 'Blog', slug: 'blog.delete', label: 'Excluir posts' },
+    // Carreiras
+    { category: 'Carreiras', slug: 'jobs.read', label: 'Ver vagas' },
+    { category: 'Carreiras', slug: 'jobs.write', label: 'Criar/editar vagas' },
+    { category: 'Carreiras', slug: 'perks.write', label: 'Editar benefícios' },
+    // Testemunhos & clientes
+    { category: 'Social proof', slug: 'testimonials.write', label: 'Editar depoimentos' },
+    { category: 'Social proof', slug: 'clients.write', label: 'Editar clientes' },
+    // Inbox
+    { category: 'Inbox', slug: 'inbox.read', label: 'Ver mensagens de contato' },
+    { category: 'Inbox', slug: 'inbox.reply', label: 'Responder mensagens' },
+    { category: 'Inbox', slug: 'inbox.delete', label: 'Excluir mensagens' },
+  ];
+
+  await prisma.permission.createMany({
+    data: permissionDefs.map((p) => ({ ...p, description: null })),
+  });
+
+  const allPermissions = await prisma.permission.findMany();
+  const permBySlug = new Map(allPermissions.map((p) => [p.slug, p]));
+  const pick = (slugs: string[]) => slugs.map((s) => ({ id: permBySlug.get(s)!.id })).filter((x) => x.id);
+
+  // Grupos de permissões default
+  const adminGroup = await prisma.permissionGroup.create({
+    data: {
+      name: 'Administrador',
+      description: 'Acesso total ao painel e todos os recursos.',
+      isSystem: true,
+      permissions: { connect: allPermissions.map((p) => ({ id: p.id })) },
+    },
+  });
+
+  const developerPerms = allPermissions
+    .filter((p) => !['users.delete', 'groups.delete'].includes(p.slug))
+    .map((p) => ({ id: p.id }));
+  const developerGroup = await prisma.permissionGroup.create({
+    data: {
+      name: 'Desenvolvedor',
+      description: 'Pode editar todo o conteúdo e configurações, exceto excluir usuários/grupos.',
+      isSystem: true,
+      permissions: { connect: developerPerms },
+    },
+  });
+
+  const editorGroup = await prisma.permissionGroup.create({
+    data: {
+      name: 'Editor',
+      description: 'Gerencia conteúdo público sem acessar configurações, uploads globais ou usuários.',
+      isSystem: true,
+      permissions: {
+        connect: pick([
+          'dashboard.view',
+          'home.read', 'home.write', 'home.kpis.write',
+          'services.read', 'services.write',
+          'solutions.read', 'solutions.write',
+          'about.read', 'about.write',
+          'blog.read', 'blog.write', 'blog.publish',
+          'jobs.read', 'jobs.write', 'perks.write',
+          'testimonials.write', 'clients.write',
+          'inbox.read', 'inbox.reply',
+          'uploads.read', 'uploads.write',
+        ]),
+      },
+    },
+  });
+
+  const guestGroup = await prisma.permissionGroup.create({
+    data: {
+      name: 'Convidado',
+      description: 'Apenas leitura — útil para visitas ou revisores externos.',
+      isSystem: true,
+      permissions: {
+        connect: pick([
+          'dashboard.view',
+          'home.read',
+          'services.read', 'solutions.read',
+          'about.read', 'blog.read', 'jobs.read',
+          'uploads.read', 'settings.read',
+          'inbox.read',
+        ]),
+      },
+    },
+  });
+
+  // 1. Usuário admin inicial
   const hashedPassword = await bcrypt.hash('bsn2024@admin', 10);
   const adminUser = await prisma.user.create({
     data: {
@@ -32,8 +149,12 @@ async function main() {
       password: hashedPassword,
       name: 'Administrador BSN',
       role: 'ADMIN',
+      groups: { connect: { id: adminGroup.id } },
     },
   });
+
+  // Guarda referências pra não dar unused
+  void developerGroup; void editorGroup; void guestGroup;
 
   // 2. SiteSettings (new-layout footer + contato)
   await prisma.siteSettings.create({

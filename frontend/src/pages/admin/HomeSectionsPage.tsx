@@ -1,428 +1,204 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  EyeOff,
-  GripVertical,
-  Save,
-  X,
-  Image as ImageIcon
-} from 'lucide-react'
+import { useState, useEffect, FormEvent } from 'react'
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { homeApi } from '@/lib/api'
 
-interface HomeSection {
+interface Section {
   id: string
-  title: string
-  subtitle?: string
-  content?: string
-  image?: string
+  type: string
+  title?: string | null
+  subtitle?: string | null
+  content?: string | null
+  imageUrl?: string | null
+  ctaText?: string | null
+  ctaUrl?: string | null
+  isVisible: boolean
   order: number
-  active: boolean
-  type: 'hero' | 'about' | 'stats' | 'cta' | 'custom'
-  createdAt: string
-  updatedAt: string
 }
 
 interface FormData {
+  type: string
   title: string
   subtitle: string
   content: string
-  image: string
-  type: 'hero' | 'about' | 'stats' | 'cta' | 'custom'
-  active: boolean
+  imageUrl: string
+  ctaText: string
+  ctaUrl: string
+  isVisible: boolean
+  order?: number
 }
 
-const sectionTypes = [
-  { value: 'hero', label: 'Hero/Banner' },
-  { value: 'about', label: 'Sobre' },
-  { value: 'stats', label: 'Estatísticas' },
-  { value: 'cta', label: 'Call to Action' },
-  { value: 'custom', label: 'Personalizada' }
-]
+const TYPES = ['HERO', 'ABOUT', 'SERVICES_PREVIEW', 'SOLUTIONS_PREVIEW', 'TESTIMONIALS_PREVIEW', 'CALL_TO_ACTION', 'STATS']
+
+const EMPTY: FormData = {
+  type: 'HERO',
+  title: '',
+  subtitle: '',
+  content: '',
+  imageUrl: '',
+  ctaText: '',
+  ctaUrl: '',
+  isVisible: true,
+}
 
 export default function HomeSectionsPage() {
-  const [sections, setSections] = useState<HomeSection[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [items, setItems] = useState<Section[]>([])
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [editingSection, setEditingSection] = useState<HomeSection | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    title: '',
-    subtitle: '',
-    content: '',
-    image: '',
-    type: 'custom',
-    active: true
-  })
-  const [draggedSection, setDraggedSection] = useState<HomeSection | null>(null)
+  const [editing, setEditing] = useState<Section | null>(null)
+  const [form, setForm] = useState<FormData>(EMPTY)
 
-  useEffect(() => {
-    loadSections()
-  }, [])
+  useEffect(() => { load() }, [])
 
-  const loadSections = async () => {
+  async function load() {
     try {
-      setIsLoading(true)
-      const data = await homeApi.admin.getSections()
-      if (data) {
-        setSections((data.sections || []).sort((a: HomeSection, b: HomeSection) => a.order - b.order))
-      }
-    } catch (error) {
-      console.error('Error loading sections:', error)
-    } finally {
-      setIsLoading(false)
-    }
+      setLoading(true)
+      const res = await homeApi.admin.getSections()
+      setItems(Array.isArray(res?.sections) ? res.sections : [])
+    } catch { setItems([]) } finally { setLoading(false) }
   }
 
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      subtitle: '',
-      content: '',
-      image: '',
-      type: 'custom',
-      active: true
-    })
-    setEditingSection(null)
-    setShowForm(false)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    try {
-      if (editingSection) {
-        await homeApi.admin.updateSection(editingSection.id, formData)
-      } else {
-        await homeApi.admin.createSection(formData)
-      }
-      
-      await loadSections()
-      resetForm()
-    } catch (error) {
-      console.error('Error saving section:', error)
-    }
-  }
-
-  const handleEdit = (section: HomeSection) => {
-    setEditingSection(section)
-    setFormData({
-      title: section.title,
-      subtitle: section.subtitle || '',
-      content: section.content || '',
-      image: section.image || '',
-      type: section.type,
-      active: section.active
+  function openCreate() { setEditing(null); setForm(EMPTY); setShowForm(true) }
+  function openEdit(s: Section) {
+    setEditing(s)
+    setForm({
+      type: s.type,
+      title: s.title ?? '',
+      subtitle: s.subtitle ?? '',
+      content: s.content ?? '',
+      imageUrl: s.imageUrl ?? '',
+      ctaText: s.ctaText ?? '',
+      ctaUrl: s.ctaUrl ?? '',
+      isVisible: s.isVisible,
+      order: s.order,
     })
     setShowForm(true)
   }
 
-  const handleDelete = async (section: HomeSection) => {
-    if (!confirm(`Tem certeza que deseja excluir a seção "${section.title}"?`)) {
-      return
-    }
-
-    try {
-      await homeApi.admin.deleteSection(section.id)
-      await loadSections()
-    } catch (error) {
-      console.error('Error deleting section:', error)
-    }
-  }
-
-  const handleToggle = async (section: HomeSection) => {
-    try {
-      await homeApi.admin.toggleSection(section.id)
-      await loadSections()
-    } catch (error) {
-      console.error('Error toggling section:', error)
-    }
-  }
-
-  const handleReorder = async (newSections: HomeSection[]) => {
-    try {
-      const items = newSections.map((section, index) => ({
-        id: section.id,
-        order: index + 1
-      }))
-      
-      await homeApi.admin.reorderSections(items)
-      setSections(newSections)
-    } catch (error) {
-      console.error('Error reordering sections:', error)
-    }
-  }
-
-  const handleDragStart = (section: HomeSection) => {
-    setDraggedSection(section)
-  }
-
-  const handleDragOver = (e: React.DragEvent, targetSection: HomeSection) => {
+  async function submit(e: FormEvent) {
     e.preventDefault()
-    
-    if (!draggedSection || draggedSection.id === targetSection.id) {
-      return
+    const payload: any = {
+      ...form,
+      title: form.title || null,
+      subtitle: form.subtitle || null,
+      content: form.content || null,
+      imageUrl: form.imageUrl || null,
+      ctaText: form.ctaText || null,
+      ctaUrl: form.ctaUrl || null,
     }
-
-    const draggedIndex = sections.findIndex(s => s.id === draggedSection.id)
-    const targetIndex = sections.findIndex(s => s.id === targetSection.id)
-
-    const newSections = [...sections]
-    const [draggedItem] = newSections.splice(draggedIndex, 1)
-    newSections.splice(targetIndex, 0, draggedItem)
-
-    setSections(newSections)
+    try {
+      if (editing) await homeApi.admin.updateSection(editing.id, payload)
+      else await homeApi.admin.createSection(payload)
+      setShowForm(false); load()
+    } catch (err: any) {
+      alert(err?.response?.data?.error || 'Erro ao salvar')
+    }
   }
 
-  const handleDragEnd = () => {
-    if (draggedSection) {
-      handleReorder(sections)
-    }
-    setDraggedSection(null)
+  async function remove(id: string) {
+    if (!confirm('Remover esta seção?')) return
+    await homeApi.admin.deleteSection(id); load()
   }
+  async function toggle(id: string) { await homeApi.admin.toggleSection(id); load() }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold gradient-text">Seções da Home</h1>
-          <p className="text-muted-foreground">Gerencie as seções da página inicial</p>
+          <h1 className="text-2xl font-semibold">Seções da Home</h1>
+          <p className="text-sm text-muted-foreground">Hero, about preview, CTAs e outras seções top-level da home.</p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          Nova Seção
+        <button onClick={openCreate} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90">
+          <Plus className="h-4 w-4" /> Nova seção
         </button>
       </div>
 
-      {/* Form Modal */}
-      <AnimatePresence>
-        {showForm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="glass-card p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold">
-                  {editingSection ? 'Editar Seção' : 'Nova Seção'}
-                </h2>
-                <button
-                  onClick={resetForm}
-                  className="p-2 hover:bg-muted rounded-lg transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+      {loading ? (
+        <div className="p-8 text-center text-muted-foreground">Carregando...</div>
+      ) : items.length === 0 ? (
+        <div className="glass p-12 text-center text-muted-foreground">Nenhuma seção.</div>
+      ) : (
+        <div className="grid gap-3">
+          {items.map((s) => (
+            <div key={s.id} className="glass p-4 flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground px-2 py-0.5 rounded bg-white/5">{s.type}</span>
+                  {s.title && <h3 className="font-medium truncate">{s.title}</h3>}
+                  {!s.isVisible && <span className="text-xs px-2 py-0.5 rounded bg-white/10">Oculto</span>}
+                </div>
+                {s.subtitle && <p className="text-xs text-muted-foreground line-clamp-1">{s.subtitle}</p>}
+                {s.content && <p className="text-xs text-muted-foreground line-clamp-1">{s.content}</p>}
               </div>
+              <div className="flex items-center gap-1">
+                <button onClick={() => toggle(s.id)} className="p-2 hover:bg-white/10 rounded">
+                  {s.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                </button>
+                <button onClick={() => openEdit(s)} className="p-2 hover:bg-white/10 rounded"><Edit className="h-4 w-4" /></button>
+                <button onClick={() => remove(s.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-4 overflow-y-auto" onClick={() => setShowForm(false)}>
+          <div className="glass max-w-xl w-full p-6 my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">{editing ? 'Editar seção' : 'Nova seção'}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 hover:bg-white/10 rounded"><X className="h-5 w-5" /></button>
+            </div>
+            <form onSubmit={submit} className="space-y-3">
+              <div>
+                <label className="text-xs text-muted-foreground">Tipo</label>
+                <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
+                  {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Título</label>
+                <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Subtítulo</label>
+                <input type="text" value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Conteúdo</label>
+                <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={3} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Título *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                    required
-                  />
+                  <label className="text-xs text-muted-foreground">CTA texto</label>
+                  <input type="text" value={form.ctaText} onChange={(e) => setForm({ ...form, ctaText: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Tipo da Seção
-                  </label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
-                    className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                  >
-                    {sectionTypes.map(type => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="text-xs text-muted-foreground">CTA URL</label>
+                  <input type="text" value={form.ctaUrl} onChange={(e) => setForm({ ...form, ctaUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Subtítulo
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.subtitle}
-                    onChange={(e) => setFormData(prev => ({ ...prev, subtitle: e.target.value }))}
-                    className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                  />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Imagem URL</label>
+                <input type="url" value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              </div>
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={form.isVisible} onChange={(e) => setForm({ ...form, isVisible: e.target.checked })} />
+                  Visível
+                </label>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-xs text-muted-foreground">Ordem:</span>
+                  <input type="number" value={form.order ?? ''} onChange={(e) => setForm({ ...form, order: e.target.value ? Number(e.target.value) : undefined })} className="w-20 px-2 py-1 bg-black/40 border border-white/10 rounded" />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Conteúdo
-                  </label>
-                  <textarea
-                    value={formData.content}
-                    onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                    rows={4}
-                    className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    URL da Imagem
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.image}
-                    onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-                    className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                    placeholder="https://exemplo.com/imagem.jpg"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="active"
-                    checked={formData.active}
-                    onChange={(e) => setFormData(prev => ({ ...prev, active: e.target.checked }))}
-                    className="w-4 h-4 text-primary bg-input border-border rounded focus:ring-primary/50 focus:ring-2"
-                  />
-                  <label htmlFor="active" className="text-sm font-medium">
-                    Seção ativa
-                  </label>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    <Save className="h-4 w-4" />
-                    Salvar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="flex items-center gap-2 bg-muted hover:bg-muted/80 text-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Sections List */}
-      <div className="glass-card">
-        {isLoading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-            <p className="text-muted-foreground mt-2">Carregando seções...</p>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 hover:bg-white/10 rounded">Cancelar</button>
+                <button type="submit" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded"><Save className="h-4 w-4" /> Salvar</button>
+              </div>
+            </form>
           </div>
-        ) : sections.length === 0 ? (
-          <div className="p-8 text-center">
-            <p className="text-muted-foreground">Nenhuma seção encontrada</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border">
-            {sections.map((section, index) => (
-              <motion.div
-                key={section.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: index * 0.1 }}
-                draggable
-                onDragStart={() => handleDragStart(section)}
-                onDragOver={(e) => handleDragOver(e, section)}
-                onDragEnd={handleDragEnd}
-                className="p-4 flex items-center gap-4 hover:bg-muted/50 transition-colors cursor-move"
-              >
-                <GripVertical className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                
-                {section.image && (
-                  <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    <img 
-                      src={section.image} 
-                      alt={section.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        target.style.display = 'none'
-                        target.parentElement!.innerHTML = '<div class="w-5 h-5 text-muted-foreground"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Z" /></svg></div>'
-                      }}
-                    />
-                  </div>
-                )}
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium">{section.title}</h3>
-                    <span className="px-2 py-1 text-xs bg-muted rounded text-muted-foreground">
-                      {sectionTypes.find(t => t.value === section.type)?.label || section.type}
-                    </span>
-                    {!section.active && (
-                      <span className="px-2 py-1 text-xs bg-muted/50 rounded text-muted-foreground">
-                        Inativa
-                      </span>
-                    )}
-                  </div>
-                  {section.subtitle && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {section.subtitle}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleToggle(section)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                    title={section.active ? 'Desativar' : 'Ativar'}
-                  >
-                    {section.active ? (
-                      <Eye className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleEdit(section)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                    title="Editar"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(section)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors text-destructive"
-                    title="Excluir"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,260 +1,164 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Upload, Trash2, Download, Image, FileText, Video } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Upload, Trash2, Copy, Image as ImageIcon, FileText } from 'lucide-react'
 import { uploadApi } from '@/lib/api'
 
+interface UploadedFile {
+  id: string
+  filename: string
+  originalName?: string | null
+  mimeType: string
+  size: number
+  url: string
+  createdAt: string
+}
+
+interface Pagination {
+  page: number
+  limit: number
+  total: number
+  pages: number
+}
+
+function formatBytes(bytes: number) {
+  if (!bytes) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB']
+  let i = 0
+  let n = bytes
+  while (n >= 1024 && i < units.length - 1) {
+    n /= 1024
+    i++
+  }
+  return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${units[i]}`
+}
+
 export default function AdminUploadsPage() {
-  const [uploads, setUploads] = useState([])
-  const [stats, setStats] = useState<any>({})
-  const [isLoading, setIsLoading] = useState(true)
-  const [isUploading, setIsUploading] = useState(false)
+  const [files, setFiles] = useState<UploadedFile[]>([])
+  const [pagination, setPagination] = useState<Pagination | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
+  const [page, setPage] = useState(1)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    loadUploads()
-    loadStats()
-  }, [])
+  useEffect(() => { load() }, [page])
 
-  const loadUploads = async () => {
+  async function load() {
     try {
-      setIsLoading(true)
-      const data = await uploadApi.admin.getUploads()
-      if (data) {
-        setUploads(data.uploads || data.data || data || [])
-      }
-    } catch (error) {
-      console.error('Error loading uploads:', error)
+      setLoading(true)
+      const data = await uploadApi.admin.getUploads({ page, limit: 24 })
+      setFiles(Array.isArray(data?.files) ? data.files : [])
+      setPagination(data?.pagination ?? null)
+    } catch (err) {
+      console.error(err)
+      setFiles([])
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  const loadStats = async () => {
-    try {
-      const statsData = await uploadApi.admin.getStats()
-      if (statsData) {
-        setStats(statsData)
-      }
-    } catch (error) {
-      console.error('Error loading stats:', error)
-    }
-  }
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
     if (!file) return
-
+    setUploading(true)
     try {
-      setIsUploading(true)
       await uploadApi.uploadFile(file)
-      await loadUploads()
-      await loadStats()
-    } catch (error) {
-      console.error('Error uploading file:', error)
-      alert('Erro ao fazer upload do arquivo')
+      await load()
+    } catch (err: any) {
+      alert(err?.response?.data?.error || 'Erro ao fazer upload')
     } finally {
-      setIsUploading(false)
+      setUploading(false)
+      if (inputRef.current) inputRef.current.value = ''
     }
   }
 
-  const handleDelete = async (upload: any) => {
-    if (!confirm(`Tem certeza que deseja excluir "${upload.filename}"?`)) {
-      return
-    }
+  async function remove(id: string) {
+    if (!confirm('Remover este arquivo?')) return
+    await uploadApi.admin.deleteUpload(id)
+    load()
+  }
 
+  async function copyUrl(url: string) {
     try {
-      await uploadApi.admin.deleteUpload(upload.id)
-      await loadUploads()
-      await loadStats()
-    } catch (error) {
-      console.error('Error deleting upload:', error)
+      await navigator.clipboard.writeText(url)
+      alert('URL copiada!')
+    } catch {
+      prompt('URL do arquivo:', url)
     }
-  }
-
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith('image/')) {
-      return <Image className="h-6 w-6 text-blue-500" />
-    } else if (mimeType.startsWith('video/')) {
-      return <Video className="h-6 w-6 text-purple-500" />
-    } else {
-      return <FileText className="h-6 w-6 text-gray-500" />
-    }
-  }
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold gradient-text">Uploads</h1>
-          <p className="text-muted-foreground">Gerencie os arquivos enviados</p>
+          <h1 className="text-2xl font-semibold">Uploads</h1>
+          <p className="text-sm text-muted-foreground">Gerencie as imagens e arquivos do site.</p>
         </div>
-        <label className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer">
-          <Upload className="h-4 w-4" />
-          {isUploading ? 'Enviando...' : 'Upload Arquivo'}
-          <input
-            type="file"
-            onChange={handleFileUpload}
-            className="hidden"
-            accept="image/*,video/*,.pdf,.doc,.docx,.txt"
-            disabled={isUploading}
-          />
+        <label className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition ${uploading ? 'bg-white/10 text-white/50' : 'bg-primary text-primary-foreground hover:opacity-90'}`}>
+          <Upload className="h-4 w-4" /> {uploading ? 'Enviando...' : 'Enviar arquivo'}
+          <input ref={inputRef} type="file" onChange={handleUpload} disabled={uploading} className="hidden" accept="image/*,.pdf" />
         </label>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass-card p-4"
-        >
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            <div>
-              <p className="text-sm text-muted-foreground">Total de Arquivos</p>
-              <p className="text-lg font-semibold">{stats.totalFiles || 0}</p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="glass-card p-4"
-        >
-          <div className="flex items-center gap-2">
-            <Image className="h-5 w-5 text-blue-500" />
-            <div>
-              <p className="text-sm text-muted-foreground">Imagens</p>
-              <p className="text-lg font-semibold">{stats.totalImages || 0}</p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="glass-card p-4"
-        >
-          <div className="flex items-center gap-2">
-            <Video className="h-5 w-5 text-purple-500" />
-            <div>
-              <p className="text-sm text-muted-foreground">Vídeos</p>
-              <p className="text-lg font-semibold">{stats.totalVideos || 0}</p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="glass-card p-4"
-        >
-          <div className="flex items-center gap-2">
-            <Upload className="h-5 w-5 text-green-500" />
-            <div>
-              <p className="text-sm text-muted-foreground">Espaço Usado</p>
-              <p className="text-lg font-semibold">{formatFileSize(stats.totalSize || 0)}</p>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Files Grid */}
-      <div className="glass-card">
-        {isLoading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-            <p className="text-muted-foreground mt-2">Carregando arquivos...</p>
-          </div>
-        ) : uploads.length === 0 ? (
-          <div className="p-8 text-center">
-            <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <p className="text-muted-foreground">Nenhum arquivo encontrado</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
-            {uploads.map((upload: any, index) => (
-              <motion.div
-                key={upload.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="glass-card-hover p-4"
-              >
-                {/* Preview */}
-                <div className="aspect-square bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-                  {upload.mimeType?.startsWith('image/') ? (
-                    <img 
-                      src={upload.url} 
-                      alt={upload.filename}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        target.style.display = 'none'
-                        target.nextElementSibling!.classList.remove('hidden')
-                      }}
-                    />
-                  ) : null}
-                  <div className={`${upload.mimeType?.startsWith('image/') ? 'hidden' : ''}`}>
-                    {getFileIcon(upload.mimeType || '')}
-                  </div>
+      {loading ? (
+        <div className="p-8 text-center text-muted-foreground">Carregando...</div>
+      ) : files.length === 0 ? (
+        <div className="glass p-12 text-center">
+          <ImageIcon className="h-12 w-12 mx-auto text-white/30 mb-3" />
+          <p className="text-muted-foreground">Nenhum arquivo enviado ainda.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {files.map((f) => {
+            const isImage = f.mimeType?.startsWith('image/')
+            return (
+              <div key={f.id} className="glass p-3 flex flex-col gap-2">
+                <div className="aspect-square rounded-lg overflow-hidden bg-black/40 flex items-center justify-center">
+                  {isImage ? (
+                    <img src={f.url} alt={f.filename} loading="lazy" className="w-full h-full object-cover" />
+                  ) : (
+                    <FileText className="h-10 w-10 text-white/40" />
+                  )}
                 </div>
-
-                {/* File Info */}
-                <div className="mb-3">
-                  <p className="font-medium text-sm truncate" title={upload.filename}>
-                    {upload.filename}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatFileSize(upload.size)} • {new Date(upload.createdAt).toLocaleDateString('pt-BR')}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {upload.mimeType}
-                  </p>
+                <div className="text-xs truncate" title={f.originalName || f.filename}>
+                  {f.originalName || f.filename}
                 </div>
-
-                {/* Actions */}
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => window.open(upload.url, '_blank')}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors text-primary"
-                    title="Visualizar/Download"
-                  >
-                    <Download className="h-4 w-4" />
+                <div className="text-[10px] text-muted-foreground font-mono">
+                  {formatBytes(f.size)}
+                </div>
+                <div className="flex gap-1">
+                  <button onClick={() => copyUrl(f.url)} className="flex-1 p-1.5 text-xs hover:bg-white/10 rounded flex items-center justify-center gap-1" title="Copiar URL">
+                    <Copy className="h-3 w-3" /> URL
                   </button>
-                  
-                  <button
-                    onClick={() => navigator.clipboard.writeText(upload.url)}
-                    className="text-xs bg-muted hover:bg-muted/80 text-foreground px-2 py-1 rounded transition-colors"
-                    title="Copiar URL"
-                  >
-                    Copiar URL
-                  </button>
-                  
-                  <button
-                    onClick={() => handleDelete(upload)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors text-destructive"
-                    title="Excluir"
-                  >
-                    <Trash2 className="h-4 w-4" />
+                  <button onClick={() => remove(f.id)} className="p-1.5 hover:bg-destructive/10 text-destructive rounded" title="Remover">
+                    <Trash2 className="h-3 w-3" />
                   </button>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {pagination && pagination.pages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 disabled:opacity-40 text-sm"
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-muted-foreground">
+            Página {pagination.page} de {pagination.pages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+            disabled={page >= pagination.pages}
+            className="px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 disabled:opacity-40 text-sm"
+          >
+            Próxima
+          </button>
+        </div>
+      )}
     </div>
   )
 }

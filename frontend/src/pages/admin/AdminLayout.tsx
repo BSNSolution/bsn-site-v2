@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
   Home,
@@ -25,6 +25,12 @@ import {
   Cpu,
   Info,
   ExternalLink,
+  LayoutGrid,
+  Rocket,
+  BookOpen,
+  Handshake,
+  UserCog,
+  Shield,
 } from 'lucide-react'
 import { authApi } from '@/lib/api'
 
@@ -42,43 +48,75 @@ interface SidebarSection {
 
 const SECTIONS: SidebarSection[] = [
   {
-    label: 'Geral',
+    label: 'Visão geral',
     items: [
       { name: 'Dashboard', href: '/admin', icon: BarChart3 },
       { name: 'Inbox', href: '/admin/inbox', icon: Inbox },
-      { name: 'Configurações', href: '/admin/settings', icon: Settings },
-      { name: 'Uploads', href: '/admin/uploads', icon: Upload },
     ],
   },
   {
-    label: 'Home',
+    label: 'Página: Home',
     items: [
-      { name: 'Seções Home', href: '/admin/home', icon: Home },
-      { name: 'KPIs', href: '/admin/kpis', icon: TrendingUp },
+      { name: 'Hero & seções', href: '/admin/home', icon: Home },
+      { name: 'KPIs (faixa inferior)', href: '/admin/kpis', icon: TrendingUp },
       { name: 'Card ao vivo', href: '/admin/home-live', icon: Radio },
       { name: 'Depoimento pill', href: '/admin/home-pill', icon: QuoteIcon },
-      { name: 'Filosofia (band)', href: '/admin/home-band', icon: MessageSquareQuote },
+      { name: 'Banda "Filosofia"', href: '/admin/home-band', icon: MessageSquareQuote },
       { name: 'Stack (marquee)', href: '/admin/stack', icon: Cpu },
     ],
   },
   {
-    label: 'Conteúdo',
+    label: 'Página: Serviços',
     items: [
-      { name: 'Serviços', href: '/admin/services', icon: Briefcase },
-      { name: 'Soluções', href: '/admin/solutions', icon: Settings },
-      { name: 'Sobre (cards)', href: '/admin/about-cards', icon: Info },
-      { name: 'Valores', href: '/admin/values', icon: Award },
-      { name: 'Equipe', href: '/admin/team', icon: Users },
-      { name: 'Depoimentos', href: '/admin/testimonials', icon: Star },
-      { name: 'Clientes', href: '/admin/clients', icon: Building2 },
+      { name: 'Serviços (mosaico + lista)', href: '/admin/services', icon: Briefcase },
     ],
   },
   {
-    label: 'Carreiras & Blog',
+    label: 'Página: Soluções',
+    items: [
+      { name: 'Soluções verticais', href: '/admin/solutions', icon: LayoutGrid },
+    ],
+  },
+  {
+    label: 'Página: Sobre',
+    items: [
+      { name: 'Cards (Missão/Visão/…)', href: '/admin/about-cards', icon: Info },
+      { name: 'Valores (4 princípios)', href: '/admin/values', icon: Award },
+      { name: 'Equipe', href: '/admin/team', icon: Users },
+    ],
+  },
+  {
+    label: 'Página: Blog',
+    items: [
+      { name: 'Posts', href: '/admin/blog', icon: BookOpen },
+    ],
+  },
+  {
+    label: 'Página: Carreiras',
     items: [
       { name: 'Vagas', href: '/admin/jobs', icon: FileText },
       { name: 'Benefícios', href: '/admin/perks', icon: Gift },
-      { name: 'Blog', href: '/admin/blog', icon: MessageCircle },
+    ],
+  },
+  {
+    label: 'Elementos compartilhados',
+    items: [
+      { name: 'Depoimentos', href: '/admin/testimonials', icon: Star },
+      { name: 'Clientes', href: '/admin/clients', icon: Handshake },
+    ],
+  },
+  {
+    label: 'Mídia & Sistema',
+    items: [
+      { name: 'Uploads de imagens', href: '/admin/uploads', icon: Upload },
+      { name: 'Configurações do site', href: '/admin/settings', icon: Settings },
+    ],
+  },
+  {
+    label: 'Acesso & usuários',
+    items: [
+      { name: 'Usuários', href: '/admin/users', icon: UserCog },
+      { name: 'Grupos de permissões', href: '/admin/permission-groups', icon: Shield },
     ],
   },
 ]
@@ -119,8 +157,8 @@ export default function AdminLayout() {
     return (
       <div className="admin-shell">
         <SiteBgLayers />
-        <div className="min-h-screen flex items-center justify-center relative z-10">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-white/30 border-t-white" />
+        <div className="fixed inset-0 flex items-center justify-center z-20">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-white/20 border-t-white" />
         </div>
       </div>
     )
@@ -238,9 +276,19 @@ export default function AdminLayout() {
         </header>
 
         <main className="admin-content">
-          <Outlet />
+          <Suspense fallback={<AdminContentLoader />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
+    </div>
+  )
+}
+
+function AdminContentLoader() {
+  return (
+    <div className="flex items-center justify-center w-full" style={{ minHeight: 'calc(100vh - 140px)' }}>
+      <div className="animate-spin rounded-full h-10 w-10 border-2 border-white/20 border-t-white" />
     </div>
   )
 }

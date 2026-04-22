@@ -1,399 +1,159 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Plus, Edit, Trash2, Eye, EyeOff, Building2, X, ExternalLink } from 'lucide-react'
+import { useState, useEffect, FormEvent } from 'react'
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, ExternalLink } from 'lucide-react'
 import { clientsApi } from '@/lib/api'
 
 interface Client {
   id: string
   name: string
-  description?: string
-  logoUrl: string // REQUIRED by backend Zod validation
-  websiteUrl?: string // Additional field
-  active: boolean
-  createdAt: string
-  updatedAt?: string
+  logoUrl: string
+  websiteUrl?: string | null
+  isActive: boolean
+  order: number
 }
 
 interface FormData {
   name: string
-  description: string
   logoUrl: string
   websiteUrl: string
+  isActive: boolean
+  order?: number
 }
 
+const EMPTY: FormData = { name: '', logoUrl: '', websiteUrl: '', isActive: true }
+
 export default function AdminClientsPage() {
-  const [clients, setClients] = useState<Client[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [showModal, setShowModal] = useState(false)
-  const [editingClient, setEditingClient] = useState<Client | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    description: '',
-    logoUrl: '',
-    websiteUrl: ''
-  })
+  const [items, setItems] = useState<Client[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editing, setEditing] = useState<Client | null>(null)
+  const [form, setForm] = useState<FormData>(EMPTY)
 
-  useEffect(() => {
-    loadClients()
-  }, [])
+  useEffect(() => { load() }, [])
 
-  const loadClients = async () => {
+  async function load() {
     try {
-      setIsLoading(true)
-      const data = await clientsApi.admin.getClients()
-      if (data) {
-        setClients(data.clients || [])
-      }
-    } catch (error) {
-      console.error('Error loading clients:', error)
-    } finally {
-      setIsLoading(false)
-    }
+      setLoading(true)
+      const res = await clientsApi.admin.getClients()
+      setItems(Array.isArray(res?.clients) ? res.clients : [])
+    } catch { setItems([]) } finally { setLoading(false) }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
+  function openCreate() { setEditing(null); setForm(EMPTY); setShowForm(true) }
 
-  const openCreateModal = () => {
-    setEditingClient(null)
-    setFormData({
-      name: '',
-      description: '',
-      logoUrl: '',
-      websiteUrl: ''
+  function openEdit(c: Client) {
+    setEditing(c)
+    setForm({
+      name: c.name,
+      logoUrl: c.logoUrl,
+      websiteUrl: c.websiteUrl ?? '',
+      isActive: c.isActive,
+      order: c.order,
     })
-    setShowModal(true)
+    setShowForm(true)
   }
 
-  const openEditModal = (client: Client) => {
-    setEditingClient(client)
-    setFormData({
-      name: client.name,
-      description: client.description || '',
-      logoUrl: client.logoUrl,
-      websiteUrl: client.websiteUrl || ''
-    })
-    setShowModal(true)
-  }
-
-  const closeModal = () => {
-    setShowModal(false)
-    setEditingClient(null)
-    setFormData({
-      name: '',
-      description: '',
-      logoUrl: '',
-      websiteUrl: ''
-    })
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function submit(e: FormEvent) {
     e.preventDefault()
-    
-    if (!formData.name.trim() || !formData.logoUrl.trim()) {
-      return
-    }
-
+    const payload = { ...form, websiteUrl: form.websiteUrl || null }
     try {
-      setIsSubmitting(true)
-
-      const submitData = {
-        name: formData.name,
-        description: formData.description,
-        logoUrl: formData.logoUrl, // REQUIRED field
-        websiteUrl: formData.websiteUrl
-      }
-
-      if (editingClient) {
-        await clientsApi.admin.updateClient(editingClient.id, submitData)
-      } else {
-        await clientsApi.admin.createClient(submitData)
-      }
-
-      await loadClients()
-      closeModal()
-    } catch (error) {
-      console.error('Error saving client:', error)
-    } finally {
-      setIsSubmitting(false)
+      if (editing) await clientsApi.admin.updateClient(editing.id, payload)
+      else await clientsApi.admin.createClient(payload)
+      setShowForm(false); load()
+    } catch (err: any) {
+      alert(err?.response?.data?.error || 'Erro ao salvar')
     }
   }
 
-  const handleDelete = async (client: Client) => {
-    if (!window.confirm(`Tem certeza que deseja excluir o cliente "${client.name}"?`)) {
-      return
-    }
-
-    try {
-      await clientsApi.admin.deleteClient(client.id)
-      await loadClients()
-    } catch (error) {
-      console.error('Error deleting client:', error)
-    }
+  async function remove(id: string) {
+    if (!confirm('Remover este cliente?')) return
+    await clientsApi.admin.deleteClient(id); load()
   }
-
-  const handleToggle = async (client: Client) => {
-    try {
-      await clientsApi.admin.toggleClient(client.id)
-      await loadClients()
-    } catch (error) {
-      console.error('Error toggling client:', error)
-    }
-  }
+  async function toggle(id: string) { await clientsApi.admin.toggleClient(id); load() }
 
   return (
-    <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold gradient-text">Clientes</h1>
-            <p className="text-muted-foreground">Gerencie os clientes da empresa</p>
-          </div>
-          <button
-            onClick={openCreateModal}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            Novo Cliente
-          </button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">Clientes</h1>
+          <p className="text-sm text-muted-foreground">Logos de clientes exibidos no site.</p>
         </div>
-
-        <div className="glass-card">
-          {isLoading ? (
-            <div className="p-8 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-              <p className="text-muted-foreground mt-2">Carregando clientes...</p>
-            </div>
-          ) : clients.length === 0 ? (
-            <div className="p-8 text-center">
-              <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-              <p className="text-muted-foreground">Nenhum cliente encontrado</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-border">
-              {clients.map((client: Client, index) => (
-                <motion.div
-                  key={client.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="p-4 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      {/* Logo */}
-                      <div className="flex-shrink-0">
-                        {client.logoUrl ? (
-                          <img 
-                            src={client.logoUrl} 
-                            alt={client.name}
-                            className="w-12 h-12 object-contain rounded bg-white/10 p-1"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement
-                              target.style.display = 'none'
-                            }}
-                          />
-                        ) : (
-                          <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-                            <Building2 className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium">{client.name}</h3>
-                          {!client.active && (
-                            <span className="px-2 py-1 text-xs bg-muted/50 rounded text-muted-foreground">
-                              Inativo
-                            </span>
-                          )}
-                        </div>
-                        {client.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {client.description}
-                          </p>
-                        )}
-                        {client.websiteUrl && (
-                          <a
-                            href={client.websiteUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors mt-1"
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                            Website
-                          </a>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleToggle(client)}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors"
-                        title={client.active ? 'Desativar' : 'Ativar'}
-                      >
-                        {client.active ? (
-                          <Eye className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => openEditModal(client)}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors"
-                        title="Editar"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(client)}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors text-destructive"
-                        title="Excluir"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+        <button onClick={openCreate} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90">
+          <Plus className="h-4 w-4" /> Novo cliente
+        </button>
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="glass-card p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold">
-                {editingClient ? 'Editar Cliente' : 'Novo Cliente'}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="p-2 hover:bg-muted rounded-lg transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2">
-                  Nome do cliente *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  placeholder="Ex: Empresa XYZ"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="logoUrl" className="block text-sm font-medium mb-2">
-                  URL do logo *
-                </label>
-                <input
-                  type="url"
-                  id="logoUrl"
-                  name="logoUrl"
-                  value={formData.logoUrl}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  placeholder="https://exemplo.com/logo.png"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Obrigatório - URL da imagem do logo do cliente
-                </p>
-              </div>
-
-              <div>
-                <label htmlFor="websiteUrl" className="block text-sm font-medium mb-2">
-                  Site do cliente
-                </label>
-                <input
-                  type="url"
-                  id="websiteUrl"
-                  name="websiteUrl"
-                  value={formData.websiteUrl}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  placeholder="https://www.cliente.com.br"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium mb-2">
-                  Descrição
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full px-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 resize-vertical"
-                  placeholder="Breve descrição sobre o cliente ou projeto..."
-                />
-              </div>
-
-              {/* Preview */}
-              {formData.logoUrl && (
+      {loading ? (
+        <div className="p-8 text-center text-muted-foreground">Carregando...</div>
+      ) : items.length === 0 ? (
+        <div className="glass p-12 text-center text-muted-foreground">Nenhum cliente cadastrado.</div>
+      ) : (
+        <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+          {items.map((c) => (
+            <div key={c.id} className="glass p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1">
+                {c.logoUrl && <img src={c.logoUrl} alt={c.name} className="h-10 w-10 object-contain" />}
                 <div>
-                  <label className="block text-sm font-medium mb-2">Preview do logo</label>
-                  <div className="glass-card p-4 max-w-xs">
-                    <img
-                      src={formData.logoUrl}
-                      alt="Preview"
-                      className="w-full h-20 object-contain rounded"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        target.src = ''
-                        target.alt = 'Erro ao carregar imagem'
-                        target.className = 'w-full h-20 bg-muted rounded flex items-center justify-center text-muted-foreground text-xs'
-                      }}
-                    />
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium">{c.name}</h3>
+                    {!c.isActive && <span className="text-xs px-2 py-0.5 rounded bg-white/10">Inativo</span>}
                   </div>
+                  {c.websiteUrl && (
+                    <a href={c.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-white inline-flex items-center gap-1">
+                      <ExternalLink className="h-3 w-3" /> {c.websiteUrl}
+                    </a>
+                  )}
                 </div>
-              )}
-
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="flex-1 px-6 py-3 glass-card hover:bg-white/10 rounded-lg font-medium transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-primary/50 text-primary-foreground rounded-lg font-semibold transition-colors"
-                >
-                  {isSubmitting ? 'Salvando...' : editingClient ? 'Atualizar' : 'Criar'}
-                </button>
               </div>
-            </form>
-          </motion.div>
+              <div className="flex items-center gap-1">
+                <button onClick={() => toggle(c.id)} className="p-2 hover:bg-white/10 rounded">
+                  {c.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                </button>
+                <button onClick={() => openEdit(c)} className="p-2 hover:bg-white/10 rounded"><Edit className="h-4 w-4" /></button>
+                <button onClick={() => remove(c.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
-    </>
+
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
+          <div className="glass max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">{editing ? 'Editar cliente' : 'Novo cliente'}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 hover:bg-white/10 rounded"><X className="h-5 w-5" /></button>
+            </div>
+            <form onSubmit={submit} className="space-y-3">
+              <div>
+                <label className="text-xs text-muted-foreground">Nome</label>
+                <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">URL do logo</label>
+                <input type="url" value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Website (opcional)</label>
+                <input type="url" value={form.websiteUrl} onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              </div>
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
+                  Ativo
+                </label>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-xs text-muted-foreground">Ordem:</span>
+                  <input type="number" value={form.order ?? ''} onChange={(e) => setForm({ ...form, order: e.target.value ? Number(e.target.value) : undefined })} className="w-20 px-2 py-1 bg-black/40 border border-white/10 rounded" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 hover:bg-white/10 rounded">Cancelar</button>
+                <button type="submit" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded"><Save className="h-4 w-4" /> Salvar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

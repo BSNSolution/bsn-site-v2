@@ -27,6 +27,7 @@ const AdminTeamPage = lazy(() => import('@/pages/admin/AdminTeamPage'))
 const AdminClientsPage = lazy(() => import('@/pages/admin/AdminClientsPage'))
 const AdminJobsPage = lazy(() => import('@/pages/admin/AdminJobsPage'))
 const AdminBlogPage = lazy(() => import('@/pages/admin/AdminBlogPage'))
+const AdminBlogEditorPage = lazy(() => import('@/pages/admin/AdminBlogEditorPage'))
 const AdminInboxPage = lazy(() => import('@/pages/admin/AdminInboxPage'))
 const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage'))
 const AdminUploadsPage = lazy(() => import('@/pages/admin/AdminUploadsPage'))
@@ -38,6 +39,8 @@ const AdminHomePillPage = lazy(() => import('@/pages/admin/AdminHomePillPage'))
 const AdminHomeBandPage = lazy(() => import('@/pages/admin/AdminHomeBandPage'))
 const AdminStackPage = lazy(() => import('@/pages/admin/AdminStackPage'))
 const AdminAboutCardsPage = lazy(() => import('@/pages/admin/AdminAboutCardsPage'))
+const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'))
+const AdminPermissionGroupsPage = lazy(() => import('@/pages/admin/AdminPermissionGroupsPage'))
 
 // Components
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -75,7 +78,7 @@ const pageVariants = {
 // Loading component for Suspense
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center">
       <LoadingSpinner size="lg" />
     </div>
   )
@@ -283,6 +286,8 @@ function App() {
             <Route path="clients" element={<AdminClientsPage />} />
             <Route path="jobs" element={<AdminJobsPage />} />
             <Route path="blog" element={<AdminBlogPage />} />
+            <Route path="blog/new" element={<AdminBlogEditorPage />} />
+            <Route path="blog/:id/edit" element={<AdminBlogEditorPage />} />
             <Route path="inbox" element={<AdminInboxPage />} />
             <Route path="uploads" element={<AdminUploadsPage />} />
             <Route path="values" element={<AdminValuesPage />} />
@@ -293,6 +298,8 @@ function App() {
             <Route path="home-band" element={<AdminHomeBandPage />} />
             <Route path="stack" element={<AdminStackPage />} />
             <Route path="about-cards" element={<AdminAboutCardsPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="permission-groups" element={<AdminPermissionGroupsPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
           </Route>
 

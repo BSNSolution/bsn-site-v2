@@ -63,6 +63,21 @@ export interface PaginationResponse<T> {
   }
 }
 
+// ===== Users / Permissions / Groups =====
+export const usersAdminApi = {
+  listUsers: async () => (await api.get('/admin/users')).data,
+  getUser: async (id: string) => (await api.get(`/admin/users/${id}`)).data,
+  createUser: async (data: any) => (await api.post('/admin/users', data)).data,
+  updateUser: async (id: string, data: any) => (await api.put(`/admin/users/${id}`, data)).data,
+  deleteUser: async (id: string) => (await api.delete(`/admin/users/${id}`)).data,
+  listPermissions: async () => (await api.get('/admin/permissions')).data,
+  listGroups: async () => (await api.get('/admin/groups')).data,
+  createGroup: async (data: any) => (await api.post('/admin/groups', data)).data,
+  updateGroup: async (id: string, data: any) => (await api.put(`/admin/groups/${id}`, data)).data,
+  deleteGroup: async (id: string) => (await api.delete(`/admin/groups/${id}`)).data,
+  getMyPermissions: async () => (await api.get('/admin/me/permissions')).data,
+}
+
 // ===== CMS extras (new layout) =====
 export const homeExtrasApi = {
   getLiveCard: async () => (await api.get('/home/live-card')).data,

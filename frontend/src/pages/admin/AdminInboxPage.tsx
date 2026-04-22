@@ -1,215 +1,197 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Inbox, Mail, MailOpen, Reply, Trash2, Archive, Clock } from 'lucide-react'
+import { useState, useEffect, FormEvent } from 'react'
+import { Mail, MailOpen, Reply, Trash2, Archive, Clock, X } from 'lucide-react'
 import { inboxApi } from '@/lib/api'
 
+interface Message {
+  id: string
+  name: string
+  email: string
+  phone?: string | null
+  subject?: string | null
+  message: string
+  status: string
+  createdAt: string
+  replies?: Reply[]
+}
+
+interface Reply {
+  id: string
+  content: string
+  createdAt: string
+  user?: { id: string; name: string } | null
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleString('pt-BR')
+}
+
 export default function AdminInboxPage() {
-  const [messages, setMessages] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [selectedMessage, setSelectedMessage] = useState<any>(null)
+  const [items, setItems] = useState<Message[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selected, setSelected] = useState<Message | null>(null)
+  const [replyText, setReplyText] = useState('')
+  const [sendingReply, setSendingReply] = useState(false)
 
-  useEffect(() => {
-    loadMessages()
-  }, [])
+  useEffect(() => { load() }, [])
 
-  const loadMessages = async () => {
+  async function load() {
     try {
-      setIsLoading(true)
-      const data = await inboxApi.admin.getMessages()
-      if (data) {
-        setMessages(data.messages || [])
+      setLoading(true)
+      const res = await inboxApi.admin.getMessages({ limit: 100 })
+      setItems(Array.isArray(res?.messages) ? res.messages : [])
+    } catch { setItems([]) } finally { setLoading(false) }
+  }
+
+  async function openMessage(m: Message) {
+    try {
+      const full = await inboxApi.admin.getMessage(m.id)
+      setSelected(full)
+      if (m.status === 'UNREAD') {
+        await inboxApi.admin.updateMessageStatus(m.id, 'READ')
+        load()
       }
-    } catch (error) {
-      console.error('Error loading messages:', error)
-    } finally {
-      setIsLoading(false)
+    } catch {
+      setSelected(m)
     }
   }
 
-  const handleMarkRead = async (message: any) => {
+  async function remove(id: string) {
+    if (!confirm('Remover esta mensagem?')) return
+    await inboxApi.admin.deleteMessage(id)
+    setSelected(null); load()
+  }
+
+  async function archive(id: string) {
+    await inboxApi.admin.updateMessageStatus(id, 'ARCHIVED')
+    setSelected(null); load()
+  }
+
+  async function sendReply(e: FormEvent) {
+    e.preventDefault()
+    if (!selected || !replyText.trim()) return
+    setSendingReply(true)
     try {
-      await inboxApi.admin.updateMessageStatus(message.id, 'read')
-      await loadMessages()
-    } catch (error) {
-      console.error('Error marking as read:', error)
-    }
+      await inboxApi.admin.replyToMessage(selected.id, replyText)
+      setReplyText('')
+      const full = await inboxApi.admin.getMessage(selected.id)
+      setSelected(full)
+      load()
+    } catch (err: any) {
+      alert(err?.response?.data?.error || 'Erro ao enviar resposta')
+    } finally { setSendingReply(false) }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+  const statusColor = (s: string) => ({
+    UNREAD: 'bg-primary/30 text-primary',
+    READ: 'bg-white/10',
+    REPLIED: 'bg-emerald-500/20 text-emerald-300',
+    ARCHIVED: 'bg-white/5 text-white/40',
+  } as any)[s] || 'bg-white/10'
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold gradient-text">Inbox</h1>
-          <p className="text-muted-foreground">Gerencie as mensagens recebidas</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {/* TODO: Bulk mark as read */}}
-            className="text-sm bg-muted hover:bg-muted/80 text-foreground px-3 py-1 rounded-lg transition-colors"
-          >
-            Marcar todas como lidas
-          </button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-semibold">Inbox</h1>
+        <p className="text-sm text-muted-foreground">Mensagens enviadas pelo formulário de contato.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Messages List */}
-        <div className="lg:col-span-2">
-          <div className="glass-card">
-            {isLoading ? (
-              <div className="p-8 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-                <p className="text-muted-foreground mt-2">Carregando mensagens...</p>
-              </div>
-            ) : messages.length === 0 ? (
-              <div className="p-8 text-center">
-                <Inbox className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                <p className="text-muted-foreground">Nenhuma mensagem encontrada</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border">
-                {messages.map((message: any, index) => (
-                  <motion.div
-                    key={message.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => setSelectedMessage(message)}
-                    className={`p-4 hover:bg-muted/50 transition-colors cursor-pointer ${
-                      selectedMessage?.id === message.id ? 'bg-primary/5 border-l-2 border-primary' : ''
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 pt-1">
-                        {message.status === 'unread' ? (
-                          <Mail className="h-4 w-4 text-primary" />
-                        ) : (
-                          <MailOpen className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className={`font-medium truncate ${
-                            message.status === 'unread' ? 'text-foreground' : 'text-muted-foreground'
-                          }`}>
-                            {message.name} ({message.email})
-                          </h3>
-                          <span className="text-xs text-muted-foreground flex items-center gap-1 flex-shrink-0">
-                            <Clock className="h-3 w-3" />
-                            {formatDate(message.createdAt)}
-                          </span>
-                        </div>
-                        
-                        {message.subject && (
-                          <p className={`text-sm mb-1 ${
-                            message.status === 'unread' ? 'text-foreground' : 'text-muted-foreground'
-                          }`}>
-                            {message.subject}
-                          </p>
-                        )}
-                        
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {message.message}
-                        </p>
-                      </div>
+      {loading ? (
+        <div className="p-8 text-center text-muted-foreground">Carregando...</div>
+      ) : items.length === 0 ? (
+        <div className="glass p-12 text-center text-muted-foreground">Nenhuma mensagem.</div>
+      ) : (
+        <div className="grid gap-2">
+          {items.map((m) => {
+            const isUnread = m.status === 'UNREAD'
+            return (
+              <button
+                key={m.id}
+                onClick={() => openMessage(m)}
+                className="glass p-4 text-left hover:bg-white/5 transition"
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`p-2 rounded-lg ${isUnread ? 'bg-primary/20' : 'bg-white/5'}`}>
+                    {isUnread ? <Mail className="h-4 w-4" /> : <MailOpen className="h-4 w-4" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`font-medium ${isUnread ? 'text-white' : 'text-white/70'}`}>{m.name}</span>
+                      <span className="text-xs text-muted-foreground">· {m.email}</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase ${statusColor(m.status)}`}>
+                        {m.status}
+                      </span>
                     </div>
-                  </motion.div>
+                    {m.subject && <div className="text-sm">{m.subject}</div>}
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{m.message}</p>
+                    <div className="text-[10px] text-muted-foreground font-mono mt-1 inline-flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> {formatDate(m.createdAt)}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {selected && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-4 overflow-y-auto" onClick={() => setSelected(null)}>
+          <div className="glass max-w-2xl w-full p-6 my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">{selected.subject || 'Mensagem'}</h2>
+              <button onClick={() => setSelected(null)} className="p-1 hover:bg-white/10 rounded"><X className="h-5 w-5" /></button>
+            </div>
+
+            <div className="space-y-1 mb-4 text-sm">
+              <div><span className="text-muted-foreground">De:</span> <strong>{selected.name}</strong> &lt;{selected.email}&gt;</div>
+              {selected.phone && <div><span className="text-muted-foreground">Telefone:</span> {selected.phone}</div>}
+              <div className="text-[11px] text-muted-foreground font-mono">{formatDate(selected.createdAt)}</div>
+            </div>
+
+            <div className="bg-black/30 border border-white/10 rounded-lg p-4 text-sm whitespace-pre-wrap mb-4">
+              {selected.message}
+            </div>
+
+            {selected.replies && selected.replies.length > 0 && (
+              <div className="space-y-2 mb-4">
+                <h3 className="text-sm font-medium">Respostas</h3>
+                {selected.replies.map((r) => (
+                  <div key={r.id} className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-sm">
+                    <div className="text-xs text-muted-foreground mb-1">
+                      {r.user?.name ?? 'Admin'} · {formatDate(r.createdAt)}
+                    </div>
+                    <div className="whitespace-pre-wrap">{r.content}</div>
+                  </div>
                 ))}
               </div>
             )}
-          </div>
-        </div>
 
-        {/* Message Detail */}
-        <div className="lg:col-span-1">
-          <div className="glass-card p-6">
-            {selectedMessage ? (
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold">Detalhes da Mensagem</h3>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleMarkRead(selectedMessage)}
-                      className="p-2 hover:bg-muted rounded-lg transition-colors text-primary"
-                      title="Marcar como lida"
-                    >
-                      <MailOpen className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => {/* TODO: Archive */}}
-                      className="p-2 hover:bg-muted rounded-lg transition-colors"
-                      title="Arquivar"
-                    >
-                      <Archive className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => {/* TODO: Delete */}}
-                      className="p-2 hover:bg-muted rounded-lg transition-colors text-destructive"
-                      title="Excluir"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">De:</label>
-                    <p className="font-medium">{selectedMessage.name}</p>
-                    <p className="text-sm text-muted-foreground">{selectedMessage.email}</p>
-                    {selectedMessage.phone && (
-                      <p className="text-sm text-muted-foreground">{selectedMessage.phone}</p>
-                    )}
-                  </div>
-
-                  {selectedMessage.subject && (
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Assunto:</label>
-                      <p>{selectedMessage.subject}</p>
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Mensagem:</label>
-                    <div className="mt-1 p-3 bg-muted/50 rounded-lg">
-                      <p className="text-sm whitespace-pre-wrap">{selectedMessage.message}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Data:</label>
-                    <p className="text-sm">{formatDate(selectedMessage.createdAt)}</p>
-                  </div>
-
-                  <button
-                    onClick={() => {/* TODO: Reply form */}}
-                    className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    <Reply className="h-4 w-4" />
-                    Responder
+            <form onSubmit={sendReply} className="space-y-2">
+              <label className="text-xs text-muted-foreground">Responder por e-mail</label>
+              <textarea
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                rows={5}
+                placeholder="Escreva sua resposta..."
+                className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded"
+              />
+              <div className="flex justify-between gap-2">
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => archive(selected.id)} className="inline-flex items-center gap-2 px-3 py-2 rounded border border-white/10 bg-white/5 hover:bg-white/10 text-sm">
+                    <Archive className="h-4 w-4" /> Arquivar
+                  </button>
+                  <button type="button" onClick={() => remove(selected.id)} className="inline-flex items-center gap-2 px-3 py-2 rounded border border-destructive/30 text-destructive hover:bg-destructive/10 text-sm">
+                    <Trash2 className="h-4 w-4" /> Excluir
                   </button>
                 </div>
+                <button type="submit" disabled={sendingReply || !replyText.trim()} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded disabled:opacity-50">
+                  <Reply className="h-4 w-4" /> {sendingReply ? 'Enviando...' : 'Enviar resposta'}
+                </button>
               </div>
-            ) : (
-              <div className="text-center text-muted-foreground py-12">
-                <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Selecione uma mensagem para ver os detalhes</p>
-              </div>
-            )}
+            </form>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

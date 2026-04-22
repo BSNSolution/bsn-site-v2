@@ -8,12 +8,12 @@ const blogPostSchema = z.object({
   slug: z.string().min(1, "Slug é obrigatório"),
   excerpt: z.string().optional().nullable(),
   content: z.string().min(1, "Conteúdo é obrigatório"),
-  coverImage: z.string().url().optional().nullable(),
+  coverImage: z.string().url().optional().nullable().or(z.literal("")),
   tags: z.array(z.string()).optional().default([]),
   isPublished: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
   publishedAt: z.string().datetime().optional().nullable(),
-  authorId: z.string().uuid(),
+  authorId: z.string().uuid().optional(),
 });
 
 const querySchema = z.object({
@@ -236,9 +236,14 @@ export default async function blogRoutes(fastify: FastifyInstance) {
         data.publishedAt = new Date().toISOString();
       }
 
+      // authorId: se não foi passado, usa o usuário logado
+      const authorId = data.authorId || request.user!.id;
+
       const post = await prisma.blogPost.create({
         data: {
           ...data,
+          authorId,
+          coverImage: data.coverImage || null,
           publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
         },
         include: {

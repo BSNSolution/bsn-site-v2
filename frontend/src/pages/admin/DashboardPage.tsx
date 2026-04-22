@@ -1,348 +1,114 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
-  Users,
-  Briefcase,
-  Settings,
-  Star,
-  MessageCircle,
-  FileText,
   Inbox,
-  Building2,
-  TrendingUp,
-  Activity,
-  Clock,
-  Calendar
+  Briefcase,
+  LayoutGrid,
+  Users,
+  FileText,
+  BookOpen,
+  ArrowRight,
 } from 'lucide-react'
-import {
-  servicesApi,
-  solutionsApi,
-  teamApi,
-  blogApi,
-  inboxApi,
-  testimonialsApi,
-  clientsApi,
-  jobsApi,
-  analyticsApi
-} from '@/lib/api'
+import { api, inboxApi } from '@/lib/api'
 
-interface DashboardStats {
-  services: number
-  solutions: number
-  team: number
-  blog: number
-  inbox: number
-  testimonials: number
-  clients: number
-  jobs: number
+interface Stat {
+  label: string
+  value: number | string
+  href: string
+  icon: any
+  hint?: string
 }
-
-interface RecentActivity {
-  id: string
-  type: string
-  message: string
-  timestamp: string
-  user?: string
-}
-
-const statsCards = [
-  {
-    key: 'services' as keyof DashboardStats,
-    title: 'Serviços',
-    icon: Briefcase,
-    color: 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-  },
-  {
-    key: 'solutions' as keyof DashboardStats,
-    title: 'Soluções',
-    icon: Settings,
-    color: 'bg-purple-500/10 text-purple-500 border-purple-500/20'
-  },
-  {
-    key: 'blog' as keyof DashboardStats,
-    title: 'Posts Blog',
-    icon: MessageCircle,
-    color: 'bg-green-500/10 text-green-500 border-green-500/20'
-  },
-  {
-    key: 'team' as keyof DashboardStats,
-    title: 'Equipe',
-    icon: Users,
-    color: 'bg-orange-500/10 text-orange-500 border-orange-500/20'
-  },
-  {
-    key: 'testimonials' as keyof DashboardStats,
-    title: 'Depoimentos',
-    icon: Star,
-    color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-  },
-  {
-    key: 'clients' as keyof DashboardStats,
-    title: 'Clientes',
-    icon: Building2,
-    color: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20'
-  },
-  {
-    key: 'jobs' as keyof DashboardStats,
-    title: 'Vagas',
-    icon: FileText,
-    color: 'bg-pink-500/10 text-pink-500 border-pink-500/20'
-  },
-  {
-    key: 'inbox' as keyof DashboardStats,
-    title: 'Mensagens',
-    icon: Inbox,
-    color: 'bg-red-500/10 text-red-500 border-red-500/20'
-  }
-]
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats>({
-    services: 0,
-    solutions: 0,
-    team: 0,
-    blog: 0,
-    inbox: 0,
-    testimonials: 0,
-    clients: 0,
-    jobs: 0
-  })
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState<Stat[]>([])
+  const [loading, setLoading] = useState(true)
+  const [unreadMessages, setUnreadMessages] = useState(0)
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        setIsLoading(true)
-        
-        // Load stats in parallel
-        const [
-          servicesRes,
-          solutionsRes,
-          teamRes,
-          blogRes,
-          inboxRes,
-          testimonialsRes,
-          clientsRes,
-          jobsRes,
-          activityRes
-        ] = await Promise.allSettled([
-          servicesApi.admin.getServices(),
-          solutionsApi.admin.getSolutions(),
-          teamApi.admin.getTeam(),
-          blogApi.admin.getPosts({ limit: 1 }),
-          inboxApi.admin.getMessages({ limit: 1 }),
-          testimonialsApi.admin.getTestimonials(),
-          clientsApi.admin.getClients(),
-          jobsApi.admin.getJobs(),
-          analyticsApi.admin.getRecent().catch(() => ({ data: [] })) // Fallback if no analytics
-        ])
+  useEffect(() => { load() }, [])
 
-        // Extract counts from responses (api functions return response.data directly)
-        const newStats: DashboardStats = {
-          services: servicesRes.status === 'fulfilled' ? (servicesRes.value?.services?.length || 0) : 0,
-          solutions: solutionsRes.status === 'fulfilled' ? (solutionsRes.value?.solutions?.length || 0) : 0,
-          team: teamRes.status === 'fulfilled' ? (teamRes.value?.team?.length || 0) : 0,
-          blog: blogRes.status === 'fulfilled' ? (blogRes.value?.pagination?.total || blogRes.value?.posts?.length || 0) : 0,
-          inbox: inboxRes.status === 'fulfilled' ? (inboxRes.value?.pagination?.total || inboxRes.value?.messages?.length || 0) : 0,
-          testimonials: testimonialsRes.status === 'fulfilled' ? (testimonialsRes.value?.testimonials?.length || 0) : 0,
-          clients: clientsRes.status === 'fulfilled' ? (clientsRes.value?.clients?.length || 0) : 0,
-          jobs: jobsRes.status === 'fulfilled' ? (jobsRes.value?.jobs?.length || 0) : 0
-        }
+  async function load() {
+    try {
+      setLoading(true)
+      const results = await Promise.allSettled([
+        api.get('/admin/services').then((r) => r.data.services?.length ?? 0).catch(() => 0),
+        api.get('/admin/solutions').then((r) => r.data.solutions?.length ?? 0).catch(() => 0),
+        api.get('/admin/team').then((r) => (r.data.team ?? r.data.members ?? []).length).catch(() => 0),
+        api.get('/admin/jobs').then((r) => r.data.jobs?.length ?? 0).catch(() => 0),
+        api.get('/admin/blog').then((r) => r.data.posts?.length ?? 0).catch(() => 0),
+        inboxApi.admin.getStats().catch(() => null),
+      ])
+      const [services, solutions, team, jobs, blog, inboxStats] = results.map((r) => r.status === 'fulfilled' ? r.value : 0) as any[]
 
-        setStats(newStats)
-
-        // Process recent activity
-        if (activityRes.status === 'fulfilled' && activityRes.value) {
-          setRecentActivity(activityRes.value.data || activityRes.value || [])
-        }
-
-      } catch (error) {
-        console.error('Error loading dashboard data:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadDashboardData()
-  }, [])
-
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+      setStats([
+        { label: 'Serviços', value: services, href: '/admin/services', icon: Briefcase },
+        { label: 'Soluções', value: solutions, href: '/admin/solutions', icon: LayoutGrid },
+        { label: 'Equipe', value: team, href: '/admin/team', icon: Users },
+        { label: 'Vagas', value: jobs, href: '/admin/jobs', icon: FileText },
+        { label: 'Posts no blog', value: blog, href: '/admin/blog', icon: BookOpen },
+        { label: 'Mensagens não lidas', value: inboxStats?.unread ?? 0, href: '/admin/inbox', icon: Inbox, hint: `${inboxStats?.total ?? 0} total` },
+      ])
+      setUnreadMessages(inboxStats?.unread ?? 0)
+    } finally { setLoading(false) }
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold gradient-text">
-          Dashboard
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Visão geral do seu painel administrativo
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">
+          Visão geral do conteúdo gerenciado.
+          {unreadMessages > 0 && (
+            <span className="ml-2 text-primary">Você tem {unreadMessages} mensagem{unreadMessages > 1 ? 'ns' : ''} não lida{unreadMessages > 1 ? 's' : ''}.</span>
+          )}
         </p>
       </div>
 
-      {/* Loading state */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="glass-card p-6">
-              <div className="animate-pulse">
-                <div className="w-10 h-10 bg-muted rounded-lg mb-4" />
-                <div className="h-4 bg-muted rounded mb-2" />
-                <div className="h-8 bg-muted rounded" />
-              </div>
-            </div>
-          ))}
-        </div>
+      {loading ? (
+        <div className="p-8 text-center text-muted-foreground">Carregando...</div>
       ) : (
-        <>
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {statsCards.map((card, index) => {
-              const Icon = card.icon
-              const value = stats[card.key]
-
-              return (
-                <motion.div
-                  key={card.key}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="glass-card-hover p-6"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        {card.title}
-                      </p>
-                      <p className="text-3xl font-bold">
-                        {value.toLocaleString('pt-BR')}
-                      </p>
-                    </div>
-                    <div className={`p-3 rounded-xl border ${card.color}`}>
-                      <Icon className="h-6 w-6" />
-                    </div>
-                  </div>
-                </motion.div>
-              )
-            })}
-          </div>
-
-          {/* Recent Activity & Quick Actions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Recent Activity */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              className="glass-card p-6"
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <Activity className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">Atividade Recente</h3>
-              </div>
-
-              <div className="space-y-4">
-                {recentActivity.length > 0 ? (
-                  recentActivity.slice(0, 5).map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-foreground mb-1">
-                          {activity.message}
-                        </p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          {formatDateTime(activity.timestamp)}
-                          {activity.user && (
-                            <>
-                              <span>•</span>
-                              <span>{activity.user}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Nenhuma atividade recente</p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Quick Stats */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-              className="glass-card p-6"
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">Resumo Rápido</h3>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-3 rounded-lg bg-primary/5 border border-primary/20">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-primary" />
-                    <span className="text-sm">Última atualização</span>
-                  </div>
-                  <span className="text-sm font-medium">
-                    {new Date().toLocaleString('pt-BR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {stats.map((s) => {
+            const Icon = s.icon
+            return (
+              <Link
+                key={s.label}
+                to={s.href}
+                className="glass p-5 group hover:border-white/20 transition flex items-start justify-between"
+              >
+                <div>
+                  <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground">{s.label}</div>
+                  <div className="text-3xl font-medium mt-2" style={{ letterSpacing: '-0.03em' }}>{s.value}</div>
+                  {s.hint && <div className="text-xs text-muted-foreground mt-1">{s.hint}</div>}
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="text-center p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                    <div className="text-lg font-bold text-green-500">
-                      {stats.services + stats.solutions}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Produtos</div>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition">
+                    <Icon className="h-5 w-5" />
                   </div>
-
-                  <div className="text-center p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <div className="text-lg font-bold text-blue-500">
-                      {stats.blog}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Conteúdo</div>
-                  </div>
-
-                  <div className="text-center p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                    <div className="text-lg font-bold text-purple-500">
-                      {stats.team}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Pessoas</div>
-                  </div>
-
-                  <div className="text-center p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                    <div className="text-lg font-bold text-orange-500">
-                      {stats.inbox}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Mensagens</div>
-                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition" />
                 </div>
-              </div>
-            </motion.div>
-          </div>
-        </>
+              </Link>
+            )
+          })}
+        </div>
       )}
+
+      <div className="glass p-5">
+        <h2 className="text-base font-medium mb-3">Atalhos rápidos</h2>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/admin/blog/new" className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm">
+            Novo post no blog
+          </Link>
+          <Link to="/admin/jobs" className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm">
+            Criar vaga
+          </Link>
+          <Link to="/admin/services" className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm">
+            Editar serviços
+          </Link>
+          <Link to="/admin/settings" className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm">
+            Configurações
+          </Link>
+        </div>
+      </div>
     </div>
   )
 }

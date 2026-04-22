@@ -1,450 +1,197 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  EyeOff,
-  Save,
-  X,
-  Star,
-  Quote,
-  User
-} from 'lucide-react'
+import { useState, useEffect, FormEvent } from 'react'
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, Star } from 'lucide-react'
 import { testimonialsApi } from '@/lib/api'
 
 interface Testimonial {
   id: string
-  name: string
-  role: string
-  company?: string
+  clientName: string
+  clientRole?: string | null
+  company?: string | null
   content: string
-  avatar?: string
   rating: number
-  active: boolean
-  createdAt: string
-  updatedAt: string
+  avatarUrl?: string | null
+  isActive: boolean
+  order: number
 }
 
 interface FormData {
-  name: string
   clientName: string
-  role: string
+  clientRole: string
   company: string
   content: string
-  avatar: string
   rating: number
-  active: boolean
+  avatarUrl: string
+  isActive: boolean
+  order?: number
+}
+
+const EMPTY: FormData = {
+  clientName: '',
+  clientRole: '',
+  company: '',
+  content: '',
+  rating: 5,
+  avatarUrl: '',
+  isActive: true,
 }
 
 export default function AdminTestimonialsPage() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [items, setItems] = useState<Testimonial[]>([])
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    clientName: '',
-    role: '',
-    company: '',
-    content: '',
-    avatar: '',
-    rating: 5,
-    active: true
-  })
+  const [editing, setEditing] = useState<Testimonial | null>(null)
+  const [form, setForm] = useState<FormData>(EMPTY)
 
-  useEffect(() => {
-    loadTestimonials()
-  }, [])
+  useEffect(() => { load() }, [])
 
-  const loadTestimonials = async () => {
+  async function load() {
     try {
-      setIsLoading(true)
-      const data = await testimonialsApi.admin.getTestimonials()
-      if (data) {
-        setTestimonials(data.testimonials || [])
-      }
-    } catch (error) {
-      console.error('Error loading testimonials:', error)
-    } finally {
-      setIsLoading(false)
-    }
+      setLoading(true)
+      const res = await testimonialsApi.admin.getTestimonials()
+      setItems(Array.isArray(res?.testimonials) ? res.testimonials : [])
+    } catch (err) {
+      console.error(err); setItems([])
+    } finally { setLoading(false) }
   }
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      clientName: '',
-      role: '',
-      company: '',
-      content: '',
-      avatar: '',
-      rating: 5,
-      active: true
-    })
-    setEditingTestimonial(null)
-    setShowForm(false)
-  }
+  function openCreate() { setEditing(null); setForm(EMPTY); setShowForm(true) }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    try {
-      if (editingTestimonial) {
-        await testimonialsApi.admin.updateTestimonial(editingTestimonial.id, formData)
-      } else {
-        await testimonialsApi.admin.createTestimonial(formData)
-      }
-      
-      await loadTestimonials()
-      resetForm()
-    } catch (error) {
-      console.error('Error saving testimonial:', error)
-    }
-  }
-
-  const handleEdit = (testimonial: Testimonial) => {
-    setEditingTestimonial(testimonial)
-    setFormData({
-      name: testimonial.name,
-      clientName: (testimonial as any).clientName || testimonial.name,
-      role: testimonial.role,
-      company: testimonial.company || '',
-      content: testimonial.content,
-      avatar: testimonial.avatar || '',
-      rating: testimonial.rating,
-      active: testimonial.active
+  function openEdit(t: Testimonial) {
+    setEditing(t)
+    setForm({
+      clientName: t.clientName,
+      clientRole: t.clientRole ?? '',
+      company: t.company ?? '',
+      content: t.content,
+      rating: t.rating,
+      avatarUrl: t.avatarUrl ?? '',
+      isActive: t.isActive,
+      order: t.order,
     })
     setShowForm(true)
   }
 
-  const handleDelete = async (testimonial: Testimonial) => {
-    if (!confirm(`Tem certeza que deseja excluir o depoimento de "${testimonial.name}"?`)) {
-      return
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    const payload = {
+      ...form,
+      clientRole: form.clientRole || null,
+      company: form.company || null,
+      avatarUrl: form.avatarUrl || null,
     }
-
     try {
-      await testimonialsApi.admin.deleteTestimonial(testimonial.id)
-      await loadTestimonials()
-    } catch (error) {
-      console.error('Error deleting testimonial:', error)
+      if (editing) await testimonialsApi.admin.updateTestimonial(editing.id, payload)
+      else await testimonialsApi.admin.createTestimonial(payload)
+      setShowForm(false); load()
+    } catch (err: any) {
+      alert(err?.response?.data?.error || 'Erro ao salvar')
     }
   }
 
-  const handleToggle = async (testimonial: Testimonial) => {
-    try {
-      await testimonialsApi.admin.toggleTestimonial(testimonial.id)
-      await loadTestimonials()
-    } catch (error) {
-      console.error('Error toggling testimonial:', error)
-    }
+  async function remove(id: string) {
+    if (!confirm('Remover este depoimento?')) return
+    await testimonialsApi.admin.deleteTestimonial(id); load()
   }
-
-  const renderStars = (rating: number, editable = false) => {
-    return (
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={editable ? () => setFormData(prev => ({ ...prev, rating: star })) : undefined}
-            className={`${editable ? 'cursor-pointer hover:scale-110' : 'cursor-default'} transition-transform`}
-            disabled={!editable}
-          >
-            <Star
-              className={`h-4 w-4 ${
-                star <= rating 
-                  ? 'text-yellow-500 fill-yellow-500' 
-                  : 'text-gray-300'
-              }`}
-            />
-          </button>
-        ))}
-      </div>
-    )
+  async function toggle(id: string) {
+    await testimonialsApi.admin.toggleTestimonial(id); load()
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold gradient-text">Depoimentos</h1>
-          <p className="text-muted-foreground">Gerencie os depoimentos de clientes</p>
+          <h1 className="text-2xl font-semibold">Depoimentos</h1>
+          <p className="text-sm text-muted-foreground">Gerencie os depoimentos de clientes.</p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          Novo Depoimento
+        <button onClick={openCreate} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90">
+          <Plus className="h-4 w-4" /> Novo depoimento
         </button>
       </div>
 
-      {/* Form Modal */}
-      <AnimatePresence>
-        {showForm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="glass-card p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold">
-                  {editingTestimonial ? 'Editar Depoimento' : 'Novo Depoimento'}
-                </h2>
-                <button
-                  onClick={resetForm}
-                  className="p-2 hover:bg-muted rounded-lg transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+      {loading ? (
+        <div className="p-8 text-center text-muted-foreground">Carregando...</div>
+      ) : items.length === 0 ? (
+        <div className="glass p-12 text-center text-muted-foreground">Nenhum depoimento.</div>
+      ) : (
+        <div className="grid gap-3">
+          {items.map((t) => (
+            <div key={t.id} className="glass p-4 flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-medium">{t.clientName}</h3>
+                  {t.company && <span className="text-xs text-muted-foreground">· {t.company}</span>}
+                  <div className="flex items-center gap-0.5">
+                    {Array.from({ length: t.rating }).map((_, i) => <Star key={i} className="h-3 w-3 text-amber-400 fill-amber-400" />)}
+                  </div>
+                  {!t.isActive && <span className="text-xs px-2 py-0.5 rounded bg-white/10">Inativo</span>}
+                </div>
+                {t.clientRole && <div className="text-xs text-muted-foreground">{t.clientRole}</div>}
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{t.content}</p>
               </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => toggle(t.id)} className="p-2 hover:bg-white/10 rounded">
+                  {t.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                </button>
+                <button onClick={() => openEdit(t)} className="p-2 hover:bg-white/10 rounded"><Edit className="h-4 w-4" /></button>
+                <button onClick={() => remove(t.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Nome *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Nome do Cliente *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.clientName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, clientName: e.target.value }))}
-                      className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      required
-                      placeholder="Nome para exibição no depoimento"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Cargo *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.role}
-                      onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                      className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      required
-                      placeholder="ex: CEO, Desenvolvedor, Gerente"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Empresa
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.company}
-                      onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                      className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      placeholder="Nome da empresa"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      URL do Avatar
-                    </label>
-                    <input
-                      type="url"
-                      value={formData.avatar}
-                      onChange={(e) => setFormData(prev => ({ ...prev, avatar: e.target.value }))}
-                      className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                      placeholder="https://exemplo.com/avatar.jpg"
-                    />
-                  </div>
-                </div>
-
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-4 overflow-y-auto" onClick={() => setShowForm(false)}>
+          <div className="glass max-w-lg w-full p-6 my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">{editing ? 'Editar depoimento' : 'Novo depoimento'}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 hover:bg-white/10 rounded"><X className="h-5 w-5" /></button>
+            </div>
+            <form onSubmit={submit} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Avaliação *
-                  </label>
-                  <div className="flex items-center gap-4">
-                    {renderStars(formData.rating, true)}
-                    <span className="text-sm text-muted-foreground">
-                      {formData.rating} de 5 estrelas
-                    </span>
-                  </div>
+                  <label className="text-xs text-muted-foreground">Nome</label>
+                  <input type="text" value={form.clientName} onChange={(e) => setForm({ ...form, clientName: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Depoimento *
-                  </label>
-                  <textarea
-                    value={formData.content}
-                    onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                    rows={4}
-                    className="w-full px-3 py-2 bg-input border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none"
-                    required
-                    placeholder="O depoimento do cliente..."
-                  />
+                  <label className="text-xs text-muted-foreground">Cargo</label>
+                  <input type="text" value={form.clientRole} onChange={(e) => setForm({ ...form, clientRole: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="active"
-                    checked={formData.active}
-                    onChange={(e) => setFormData(prev => ({ ...prev, active: e.target.checked }))}
-                    className="w-4 h-4 text-primary bg-input border-border rounded focus:ring-primary/50 focus:ring-2"
-                  />
-                  <label htmlFor="active" className="text-sm font-medium">
-                    Depoimento ativo
-                  </label>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Empresa</label>
+                <input type="text" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Depoimento</label>
+                <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={3} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground">Rating (1-5)</label>
+                  <input type="number" min={1} max={5} value={form.rating} onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
                 </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    <Save className="h-4 w-4" />
-                    Salvar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="flex items-center gap-2 bg-muted hover:bg-muted/80 text-foreground px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    Cancelar
-                  </button>
+                <div>
+                  <label className="text-xs text-muted-foreground">Ordem</label>
+                  <input type="number" value={form.order ?? ''} onChange={(e) => setForm({ ...form, order: e.target.value ? Number(e.target.value) : undefined })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
                 </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Testimonials List */}
-      <div className="glass-card">
-        {isLoading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-            <p className="text-muted-foreground mt-2">Carregando depoimentos...</p>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Avatar URL (opcional)</label>
+                <input type="url" value={form.avatarUrl} onChange={(e) => setForm({ ...form, avatarUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              </div>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
+                Ativo
+              </label>
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 hover:bg-white/10 rounded">Cancelar</button>
+                <button type="submit" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded"><Save className="h-4 w-4" /> Salvar</button>
+              </div>
+            </form>
           </div>
-        ) : testimonials.length === 0 ? (
-          <div className="p-8 text-center">
-            <Quote className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <p className="text-muted-foreground">Nenhum depoimento encontrado</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={testimonial.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="p-4 flex gap-4 hover:bg-muted/50 transition-colors"
-              >
-                {/* Avatar */}
-                <div className="flex-shrink-0">
-                  {testimonial.avatar ? (
-                    <img 
-                      src={testimonial.avatar} 
-                      alt={testimonial.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        target.style.display = 'none'
-                        target.nextElementSibling!.classList.remove('hidden')
-                      }}
-                    />
-                  ) : null}
-                  <div className={`w-12 h-12 bg-muted rounded-full flex items-center justify-center ${testimonial.avatar ? 'hidden' : ''}`}>
-                    <User className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-medium">{testimonial.name}</h3>
-                    <span className="text-sm text-muted-foreground">•</span>
-                    <span className="text-sm text-muted-foreground">
-                      {testimonial.role}
-                      {testimonial.company && ` @ ${testimonial.company}`}
-                    </span>
-                    {!testimonial.active && (
-                      <span className="px-2 py-1 text-xs bg-muted/50 rounded text-muted-foreground">
-                        Inativo
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mb-2">
-                    {renderStars(testimonial.rating)}
-                  </div>
-
-                  <blockquote className="text-sm text-muted-foreground line-clamp-3 italic border-l-2 border-primary/20 pl-3">
-                    "{testimonial.content}"
-                  </blockquote>
-
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    Criado em {new Date(testimonial.createdAt).toLocaleDateString('pt-BR')}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleToggle(testimonial)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                    title={testimonial.active ? 'Desativar' : 'Ativar'}
-                  >
-                    {testimonial.active ? (
-                      <Eye className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleEdit(testimonial)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
-                    title="Editar"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(testimonial)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors text-destructive"
-                    title="Excluir"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

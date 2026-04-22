@@ -22,6 +22,8 @@ model User {
   // Relacionamentos
   blogPosts  BlogPost[]
   messageReplies MessageReply[]
+  permissions    Permission[]        @relation("UserPermissions")
+  groups         PermissionGroup[]   @relation("UserGroups")
 
   @@map("users")
 }
@@ -29,6 +31,38 @@ model User {
 enum Role {
   ADMIN
   EDITOR
+  DEVELOPER
+  GUEST
+}
+
+// Permissões do sistema (strings como "services.write", "blog.publish"...)
+model Permission {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  label       String
+  category    String   // ex: "Serviços", "Blog", "Sistema"
+  description String?
+  createdAt   DateTime @default(now())
+
+  users  User[]            @relation("UserPermissions")
+  groups PermissionGroup[] @relation("GroupPermissions")
+
+  @@map("permissions")
+}
+
+// Grupos de permissões (templates reutilizáveis)
+model PermissionGroup {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  isSystem    Boolean  @default(false)  // grupos padrão do seed não podem ser removidos
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  permissions Permission[] @relation("GroupPermissions")
+  users       User[]       @relation("UserGroups")
+
+  @@map("permission_groups")
 }
 
 // Configurações do site
