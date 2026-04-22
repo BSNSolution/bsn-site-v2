@@ -2341,6 +2341,7 @@ body.menu-open .nav-burger span::after {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
+  align-items: start;
 }
 .svc {
   padding: 26px 28px;
@@ -2438,12 +2439,12 @@ body.menu-open .nav-burger span::after {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
+  align-items: start;
 }
 .sol {
   padding: 36px;
   position: relative;
   overflow: hidden;
-  min-height: 320px;
   display: flex;
   flex-direction: column;
 }
@@ -2607,10 +2608,10 @@ body.menu-open .nav-burger span::after {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+  align-items: start;
 }
 .about-grid .card {
   padding: 36px;
-  min-height: 260px;
 }
 .about-grid .card h3 {
   font-family: 'Inter', sans-serif;
@@ -2668,10 +2669,10 @@ body.menu-open .nav-burger span::after {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
+  align-items: start;
 }
 .val {
   padding: 28px;
-  min-height: 220px;
   position: relative;
   overflow: hidden;
 }
@@ -2721,10 +2722,10 @@ body.menu-open .nav-burger span::after {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
+  align-items: start;
 }
 .person {
   padding: 24px;
-  min-height: 260px;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -2774,7 +2775,6 @@ body.menu-open .nav-burger span::after {
   gap: 40px;
   position: relative;
   overflow: hidden;
-  min-height: 340px;
 }
 .feat-card .shard {
   position: absolute;
@@ -2847,10 +2847,10 @@ body.menu-open .nav-burger span::after {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
+  align-items: start;
 }
 .post {
   padding: 28px;
-  min-height: 320px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -2907,6 +2907,7 @@ body.menu-open .nav-burger span::after {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+  align-items: start;
 }
 .channels {
   padding: 40px;
@@ -3088,10 +3089,10 @@ body.menu-open .nav-burger span::after {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
+  align-items: start;
 }
 .perk {
   padding: 24px;
-  min-height: 160px;
   position: relative;
   overflow: hidden;
 }
