@@ -10,8 +10,9 @@ const optionalUrl = z.preprocess(
 
 const clientSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
-  logoUrl: z.string().url("URL do logo inválida"),
+  logoUrl: z.string().url("URL do logo inválida").or(z.literal("")),
   websiteUrl: optionalUrl,
+  sector: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   order: z.number().optional(),
 });
@@ -25,13 +26,6 @@ export default async function clientsRoutes(fastify: FastifyInstance) {
         const clients = await prisma.client.findMany({
           where: { isActive: true },
           orderBy: { order: "asc" },
-          select: {
-            id: true,
-            name: true,
-            logoUrl: true,
-            websiteUrl: true,
-            order: true,
-          },
         });
         return { clients };
       },

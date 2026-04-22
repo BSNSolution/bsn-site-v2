@@ -8,6 +8,7 @@ interface Client {
   name: string
   logoUrl: string
   websiteUrl?: string | null
+  sector?: string | null
   isActive: boolean
   order: number
 }
@@ -16,11 +17,12 @@ interface FormData {
   name: string
   logoUrl: string
   websiteUrl: string
+  sector: string
   isActive: boolean
   order?: number
 }
 
-const EMPTY: FormData = { name: '', logoUrl: '', websiteUrl: '', isActive: true }
+const EMPTY: FormData = { name: '', logoUrl: '', websiteUrl: '', sector: '', isActive: true }
 
 export default function AdminClientsPage() {
   const [items, setItems] = useState<Client[]>([])
@@ -47,6 +49,7 @@ export default function AdminClientsPage() {
       name: c.name,
       logoUrl: c.logoUrl,
       websiteUrl: c.websiteUrl ?? '',
+      sector: c.sector ?? '',
       isActive: c.isActive,
       order: c.order,
     })
@@ -55,7 +58,7 @@ export default function AdminClientsPage() {
 
   async function submit(e: FormEvent) {
     e.preventDefault()
-    const payload = { ...form, websiteUrl: form.websiteUrl || null }
+    const payload = { ...form, websiteUrl: form.websiteUrl || null, sector: form.sector || null }
     try {
       if (editing) await clientsApi.admin.updateClient(editing.id, payload)
       else await clientsApi.admin.createClient(payload)
@@ -130,12 +133,18 @@ export default function AdminClientsPage() {
                 <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">URL do logo</label>
-                <input type="url" value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
+                <label className="text-xs text-muted-foreground">URL do logo (opcional — se vazio, mostra o nome)</label>
+                <input type="url" value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground">Website (opcional)</label>
-                <input type="url" value={form.websiteUrl} onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground">Website (opcional)</label>
+                  <input type="url" value={form.websiteUrl} onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Setor</label>
+                  <input type="text" value={form.sector} onChange={(e) => setForm({ ...form, sector: e.target.value })} placeholder="Educação, Jurídico, Fintech..." className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 <Checkbox label="Ativo" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
