@@ -3333,11 +3333,7 @@ body.menu-open .nav-burger span::after {
 /* ============================================================
    shadcn/ui compatibility layer (admin panel mostly)
    ============================================================ */
-@layer base {
-  * {
-    @apply border-border;
-  }
-}
+/* Sem @apply border-border global — estava pintando rings azuis no site */
 
 @layer components {
   .glass-card {
