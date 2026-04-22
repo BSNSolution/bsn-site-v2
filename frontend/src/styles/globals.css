@@ -1284,14 +1284,14 @@ body.menu-open .nav-burger span::after {
   justify-content: center;
   z-index: 1;
 }
-.ring {
+.orbit-ring {
   position: absolute;
   border-radius: 50%;
   border: 1px dashed rgba(255, 255, 255, 0.08);
   animation: ringRotate 60s linear infinite;
 }
-.ring.r1 { width: 520px; height: 520px; animation-duration: 80s; }
-.ring.r2 {
+.orbit-ring.r1 { width: 520px; height: 520px; animation-duration: 80s; }
+.orbit-ring.r2 {
   width: 720px;
   height: 720px;
   border-style: solid;
@@ -1299,7 +1299,7 @@ body.menu-open .nav-burger span::after {
   animation-duration: 120s;
   animation-direction: reverse;
 }
-.ring.r3 {
+.orbit-ring.r3 {
   width: 920px;
   height: 920px;
   animation-duration: 160s;
@@ -1471,7 +1471,7 @@ body.menu-open .nav-burger span::after {
     flex-direction: column;
     display: block;
   }
-  .ring, .orbit-sun { display: none !important; }
+  .orbit-ring, .orbit-sun { display: none !important; }
   .orbit-rings { display: none !important; }
   .orbit-center h1 { font-size: clamp(30px, 8vw, 44px); }
   .orbit-center p { font-size: 15px; }

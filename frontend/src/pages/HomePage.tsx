@@ -188,9 +188,9 @@ export default function HomePage() {
       <section className="hero hero-orbit shell">
         <div className="orbit-sun" aria-hidden="true" />
         <div className="orbit-rings" aria-hidden="true">
-          <div className="ring r1" />
-          <div className="ring r2" />
-          <div className="ring r3" />
+          <div className="orbit-ring r1" />
+          <div className="orbit-ring r2" />
+          <div className="orbit-ring r3" />
         </div>
         <div className="orbit-center">
           <div className="eyebrow mono">
