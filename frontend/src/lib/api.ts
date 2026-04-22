@@ -1,8 +1,12 @@
 import axios from 'axios'
 
 // Create axios instance
+// Em dev local (VITE_API_URL não setado), usa localhost:3001.
+// Em produção, usa caminho relativo `/api` que é proxied pelo nginx do frontend para o backend.
+const DEFAULT_API_URL = import.meta.env.DEV ? 'http://localhost:3001/api' : '/api'
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+  baseURL: import.meta.env.VITE_API_URL || DEFAULT_API_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
