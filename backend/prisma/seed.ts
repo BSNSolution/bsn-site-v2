@@ -89,86 +89,115 @@ async function main() {
     ],
   });
 
-  // 4. Serviços
+  // 4. Serviços — conteúdo do novo design (7 frentes)
   await prisma.service.createMany({
     data: [
       {
-        title: 'Desenvolvimento Web',
-        subtitle: 'Sites e sistemas web modernos',
-        description: 'Criamos sites responsivos, sistemas web e e-commerce com as tecnologias mais atuais do mercado.',
-        iconName: 'Globe',
+        title: 'Desenvolvimento de software sob medida',
+        subtitle: 'Sistemas que refletem sua operação',
+        description:
+          'Sistemas construídos para a realidade da sua operação — de portais complexos a módulos de integração e dashboards executivos.',
+        iconName: 'code',
         order: 1,
       },
       {
-        title: 'Aplicativos Mobile',
-        subtitle: 'iOS e Android',
-        description: 'Desenvolvimento de aplicativos nativos e híbridos para iOS e Android.',
-        iconName: 'Smartphone',
+        title: 'Squads ágeis multidisciplinares',
+        subtitle: 'Plug & play',
+        description: 'Times plug-and-play que integram ao seu fluxo em até 5 dias úteis.',
+        iconName: 'squad',
         order: 2,
       },
       {
-        title: 'Inteligência Artificial',
-        subtitle: 'IA e Automação',
-        description: 'Soluções em IA, chatbots, automação de processos e análise de dados.',
-        iconName: 'Brain',
+        title: 'Automação de processos',
+        subtitle: 'Horas de volta ao time',
+        description: 'Integramos sistemas e orquestramos fluxos que devolvem horas à equipe.',
+        iconName: 'auto',
         order: 3,
       },
       {
-        title: 'UI/UX Design',
-        subtitle: 'Design centrado no usuário',
-        description: 'Criação de interfaces intuitivas e experiências digitais marcantes.',
-        iconName: 'Palette',
+        title: 'Consultoria em tecnologia',
+        subtitle: 'Diagnóstico & roadmap',
+        description: 'Diagnóstico que alinha processos, infraestrutura e inovação.',
+        iconName: 'box',
         order: 4,
       },
       {
-        title: 'DevOps & Cloud',
-        subtitle: 'Infraestrutura moderna',
-        description: 'Configuração de servidores, CI/CD, monitoramento e serviços em nuvem.',
-        iconName: 'Cloud',
+        title: 'Infraestrutura & VPS gerenciada',
+        subtitle: 'Observabilidade e backup',
+        description: 'Servidores dimensionados para sua carga, com backups e monitoramento.',
+        iconName: 'server',
         order: 5,
       },
       {
-        title: 'Consultoria em TI',
-        subtitle: 'Estratégia e planejamento',
-        description: 'Consultoria especializada para otimizar processos e escolher as melhores tecnologias.',
-        iconName: 'Users',
+        title: 'Suporte técnico e evolução contínua',
+        subtitle: 'SLA 24/7',
+        description:
+          'Planos que acompanham o crescimento — adicione funcionalidades a qualquer momento.',
+        iconName: 'support',
         order: 6,
+      },
+      {
+        title: 'Outsourcing de TI e alocação estratégica',
+        subtitle: 'Dev · DevOps · QA · Data · Produto',
+        description:
+          'Mantenha o foco no core do seu negócio. Nossos especialistas assumem demandas específicas com previsibilidade de custo e prazo.',
+        iconName: 'build',
+        order: 7,
       },
     ],
   });
 
-  // 5. Soluções/Portfólio
+  // 5. Soluções verticais — 6 plataformas do novo design
   await prisma.solution.createMany({
     data: [
       {
-        title: 'E-commerce Completo',
-        subtitle: 'Loja virtual com gestão integrada',
-        description: 'Desenvolvimento de plataforma de e-commerce com sistema de gestão completo.',
-        technologies: ['React', 'Node.js', 'PostgreSQL', 'Stripe'],
+        title: 'Portal do Cooperado & Assembleia Digital',
+        subtitle: 'COOPERATIVISMO',
+        description:
+          'Governança participativa com votação auditada, engajamento de membros e transparência total.',
+        technologies: ['Votação remota', 'Feed segmentado', 'Integração ERP'],
         isFeatured: true,
         order: 1,
       },
       {
-        title: 'App de Delivery',
-        subtitle: 'Aplicativo para restaurantes',
-        description: 'Aplicativo mobile para pedidos de delivery com painel administrativo.',
-        technologies: ['React Native', 'Firebase', 'Node.js'],
+        title: 'Força de Vendas Externa',
+        subtitle: 'CONSÓRCIOS',
+        description:
+          'App offline-first para equipes de rua com pipeline, comissionamento e integração ao back-office.',
+        technologies: ['Offline-first', 'Gamificação', 'Dashboards em tempo real'],
         isFeatured: true,
         order: 2,
       },
       {
-        title: 'Sistema de Gestão',
-        subtitle: 'ERP customizado',
-        description: 'Sistema web para gestão empresarial com módulos financeiro, estoque e vendas.',
-        technologies: ['Vue.js', 'Laravel', 'MySQL'],
+        title: 'Motor de Integração entre ERPs',
+        subtitle: 'ADMINISTRADORAS',
+        description:
+          'Sincronização de dados em tempo real entre sistemas legados e modernos.',
+        technologies: ['Conectores 20+', 'Fila resiliente', 'Observabilidade'],
         order: 3,
       },
       {
-        title: 'Chatbot Inteligente',
-        subtitle: 'Atendimento automatizado',
-        description: 'Bot conversacional com IA para atendimento ao cliente 24/7.',
-        technologies: ['Python', 'OpenAI', 'WhatsApp API'],
+        title: 'Cantina Digital & Frente de Caixa',
+        subtitle: 'VAREJO & PDV',
+        description: 'PDV moderno com pagamento integrado, cashback e gestão multi-loja.',
+        technologies: ['QR/Pix/Cartão', 'Fidelidade embutida', 'Relatórios em tempo real'],
         order: 4,
+      },
+      {
+        title: 'Sistema de Frota & Multas',
+        subtitle: 'FROTA & LOGÍSTICA',
+        description:
+          'Gestão de veículos, motoristas e autuações com prazos e recursos automatizados.',
+        technologies: ['Alertas', 'OCR', 'Indicação de condutor'],
+        order: 5,
+      },
+      {
+        title: 'Assistente Jurídico via WhatsApp',
+        subtitle: 'JURÍDICO & IA',
+        description:
+          'Atendimento 24/7 com triagem de casos, captação de clientes e integração a sistemas jurídicos.',
+        technologies: ['Multi-tenant', 'Treinado no seu repositório', 'Handoff humano'],
+        order: 6,
       },
     ],
   });
@@ -177,58 +206,54 @@ async function main() {
   await prisma.testimonial.createMany({
     data: [
       {
-        clientName: 'Maria Silva',
-        clientRole: 'CEO',
-        company: 'Tech Startup',
-        content: 'A BSN Solution transformou nossa visão em um produto incrível. Profissionais competentes e muito atenciosos.',
+        clientName: 'Carolina Menezes',
+        clientRole: 'Diretora de Operações',
+        company: 'FinCo',
+        content: 'Ritmo de entrega 3× superior ao esperado. Sentimos um parceiro de verdade, não um fornecedor.',
         rating: 5,
         order: 1,
       },
       {
-        clientName: 'João Santos',
-        clientRole: 'Diretor de TI',
-        company: 'Empresa XYZ',
-        content: 'Excelente trabalho na modernização do nosso sistema. Projeto entregue no prazo e com qualidade superior.',
+        clientName: 'Ricardo Alves',
+        clientRole: 'CTO',
+        company: 'Admin Coop',
+        content:
+          'A BSN entregou a integração entre nossos ERPs em um trimestre — o que estimávamos em um ano. Transparência total no processo.',
         rating: 5,
         order: 2,
       },
       {
-        clientName: 'Ana Costa',
-        clientRole: 'Empreendedora',
-        company: 'Loja Online',
-        content: 'O e-commerce desenvolvido pela BSN superou nossas expectativas. Vendas aumentaram 300% no primeiro mês.',
+        clientName: 'Juliana Prado',
+        clientRole: 'CEO',
+        company: 'Varejo+',
+        content:
+          'O PDV customizado triplicou nossas vendas online e reduziu fila em 40%. Suporte impecável desde o go-live.',
         rating: 5,
         order: 3,
       },
     ],
   });
 
-  // 7. Equipe
+  // 7. Equipe — 3 lideranças do novo design
   await prisma.teamMember.createMany({
     data: [
       {
-        name: 'Bruno Oliveira',
-        role: 'CEO & Full Stack Developer',
-        bio: 'Especialista em desenvolvimento full stack com mais de 8 anos de experiência em projetos web e mobile.',
+        name: 'Cristhyan Koch',
+        role: 'CTO & Co-founder',
+        bio: '15+ anos em sistemas distribuídos e produtos de missão crítica.',
         order: 1,
       },
       {
-        name: 'Sarah Costa',
-        role: 'UI/UX Designer',
-        bio: 'Designer apaixonada por criar experiências digitais únicas e centradas no usuário.',
+        name: 'Bruno Santos',
+        role: 'Head de Engenharia',
+        bio: 'Especialista em arquitetura escalável e times de alto desempenho.',
         order: 2,
       },
       {
-        name: 'Carlos Mendes',
-        role: 'DevOps Engineer',
-        bio: 'Especialista em infraestrutura cloud, automação e otimização de performance.',
+        name: 'Natalia Reis',
+        role: 'Head de Produto',
+        bio: 'Traduz necessidades complexas em roadmaps executáveis.',
         order: 3,
-      },
-      {
-        name: 'Lucia Ferreira',
-        role: 'Mobile Developer',
-        bio: 'Desenvolvedora mobile com expertise em React Native e desenvolvimento nativo.',
-        order: 4,
       },
     ],
   });
@@ -259,54 +284,158 @@ async function main() {
     ],
   });
 
-  // 9. Vagas
+  // 9. Vagas — 5 posições do novo design
   await prisma.job.createMany({
     data: [
       {
-        title: 'Desenvolvedor Full Stack Sênior',
-        description: 'Procuramos um desenvolvedor experiente em React, Node.js e bancos de dados.',
-        requirements: 'Experiência com React, Node.js, TypeScript, PostgreSQL. Conhecimento em Docker é um plus.',
-        benefits: 'Salário competitivo, plano de saúde, home office flexível, vale alimentação.',
-        location: 'Cuiabá-MT (Híbrido)',
+        title: 'Engenheiro(a) de Software Sênior',
+        description: 'Construir sistemas críticos em TypeScript, Node e React para clientes enterprise.',
+        requirements: 'TypeScript · Node · React',
+        benefits: 'Remoto-first, stock options, R$ 5.000/ano em aprendizado.',
+        location: 'REMOTO',
         type: 'FULL_TIME',
-        salary: 'R$ 8.000 - R$ 12.000',
       },
       {
-        title: 'UI/UX Designer Pleno',
-        description: 'Buscamos designer criativo para criar interfaces incríveis.',
-        requirements: 'Experiência em Figma, Adobe Creative Suite, prototipação e design systems.',
-        benefits: 'Ambiente criativo, flexibilidade de horário, cursos e certificações pagas.',
-        location: 'Cuiabá-MT (Presencial)',
+        title: 'SRE / DevOps Pleno',
+        description: 'Operar e evoluir infraestrutura de alta disponibilidade em AWS + Kubernetes.',
+        requirements: 'AWS · K8s · Terraform',
+        benefits: 'Remoto-first, MacBook Pro, cadeira ergonômica.',
+        location: 'REMOTO',
         type: 'FULL_TIME',
-        salary: 'R$ 5.000 - R$ 8.000',
+      },
+      {
+        title: 'Product Designer Sênior',
+        description: 'Conduzir pesquisa, design e sistemas para produtos B2B complexos.',
+        requirements: 'Figma · Pesquisa · Sistemas',
+        benefits: 'Remoto-first, aprendizado contínuo, autonomia real.',
+        location: 'REMOTO',
+        type: 'FULL_TIME',
+      },
+      {
+        title: 'QA Automation Pleno',
+        description: 'Automatizar testes end-to-end e garantir confiabilidade dos nossos produtos.',
+        requirements: 'Playwright · Cypress',
+        benefits: 'Remoto-first, roadmap compartilhado.',
+        location: 'REMOTO',
+        type: 'FULL_TIME',
+      },
+      {
+        title: 'Product Manager',
+        description: 'Tocar produtos B2B em fintech e cooperativismo ao lado de squads sêniores.',
+        requirements: 'B2B · Fintech · Coop',
+        benefits: 'Stock options, plano de carreira, parceria de longo prazo.',
+        location: 'SP · HÍBRIDO',
+        type: 'FULL_TIME',
       },
     ],
   });
 
-  // 10. Posts do blog
+  // 10. Posts do blog — alinhados ao novo design
   await prisma.blogPost.createMany({
     data: [
       {
-        title: 'Tendências em Desenvolvimento Web para 2024',
-        slug: 'tendencias-desenvolvimento-web-2024',
-        excerpt: 'Descubra as principais tendências que vão moldar o desenvolvimento web neste ano.',
-        content: 'O desenvolvimento web está em constante evolução...',
-        tags: ['desenvolvimento', 'web', 'tendências', 'tecnologia'],
+        title: 'Por que projetos sob medida superam SaaS genérico em operações complexas',
+        slug: 'sob-medida-vs-saas-generico',
+        excerpt:
+          'Um estudo com 14 administradoras mostrou que o ROI de soluções customizadas supera o de SaaS em até 3× ao longo de 24 meses — e explicamos por quê.',
+        content:
+          'Operações complexas acumulam exceções que SaaS genérico não cobre. Este long read apresenta a metodologia que usamos para avaliar quando sob medida vence.',
+        tags: ['Estratégia', 'Long read'],
         isPublished: true,
         isFeatured: true,
-        publishedAt: new Date(),
+        publishedAt: new Date('2026-04-21T09:00:00.000Z'),
         authorId: adminUser.id,
       },
       {
-        title: 'Como Escolher a Stack Ideal para seu Projeto',
-        slug: 'escolher-stack-ideal-projeto',
-        excerpt: 'Guia completo para tomar a decisão certa na escolha das tecnologias.',
-        content: 'A escolha da stack tecnológica é crucial...',
-        tags: ['stack', 'tecnologia', 'desenvolvimento', 'guia'],
+        title: 'Quando microserviços param de fazer sentido',
+        slug: 'microservicos-deixam-de-fazer-sentido',
+        excerpt: 'A hora certa de consolidar serviços sem perder governança.',
+        content: 'Nem todo sistema precisa ser distribuído. Apresentamos critérios objetivos.',
+        tags: ['Arquitetura'],
         isPublished: true,
-        publishedAt: new Date(),
+        publishedAt: new Date('2026-04-18T09:00:00.000Z'),
         authorId: adminUser.id,
       },
+      {
+        title: 'Do briefing ao MVP em 6 semanas: roteiro',
+        slug: 'briefing-mvp-6-semanas',
+        excerpt: 'O passo-a-passo que usamos para validar produtos em ciclo curto.',
+        content: 'Roteiro detalhado por semanas.',
+        tags: ['Produto'],
+        isPublished: true,
+        publishedAt: new Date('2026-04-11T09:00:00.000Z'),
+        authorId: adminUser.id,
+      },
+      {
+        title: 'Observabilidade pragmática em times pequenos',
+        slug: 'observabilidade-pragmatica',
+        excerpt: 'O mínimo que todo time deveria ter, sem custo proibitivo.',
+        content: 'Logs, métricas e traces sem explodir a conta da cloud.',
+        tags: ['Infra'],
+        isPublished: true,
+        publishedAt: new Date('2026-04-04T09:00:00.000Z'),
+        authorId: adminUser.id,
+      },
+      {
+        title: 'Como dizer "não" a features sem perder o cliente',
+        slug: 'nao-a-features-sem-perder-cliente',
+        excerpt: 'Técnicas para negociar escopo e preservar o roadmap.',
+        content: 'A arte de dizer não construtivamente.',
+        tags: ['Liderança'],
+        isPublished: true,
+        publishedAt: new Date('2026-03-28T09:00:00.000Z'),
+        authorId: adminUser.id,
+      },
+      {
+        title: 'Agentes úteis vs. agentes teatrais',
+        slug: 'agentes-uteis-vs-teatrais',
+        excerpt: 'Quando um agente de IA agrega valor real vs. apenas demonstra tecnologia.',
+        content: 'Critérios para avaliar agentes.',
+        tags: ['IA aplicada'],
+        isPublished: true,
+        publishedAt: new Date('2026-03-21T09:00:00.000Z'),
+        authorId: adminUser.id,
+      },
+      {
+        title: 'Assembleia digital auditada em cooperativa com 40k membros',
+        slug: 'assembleia-digital-coop-40k',
+        excerpt: 'Case detalhado da plataforma que entregamos.',
+        content: 'Escala, auditoria e participação em uma assembleia digital.',
+        tags: ['Case'],
+        isPublished: true,
+        publishedAt: new Date('2026-03-14T09:00:00.000Z'),
+        authorId: adminUser.id,
+      },
+    ],
+  });
+
+  // 12. Valores / Princípios
+  await prisma.value.createMany({
+    data: [
+      { number: '01', title: 'Clareza radical', description: 'Se não dá para explicar em uma frase, precisa ser simplificado.', order: 1 },
+      { number: '02', title: 'Menos é mais', description: 'Mil "nãos" para cada "sim". Evitamos feature slop a todo custo.', order: 2 },
+      { number: '03', title: 'Propriedade', description: 'Cada engenheiro trata o sistema como se fosse seu.', order: 3 },
+      { number: '04', title: 'Evolução contínua', description: 'Entregar rápido é bom; manter entregando por anos é melhor.', order: 4 },
+    ],
+  });
+
+  // 13. KPIs da Home
+  await prisma.homeKPI.createMany({
+    data: [
+      { label: 'EXPERIÊNCIA', value: '12', suffix: '+', caption: 'anos entregando software de missão crítica', order: 1 },
+      { label: 'PORTFÓLIO', value: '80', suffix: '+', caption: 'projetos entregues em 14 setores', order: 2 },
+      { label: 'VELOCIDADE', value: '5', suffix: 'dias', caption: 'para integrar um squad ao seu time', order: 3 },
+      { label: 'COBERTURA', value: '24', suffix: '/7', caption: 'suporte, monitoramento e evolução contínua', order: 4 },
+    ],
+  });
+
+  // 14. Benefícios de carreira
+  await prisma.perk.createMany({
+    data: [
+      { title: 'Remoto-first', description: 'Trabalhe de onde for mais produtivo. Encontros presenciais trimestrais opcionais.', order: 1 },
+      { title: 'Aprendizado contínuo', description: 'R$ 5.000/ano para cursos, livros, conferências. Sem burocracia.', order: 2 },
+      { title: 'Equipamento top', description: 'MacBook Pro, monitor, cadeira ergonômica. Tudo que precisa.', order: 3 },
+      { title: 'Participação real', description: 'Plano de stock options para sêniores e lideranças após o ciclo.', order: 4 },
     ],
   });
 

@@ -323,6 +323,48 @@ model AnalyticsEvent {
   @@map("analytics_events")
 }
 
+// Valores / Princípios (página Sobre)
+model Value {
+  id          String   @id @default(uuid())
+  number      String   // "01", "02"...
+  title       String
+  description String
+  isActive    Boolean  @default(true)
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("values")
+}
+
+// KPIs exibidos na home
+model HomeKPI {
+  id        String   @id @default(uuid())
+  label     String   // "EXPERIÊNCIA"
+  value     String   // "12"
+  suffix    String?  // "+", "/7", "dias"
+  caption   String?  // "anos entregando..."
+  isActive  Boolean  @default(true)
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("home_kpis")
+}
+
+// Benefícios / Perks (página Carreiras)
+model Perk {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  isActive    Boolean  @default(true)
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("perks")
+}
+
 // Menu do footer
 model FooterMenu {
   id        String      @id @default(uuid())

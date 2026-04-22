@@ -28,6 +28,9 @@ import clientsRoutes from "./routes/clients";
 import inboxRoutes from "./routes/inbox";
 import blogRoutes from "./routes/blog";
 import teamRoutes from "./routes/team";
+import valuesRoutes from "./routes/values";
+import kpisRoutes from "./routes/kpis";
+import perksRoutes from "./routes/perks";
 
 dotenv.config();
 
@@ -86,6 +89,9 @@ fastify.register(clientsRoutes, { prefix: "/api" });
 fastify.register(inboxRoutes, { prefix: "/api" });
 fastify.register(blogRoutes, { prefix: "/api" });
 fastify.register(teamRoutes, { prefix: "/api" });
+fastify.register(valuesRoutes, { prefix: "/api" });
+fastify.register(kpisRoutes, { prefix: "/api" });
+fastify.register(perksRoutes, { prefix: "/api" });
 
 // Health check
 fastify.get("/health", async () => {

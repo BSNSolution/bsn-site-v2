@@ -17,7 +17,10 @@ import {
   Menu,
   X,
   ChevronLeft,
-  User
+  User,
+  Award,
+  TrendingUp,
+  Gift,
 } from 'lucide-react'
 import { authApi } from '@/lib/api'
 
@@ -38,12 +41,15 @@ interface SidebarItem {
 const sidebarItems: SidebarItem[] = [
   { name: 'Dashboard', href: '/admin', icon: BarChart3 },
   { name: 'Seções Home', href: '/admin/home', icon: Home },
+  { name: 'KPIs da Home', href: '/admin/kpis', icon: TrendingUp },
   { name: 'Serviços', href: '/admin/services', icon: Briefcase },
   { name: 'Soluções', href: '/admin/solutions', icon: Settings },
+  { name: 'Valores', href: '/admin/values', icon: Award },
   { name: 'Depoimentos', href: '/admin/testimonials', icon: Star },
   { name: 'Equipe', href: '/admin/team', icon: Users },
   { name: 'Clientes', href: '/admin/clients', icon: Building2 },
   { name: 'Vagas', href: '/admin/jobs', icon: FileText },
+  { name: 'Benefícios', href: '/admin/perks', icon: Gift },
   { name: 'Blog', href: '/admin/blog', icon: MessageCircle },
   { name: 'Inbox', href: '/admin/inbox', icon: Inbox },
   { name: 'Uploads', href: '/admin/uploads', icon: Upload },

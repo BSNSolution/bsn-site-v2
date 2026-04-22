@@ -1,5 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 
 // Lazy load pages for performance
@@ -30,9 +30,13 @@ const AdminBlogPage = lazy(() => import('@/pages/admin/AdminBlogPage'))
 const AdminInboxPage = lazy(() => import('@/pages/admin/AdminInboxPage'))
 const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage'))
 const AdminUploadsPage = lazy(() => import('@/pages/admin/AdminUploadsPage'))
+const AdminValuesPage = lazy(() => import('@/pages/admin/AdminValuesPage'))
+const AdminKPIsPage = lazy(() => import('@/pages/admin/AdminKPIsPage'))
+const AdminPerksPage = lazy(() => import('@/pages/admin/AdminPerksPage'))
 
 // Components
 import LoadingSpinner from '@/components/LoadingSpinner'
+import SiteBackground from '@/components/layout/SiteBackground'
 
 // Page transition variants - AWWWARDS style
 const pageVariants = {
@@ -124,8 +128,13 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [location.pathname])
 
+  const isAdmin = location.pathname.startsWith('/admin')
+
   return (
     <div className="App">
+      {/* Vitral/glass background layers — mounted once so they don't remount on route changes */}
+      {!isAdmin && <SiteBackground />}
+
       {/* Page transitions with AnimatePresence */}
       <AnimatePresence mode="wait" initial={false}>
         <Routes location={location} key={location.pathname}>
@@ -271,6 +280,9 @@ function App() {
             <Route path="blog" element={<AdminBlogPage />} />
             <Route path="inbox" element={<AdminInboxPage />} />
             <Route path="uploads" element={<AdminUploadsPage />} />
+            <Route path="values" element={<AdminValuesPage />} />
+            <Route path="kpis" element={<AdminKPIsPage />} />
+            <Route path="perks" element={<AdminPerksPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
           </Route>
 
@@ -288,11 +300,6 @@ function App() {
         </Routes>
       </AnimatePresence>
 
-      {/* Global elements */}
-      
-      {/* Back to top button */}
-      <BackToTopButton />
-      
       {/* Skip link for accessibility */}
       <a
         href="#main-content"
@@ -301,51 +308,6 @@ function App() {
         Pular para o conteúdo principal
       </a>
     </div>
-  )
-}
-
-// Back to top button component
-function BackToTopButton() {
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsVisible(window.scrollY > 500)
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
-  }
-
-  if (!isVisible) return null
-
-  return (
-    <motion.button
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8 }}
-      onClick={scrollToTop}
-      className="fixed bottom-8 right-8 z-50 p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-      aria-label="Voltar ao topo"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={2}
-        stroke="currentColor"
-        className="w-5 h-5"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-      </svg>
-    </motion.button>
   )
 }
 

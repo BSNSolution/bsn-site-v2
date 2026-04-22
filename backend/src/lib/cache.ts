@@ -185,4 +185,13 @@ export const CacheKeys = {
   
   // Uploaded Images
   uploadedImages: "uploaded-images",
+
+  // Values (princípios)
+  values: "values",
+
+  // Home KPIs
+  kpis: "kpis",
+
+  // Perks (benefícios carreira)
+  perks: "perks",
 };
