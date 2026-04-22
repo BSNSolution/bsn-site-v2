@@ -25,6 +25,23 @@ export default function MotionLayer() {
       document.body.appendChild(g)
     }
 
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in')
+            io.unobserve(e.target)
+          }
+        })
+      },
+      { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
+    )
+
+    const pointerFine = window.matchMedia('(pointer:fine)').matches
+    const listeners: Array<{ el: Element; move: (e: Event) => void; leave: () => void }> = []
+    const magneticHandlers: Array<{ el: Element; move: (e: Event) => void; leave: () => void }> = []
+    const counterObservers: IntersectionObserver[] = []
+
     // 2) Auto-add data-reveal em elementos-alvo
     const revealSelectors = [
       '.hero h1', '.hero p.sub', '.hero .ctas', '.hero .eyebrow',
@@ -73,24 +90,11 @@ export default function MotionLayer() {
 
     if (reduce) return
 
-    // 3) IntersectionObserver reveal
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add('is-in')
-            io.unobserve(e.target)
-          }
-        })
-      },
-      { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
-    )
+    // 3) IntersectionObserver reveal — re-observado a cada run()
     document.querySelectorAll('[data-reveal], .h-accent').forEach((el) => io.observe(el))
 
     // 4) Cursor spotlight nos cards
-    const pointerFine = window.matchMedia('(pointer:fine)').matches
     const spotTargets = '.glass, .tile, .node, .svc, .sol, .feat-card, .post, .person, .val, .job, .perk, .chan, .form-card, .doc, .clients-card, .process-step, .timeline-card'
-    const listeners: Array<{ el: Element; move: (e: Event) => void; leave: () => void }> = []
 
     if (pointerFine) {
       document.querySelectorAll(spotTargets).forEach((el) => {
@@ -133,7 +137,6 @@ export default function MotionLayer() {
     window.addEventListener('scroll', onScroll, { passive: true })
 
     // 6) Magnetismo em .btn-primary
-    const magneticHandlers: Array<{ el: Element; move: (e: Event) => void; leave: () => void }> = []
     if (pointerFine) {
       document.querySelectorAll('.btn-primary').forEach((btn) => {
         const move = (e: Event) => {
@@ -187,7 +190,6 @@ export default function MotionLayer() {
     }
 
     // 8) Contador animado
-    const counterObservers: IntersectionObserver[] = []
     document.querySelectorAll('[data-count]').forEach((el) => {
       const countAttr = (el as HTMLElement).getAttribute('data-count') || '0'
       const target = parseFloat(countAttr)
@@ -211,9 +213,56 @@ export default function MotionLayer() {
       counterObservers.push(io2)
     })
 
+    // 9) MutationObserver: re-processar quando dados async chegam (queries)
+    let rerunTimer: number | null = null
+    const rerun = () => {
+      // Re-aplica data-reveal + spot + counter em elementos novos
+      revealSelectors.forEach((sel) => {
+        document.querySelectorAll(sel).forEach((el) => {
+          if (!el.hasAttribute('data-reveal')) {
+            el.setAttribute('data-reveal', '')
+            io.observe(el)
+          }
+        })
+      })
+      if (pointerFine) {
+        document.querySelectorAll(spotTargets).forEach((el) => {
+          if (el.closest('.nav-inner') || (el as HTMLElement).classList.contains('nav-inner')) return
+          if (!el.querySelector(':scope > .bsn-spot')) {
+            const spot = document.createElement('i')
+            spot.className = 'bsn-spot'
+            spot.setAttribute('aria-hidden', 'true')
+            el.insertBefore(spot, el.firstChild)
+            const move = (e: Event) => {
+              const ev = e as MouseEvent
+              const r = (el as HTMLElement).getBoundingClientRect()
+              const x = ((ev.clientX - r.left) / r.width) * 100
+              const y = ((ev.clientY - r.top) / r.height) * 100
+              ;(el as HTMLElement).style.setProperty('--mx', x + '%')
+              ;(el as HTMLElement).style.setProperty('--my', y + '%')
+            }
+            const leave = () => {
+              ;(el as HTMLElement).style.removeProperty('--mx')
+              ;(el as HTMLElement).style.removeProperty('--my')
+            }
+            el.addEventListener('mousemove', move)
+            el.addEventListener('mouseleave', leave)
+            listeners.push({ el, move, leave })
+          }
+        })
+      }
+    }
+    const mo = new MutationObserver(() => {
+      if (rerunTimer) window.clearTimeout(rerunTimer)
+      rerunTimer = window.setTimeout(rerun, 150)
+    })
+    mo.observe(document.body, { childList: true, subtree: true })
+
     return () => {
       io.disconnect()
+      mo.disconnect()
       counterObservers.forEach((o) => o.disconnect())
+      if (rerunTimer) window.clearTimeout(rerunTimer)
       window.removeEventListener('scroll', onScroll)
       if (pointerFine && parallaxEls.length > 0) {
         window.removeEventListener('mousemove', onMouseMove)

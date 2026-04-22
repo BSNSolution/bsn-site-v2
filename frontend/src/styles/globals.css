@@ -3437,13 +3437,28 @@ body.menu-open .nav-burger span::after {
 }
 
 .bsn-spot {
-  position: absolute;
-  inset: 0;
+  /* Retira completamente do fluxo: display block + absolute evita ser contabilizado como flex/grid item */
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  inset: 0 !important;
+  /* grid containers: ocupa todas as tracks sem roubar 1 slot */
+  grid-area: 1 / 1 / -1 / -1 !important;
+  grid-column: 1 / -1 !important;
+  grid-row: 1 / -1 !important;
+  /* flex containers: flex-basis 0 e não cresce */
+  flex: 0 0 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  align-self: stretch !important;
+  /* visual */
   border-radius: inherit;
   pointer-events: none;
-  grid-area: 1 / 1 / -1 / -1;
-  grid-column: 1 / -1;
-  grid-row: 1 / -1;
   background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%),
     rgba(120, 200, 255, 0.22),
     rgba(120, 200, 255, 0.08) 35%,

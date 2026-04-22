@@ -7,7 +7,7 @@ export default function SiteBackground() {
   return (
     <>
       <div className="bg-glass" />
-      <div className="bg-aurora" />
+      {/* bg-aurora removido — só page-shards animados pro fundo ficar mais limpo */}
       <div className="page-shards">
         <div className="shard s1" />
         <div className="shard s2" />
