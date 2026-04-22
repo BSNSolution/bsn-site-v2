@@ -343,58 +343,104 @@ export default function HomePage() {
       )}
 
       {steps.length > 0 && (
-        <section className="process shell">
+        <section className="timeline shell">
           <div className="section-head">
             <h2 className="display">
-              Da ideia no papel <span className="dim">ao projeto no ar.</span>
+              Nosso ritmo <span className="dim">de trabalho.</span>
             </h2>
             <p className="lede">
-              Um caminho simples, com você por dentro em todas as etapas. Sem tecniquês.
+              Nada de caixa preta. Você acompanha de perto, aprova a cada passo, sabe exatamente onde estamos.
             </p>
           </div>
-          <div className="process-grid">
-            {steps.map((s) => (
-              <div key={s.id} className="process-step glass">
-                <div className="ps-num">{s.number}</div>
-                <h3>{s.title}</h3>
-                <p>{s.description}</p>
-                {s.duration && <div className="ps-duration mono">⏱ {s.duration}</div>}
-              </div>
+          <div className="timeline-wrap">
+            <div className="timeline-rail" aria-hidden="true" />
+            {steps.map((s, idx) => (
+              <article key={s.id} className={`timeline-item ${idx % 2 === 0 ? 'left' : 'right'}`}>
+                <div className="timeline-dot" aria-hidden="true">
+                  <span className="timeline-dot-ring" />
+                </div>
+                <div className="timeline-card glass">
+                  <span className="timeline-watermark" aria-hidden="true">{s.number}</span>
+                  <div className="timeline-head">
+                    <span className="mono">etapa {s.number}</span>
+                    {s.duration && <span className="timeline-duration">⏱ {s.duration}</span>}
+                  </div>
+                  <h3>{s.title}</h3>
+                  <p>{s.description}</p>
+                </div>
+              </article>
             ))}
           </div>
         </section>
       )}
 
-      {clients.length > 0 && (
-        <section className="clients-section shell">
-          <div className="mono" style={{ marginBottom: 28, textAlign: 'center' }}>
-            Confiam na BSN · {clients.length} empresas em produção
-          </div>
-          <div className="clients-grid">
-            {clients.map((c) => (
-              c.websiteUrl ? (
-                <a key={c.id} href={c.websiteUrl} target="_blank" rel="noopener noreferrer" className="client-card">
-                  {c.logoUrl ? (
-                    <img src={c.logoUrl} alt={c.name} loading="lazy" />
-                  ) : (
-                    <span className="client-name">{c.name}</span>
-                  )}
-                  {c.sector && <span className="client-sector mono">{c.sector}</span>}
-                </a>
+      {clients.length > 0 && (() => {
+        // agrupar por setor para montar os "capítulos"
+        const sectors = Array.from(new Set(clients.map((c) => c.sector || 'Outros')))
+        const bySector = sectors.map((s) => ({
+          sector: s,
+          items: clients.filter((c) => (c.sector || 'Outros') === s),
+        }))
+        // construir uma única faixa ordenada com chapters intercalados
+        const flat: Array<{ type: 'chapter'; label: string } | { type: 'client'; data: typeof clients[number] }> = []
+        bySector.forEach((g) => {
+          flat.push({ type: 'chapter', label: g.sector })
+          g.items.forEach((c) => flat.push({ type: 'client', data: c }))
+        })
+
+        const renderItem = (item: typeof flat[number], key: string) => {
+          if (item.type === 'chapter') {
+            return (
+              <span key={key} className="clients-chapter">
+                <span className="clients-chapter-star">✶</span>
+                <span className="clients-chapter-label">{item.label}</span>
+              </span>
+            )
+          }
+          const c = item.data
+          const inner = (
+            <>
+              {c.logoUrl ? (
+                <img src={c.logoUrl} alt={c.name} loading="lazy" />
               ) : (
-                <div key={c.id} className="client-card">
-                  {c.logoUrl ? (
-                    <img src={c.logoUrl} alt={c.name} loading="lazy" />
-                  ) : (
-                    <span className="client-name">{c.name}</span>
-                  )}
-                  {c.sector && <span className="client-sector mono">{c.sector}</span>}
-                </div>
-              )
-            ))}
-          </div>
-        </section>
-      )}
+                <span className="clients-card-name">{c.name}</span>
+              )}
+            </>
+          )
+          return c.websiteUrl ? (
+            <a key={key} href={c.websiteUrl} target="_blank" rel="noopener noreferrer" className="clients-card">{inner}</a>
+          ) : (
+            <span key={key} className="clients-card">{inner}</span>
+          )
+        }
+
+        return (
+          <section className="clients-strip">
+            <div className="shell clients-strip-head">
+              <div>
+                <div className="mono" style={{ marginBottom: 12 }}>Prova social · {clients.length} clientes em produção</div>
+                <h2 className="display" style={{ fontSize: 'clamp(28px, 4vw, 48px)' }}>
+                  Empresas que escolhem a BSN<br />
+                  <span className="dim">para crescer com tecnologia.</span>
+                </h2>
+              </div>
+            </div>
+
+            <div className="clients-marquee">
+              <div className="clients-track clients-track-a">
+                {flat.map((item, i) => renderItem(item, `a-${i}`))}
+                {flat.map((item, i) => renderItem(item, `a2-${i}`))}
+              </div>
+            </div>
+            <div className="clients-marquee">
+              <div className="clients-track clients-track-b">
+                {[...flat].reverse().map((item, i) => renderItem(item, `b-${i}`))}
+                {[...flat].reverse().map((item, i) => renderItem(item, `b2-${i}`))}
+              </div>
+            </div>
+          </section>
+        )
+      })()}
 
       {band && (
         <section className="band shell">
