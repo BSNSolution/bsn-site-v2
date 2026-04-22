@@ -88,7 +88,30 @@ export default function MotionLayer() {
       if (!h.hasAttribute('data-reveal')) h.setAttribute('data-reveal', '')
     })
 
-    if (reduce) return
+    // Contador: mesmo com reduced motion, setamos o valor final (sem animação) pra não ficar "0"
+    if (reduce) {
+      document.querySelectorAll('[data-count]').forEach((el) => {
+        const countAttr = (el as HTMLElement).getAttribute('data-count') || '0'
+        const target = parseFloat(countAttr)
+        if (!Number.isFinite(target)) return
+        const decimals = (countAttr.split('.')[1] || '').length
+        ;(el as HTMLElement).textContent = target.toFixed(decimals)
+      })
+      // MutationObserver também roda no reduce pra pegar queries async
+      const reducedMo = new MutationObserver(() => {
+        document.querySelectorAll('[data-count]').forEach((el) => {
+          if ((el as HTMLElement).dataset.counterAttached === '1') return
+          ;(el as HTMLElement).dataset.counterAttached = '1'
+          const countAttr = (el as HTMLElement).getAttribute('data-count') || '0'
+          const target = parseFloat(countAttr)
+          if (!Number.isFinite(target)) return
+          const decimals = (countAttr.split('.')[1] || '').length
+          ;(el as HTMLElement).textContent = target.toFixed(decimals)
+        })
+      })
+      reducedMo.observe(document.body, { childList: true, subtree: true })
+      return () => reducedMo.disconnect()
+    }
 
     // 3) IntersectionObserver reveal — re-observado a cada run()
     document.querySelectorAll('[data-reveal], .h-accent').forEach((el) => io.observe(el))
@@ -191,11 +214,23 @@ export default function MotionLayer() {
       window.addEventListener('mousemove', onMouseMove)
     }
 
-    // 8) Contador animado
-    document.querySelectorAll('[data-count]').forEach((el) => {
+    // 8) Contador animado — aplicado via função reutilizável (para elementos iniciais E novos via MutationObserver)
+    const attachCounter = (el: Element) => {
+      // guarda para não instrumentar duas vezes o mesmo span
+      if ((el as HTMLElement).dataset.counterAttached === '1') return
+      ;(el as HTMLElement).dataset.counterAttached = '1'
+
       const countAttr = (el as HTMLElement).getAttribute('data-count') || '0'
       const target = parseFloat(countAttr)
+      if (!Number.isFinite(target)) return
       const decimals = (countAttr.split('.')[1] || '').length
+
+      // Se reduced motion, seta valor final direto
+      if (reduce) {
+        ;(el as HTMLElement).textContent = target.toFixed(decimals)
+        return
+      }
+
       const io2 = new IntersectionObserver((entries) => {
         entries.forEach((e) => {
           if (!e.isIntersecting) return
@@ -213,7 +248,9 @@ export default function MotionLayer() {
       })
       io2.observe(el)
       counterObservers.push(io2)
-    })
+    }
+
+    document.querySelectorAll('[data-count]').forEach(attachCounter)
 
     // 9) MutationObserver: re-processar quando dados async chegam (queries)
     let rerunTimer: number | null = null
@@ -227,6 +264,8 @@ export default function MotionLayer() {
           }
         })
       })
+      // Contadores novos (principalmente [data-count] vindos de queries async como KPIs)
+      document.querySelectorAll('[data-count]').forEach(attachCounter)
       if (pointerFine) {
         document.querySelectorAll(spotTargets).forEach((el) => {
           if (el.closest('.nav-inner, .mobile-sheet, .band-inner, .bsn-footer')) return
