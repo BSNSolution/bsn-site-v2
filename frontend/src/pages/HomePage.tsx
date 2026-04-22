@@ -223,19 +223,27 @@ export default function HomePage() {
 
         {services.length > 0 && (
           <div className="orbit-nodes">
-            {services.slice(0, 6).map((svc, i) => (
-              <Link
-                key={svc.id}
-                to={svc.anchor ? `/servicos#${svc.anchor}` : '/servicos'}
-                className={`node glass n${i + 1}`}
-              >
-                <span className="ico">{iconFor(svc.iconName)}</span>
-                <span className="txt">
-                  <span>{svc.numLabel || `SVC ${String(i + 1).padStart(2, '0')}`}</span>
-                  <b>{svc.subtitle || svc.title.split(' ').slice(0, 3).join(' ')}</b>
-                </span>
-              </Link>
-            ))}
+            {services.slice(0, 6).map((svc, i) => {
+              // título curto: primeiros 3 palavras do título principal (evita "sob medida" isolado)
+              const shortTitle = svc.title
+                .replace(/\s*&\s*/g, ' & ')
+                .split(' ')
+                .slice(0, 3)
+                .join(' ')
+              return (
+                <Link
+                  key={svc.id}
+                  to={svc.anchor ? `/servicos#${svc.anchor}` : '/servicos'}
+                  className={`node glass n${i + 1}`}
+                >
+                  <span className="ico">{iconFor(svc.iconName)}</span>
+                  <span className="txt">
+                    <span>{svc.numLabel || `SVC · ${String(i + 1).padStart(2, '0')}`}</span>
+                    <b>{shortTitle}</b>
+                  </span>
+                </Link>
+              )
+            })}
           </div>
         )}
       </section>

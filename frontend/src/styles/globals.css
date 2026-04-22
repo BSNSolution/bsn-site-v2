@@ -1287,7 +1287,7 @@ body.menu-open .nav-burger span::after {
 .ring {
   position: absolute;
   border-radius: 50%;
-  border: 1px dashed var(--line);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
   animation: ringRotate 60s linear infinite;
 }
 .ring.r1 { width: 520px; height: 520px; animation-duration: 80s; }
@@ -1295,11 +1295,16 @@ body.menu-open .nav-burger span::after {
   width: 720px;
   height: 720px;
   border-style: solid;
-  border-color: var(--line);
+  border-color: rgba(255, 255, 255, 0.06);
   animation-duration: 120s;
   animation-direction: reverse;
 }
-.ring.r3 { width: 920px; height: 920px; animation-duration: 160s; }
+.ring.r3 {
+  width: 920px;
+  height: 920px;
+  animation-duration: 160s;
+  border-color: rgba(255, 255, 255, 0.05);
+}
 @keyframes ringRotate {
   to { transform: rotate(360deg); }
 }
@@ -1463,36 +1468,68 @@ body.menu-open .nav-burger span::after {
     min-height: auto;
     padding-top: 30px;
     padding-bottom: 40px;
+    flex-direction: column;
+    display: block;
   }
-  .ring, .orbit-sun { display: none; }
-  .orbit-center h1 { font-size: clamp(32px, 8vw, 48px); }
+  .ring, .orbit-sun { display: none !important; }
+  .orbit-rings { display: none !important; }
+  .orbit-center h1 { font-size: clamp(30px, 8vw, 44px); }
   .orbit-center p { font-size: 15px; }
+  .orbit-center { padding: 0; }
+
+  /* reseta completamente o layout absoluto dos nodes */
   .orbit-nodes {
-    position: relative;
-    display: grid;
+    position: static !important;
+    display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-top: 40px;
-    inset: auto;
+    inset: auto !important;
+    width: 100%;
   }
   .node,
   .node.n1, .node.n2, .node.n3, .node.n4, .node.n5, .node.n6 {
-    position: static;
-    animation: none;
+    position: static !important;
+    animation: none !important;
     transform: none !important;
-    min-width: 0;
-    width: 100%;
-    padding: 12px 14px;
-    top: auto; left: auto; right: auto; bottom: auto;
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 12px 14px !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
   }
-  .node .txt { min-width: 0; flex: 1; }
-  .node .txt b { font-size: 13px; white-space: normal; overflow-wrap: anywhere; }
+  .node .txt {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden;
+  }
+  .node .txt b {
+    font-size: 13px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+    line-height: 1.2 !important;
+  }
+  .node .txt > span {
+    white-space: nowrap;
+  }
+  .node .ico {
+    flex: 0 0 34px !important;
+  }
 
   .live-strip { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {
-  .orbit-nodes { grid-template-columns: 1fr; }
-  .node { padding: 10px 14px; }
+  .orbit-nodes { grid-template-columns: 1fr !important; }
+  .node { padding: 10px 14px !important; }
 }
 
 /* Hero trust badges */
