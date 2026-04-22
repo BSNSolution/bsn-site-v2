@@ -37,7 +37,7 @@ export default function Header() {
               <img
                 src="/assets/logo.png"
                 alt="BSN Solution"
-                style={{ height: 28, width: 'auto', display: 'block' }}
+                style={{ height: 44, width: 'auto', display: 'block' }}
               />
             </Link>
 
