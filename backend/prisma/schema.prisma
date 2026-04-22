@@ -251,6 +251,7 @@ model Client {
   name      String
   logoUrl   String
   websiteUrl String?
+  sector    String?  // ex: "Educação", "Jurídico", "Fintech", "Mobilidade", "Varejo", "Construção"
   isActive  Boolean  @default(true)
   order     Int
   createdAt DateTime @default(now())
@@ -436,6 +437,21 @@ model StackItem {
   updatedAt DateTime @updatedAt
 
   @@map("stack_items")
+}
+
+// Etapas do processo exibidas na home (Diagnóstico → Proposta → Sprint → Entrega)
+model ProcessStep {
+  id          String   @id @default(uuid())
+  number      String   // "01", "02"
+  title       String
+  description String
+  duration    String?  // ex: "1-2 semanas"
+  isActive    Boolean  @default(true)
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("process_steps")
 }
 
 // Cards "Sobre" da página /sobre (Missão/Visão/Forma/Evitamos)

@@ -6,6 +6,14 @@ import { useAnalytics } from '@/hooks/use-analytics'
 import { useEffect } from 'react'
 import { api, homeExtrasApi, stackApi } from '@/lib/api'
 
+interface ProcessStep {
+  id: string
+  number: string
+  title: string
+  description: string
+  duration?: string | null
+}
+
 interface Service {
   id: string
   title: string
@@ -151,12 +159,26 @@ export default function HomePage() {
     staleTime: 5 * 60 * 1000,
   })
 
+  const stepsQuery = useQuery<{ steps: ProcessStep[] }>({
+    queryKey: ['process-steps'],
+    queryFn: async () => (await api.get('/process-steps')).data,
+    staleTime: 5 * 60 * 1000,
+  })
+
   const services = (servicesQuery.data?.services ?? []).slice(0, 7)
   const kpis = kpiQuery.data?.kpis ?? []
   const live = liveCardQuery.data?.card
   const pill = pillQuery.data?.pill
   const band = bandQuery.data?.band
   const stack = stackQuery.data?.items ?? []
+  const steps = stepsQuery.data?.steps ?? []
+
+  const clientsQuery = useQuery<{ clients: { id: string; name: string; logoUrl: string; sector?: string | null; websiteUrl?: string | null }[] }>({
+    queryKey: ['clients-home'],
+    queryFn: async () => (await api.get('/clients')).data,
+    staleTime: 5 * 60 * 1000,
+  })
+  const clients = clientsQuery.data?.clients ?? []
 
   return (
     <div className="page">
@@ -169,21 +191,26 @@ export default function HomePage() {
               <span className="dot" />
               <span>Abr 2026 · aceitando novos projetos para Q3</span>
             </div>
-            <h1>
-              <span className="word"><span>Engenharia</span></span>{' '}
-              <span className="word"><span>de software</span></span>{' '}
-              <span className="word">
-                <span>
-                  que <em className="prism">transforma</em>
+            <h1 className="hero-h1">
+              <span className="hero-line">
+                <span className="word"><span>Engenharia</span></span>{' '}
+                <span className="word"><span>de software</span></span>
+              </span>
+              <span className="hero-line">
+                <span className="word">
+                  <span>
+                    que <em className="prism">transforma</em>
+                  </span>
                 </span>
-              </span>{' '}
-              <span className="word"><span>operações em vantagem</span></span>{' '}
-              <span className="word"><span>competitiva.</span></span>
+              </span>
+              <span className="hero-line">
+                <span className="word"><span>operações em vantagem</span></span>{' '}
+                <span className="word"><span>competitiva.</span></span>
+              </span>
             </h1>
             <p className="sub">
-              A BSN Solution é a parceira estratégica de empresas que não aceitam soluções engessadas.
-              Desenvolvemos software sob medida, automatizamos processos e construímos squads ágeis para acelerar sua
-              transformação digital.
+              Sem tecniquês. Viramos ideia em software — sob medida, rápido e pra durar.
+              Squads ágeis, automação e consultoria pra acelerar sua transformação digital.
             </p>
             <div className="ctas">
               <Link to="/contato" className="btn btn-primary">
@@ -195,6 +222,15 @@ export default function HomePage() {
                   Ver como trabalhamos <span style={{ color: 'var(--ink-faint)' }}>· 2 min</span>
                 </span>
               </Link>
+            </div>
+            <div className="hero-badges">
+              <span className="hero-badge">
+                <span className="dot-pulse" />
+                Resposta em até 24h úteis
+              </span>
+              <span className="hero-badge">
+                🔒 LGPD-ready
+              </span>
             </div>
           </div>
 
@@ -246,10 +282,17 @@ export default function HomePage() {
             ))}
           </div>
         )}
+
+        <a href="#vitral" className="scroll-hint" aria-label="Rolar para ver mais">
+          <span className="mono">Role para explorar</span>
+          <span className="scroll-arrow">↓</span>
+        </a>
       </section>
 
+      <div className="shell"><div className="section-star">✶ ✶ ✶</div></div>
+
       {services.length > 0 && (
-        <section className="vitral shell">
+        <section id="vitral" className="vitral shell">
           <div className="section-head">
             <h2 className="display">
               Um mosaico de capacidades técnicas,{' '}
@@ -295,6 +338,60 @@ export default function HomePage() {
                 </Link>
               )
             })}
+          </div>
+        </section>
+      )}
+
+      {steps.length > 0 && (
+        <section className="process shell">
+          <div className="section-head">
+            <h2 className="display">
+              Da ideia no papel <span className="dim">ao projeto no ar.</span>
+            </h2>
+            <p className="lede">
+              Um caminho simples, com você por dentro em todas as etapas. Sem tecniquês.
+            </p>
+          </div>
+          <div className="process-grid">
+            {steps.map((s) => (
+              <div key={s.id} className="process-step glass">
+                <div className="ps-num">{s.number}</div>
+                <h3>{s.title}</h3>
+                <p>{s.description}</p>
+                {s.duration && <div className="ps-duration mono">⏱ {s.duration}</div>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {clients.length > 0 && (
+        <section className="clients-section shell">
+          <div className="mono" style={{ marginBottom: 28, textAlign: 'center' }}>
+            Confiam na BSN · {clients.length} empresas em produção
+          </div>
+          <div className="clients-grid">
+            {clients.map((c) => (
+              c.websiteUrl ? (
+                <a key={c.id} href={c.websiteUrl} target="_blank" rel="noopener noreferrer" className="client-card">
+                  {c.logoUrl ? (
+                    <img src={c.logoUrl} alt={c.name} loading="lazy" />
+                  ) : (
+                    <span className="client-name">{c.name}</span>
+                  )}
+                  {c.sector && <span className="client-sector mono">{c.sector}</span>}
+                </a>
+              ) : (
+                <div key={c.id} className="client-card">
+                  {c.logoUrl ? (
+                    <img src={c.logoUrl} alt={c.name} loading="lazy" />
+                  ) : (
+                    <span className="client-name">{c.name}</span>
+                  )}
+                  {c.sector && <span className="client-sector mono">{c.sector}</span>}
+                </div>
+              )
+            ))}
           </div>
         </section>
       )}

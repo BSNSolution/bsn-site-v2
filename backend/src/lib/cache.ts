@@ -203,4 +203,10 @@ export const CacheKeys = {
 
   // About cards
   aboutCards: "about-cards",
+
+  // Process steps
+  processSteps: "process-steps",
+
+  // Client groups
+  clientGroups: "client-groups",
 };

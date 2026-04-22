@@ -37,6 +37,7 @@ import homeExtrasRoutes from "./routes/home-extras";
 import stackItemsRoutes from "./routes/stack-items";
 import aboutCardsRoutes from "./routes/about-cards";
 import usersRoutes from "./routes/users";
+import processStepsRoutes from "./routes/process-steps";
 
 dotenv.config();
 
@@ -104,6 +105,7 @@ fastify.register(homeExtrasRoutes, { prefix: "/api" });
 fastify.register(stackItemsRoutes, { prefix: "/api" });
 fastify.register(aboutCardsRoutes, { prefix: "/api" });
 fastify.register(usersRoutes, { prefix: "/api" });
+fastify.register(processStepsRoutes, { prefix: "/api" });
 
 // Health check
 fastify.get("/health", async () => {

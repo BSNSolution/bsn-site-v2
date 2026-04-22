@@ -350,98 +350,101 @@ async function main() {
     ],
   });
 
-  // 5. Soluções — 6 verticais exatas do new-layout (solucoes.html)
+  // 5. Soluções — vitrine dos produtos reais BSN
   await prisma.solution.createMany({
     data: [
       {
-        title: 'Portal do Cooperado & Assembleia Digital',
-        tag: 'COOPERATIVISMO',
+        title: 'Dom Snack — Cantina Digital',
+        tag: 'EDU · FINTECH',
         description:
-          'Governança participativa com votação auditada, engajamento de membros e transparência total.',
+          'Sistema de cantina digital para escolas: cartões pré-pagos, app para pais, PDV e relatórios.',
         bullets: [
-          'Votação remota com trilha de auditoria',
-          'Feed de comunicação segmentado',
-          'Autoatendimento integrado ao ERP',
+          'Cartão de crédito pré-pago para o aluno',
+          'Recarga por pais via app/Pix',
+          'PDV veloz e gestão multi-unidade',
         ],
-        technologies: [],
+        technologies: ['React', 'React Native', 'Node.js', 'PostgreSQL'],
+        projectUrl: 'https://domsnack.com.br',
         colorClass: 'a',
-        ctaLabel: 'Ver demo →',
+        ctaLabel: 'Ver solução ao vivo →',
         isFeatured: true,
         order: 1,
       },
       {
-        title: 'Força de Vendas Externa',
-        tag: 'CONSÓRCIOS',
+        title: 'Me Avisa Aí — Atendimento WhatsApp',
+        tag: 'IA · MESSAGING',
         description:
-          'App offline-first para equipes de rua com pipeline, comissionamento e integração ao back-office.',
+          'Plataforma para gerenciar atendimentos pelo WhatsApp em escala, com IA, filas e integrações.',
         bullets: [
-          'Funciona sem sinal; sincroniza depois',
-          'Gamificação de metas',
-          'Dashboards de gestor em tempo real',
+          'Multi-atendente com distribuição inteligente',
+          'Bot com IA treinada na sua base',
+          'Integração com CRM e automações',
         ],
-        technologies: [],
+        technologies: ['Node.js', 'React', 'WhatsApp API', 'OpenAI'],
+        projectUrl: 'https://meavisaai.com.br',
         colorClass: 'b',
-        ctaLabel: 'Ver demo →',
+        ctaLabel: 'Ver solução ao vivo →',
         order: 2,
       },
       {
-        title: 'Motor de Integração entre ERPs',
-        tag: 'ADMINISTRADORAS',
+        title: 'Carlinhos Manager',
+        tag: 'PDV · VAREJO',
         description:
-          'Sincronização de dados em tempo real entre sistemas legados e modernos.',
+          'Frente de caixa moderna com pagamento integrado, NFC-e, múltiplas lojas e relatórios em tempo real.',
         bullets: [
-          'Conectores prontos para 20+ sistemas',
-          'Fila resiliente com retry',
-          'Observabilidade ponta-a-ponta',
+          'Pagamento por QR, Pix, TEF e cartão',
+          'NFC-e e certificado digital',
+          'Dashboards por loja / produto / operador',
         ],
-        technologies: [],
+        technologies: ['React', 'Electron', 'Node.js', 'SAT/TEF'],
         colorClass: 'c',
-        ctaLabel: 'Ver demo →',
+        ctaLabel: 'Ver detalhes →',
         order: 3,
       },
       {
-        title: 'Cantina Digital & Frente de Caixa',
-        tag: 'VAREJO & PDV',
+        title: 'Inspeciona+',
+        tag: 'MOBILIDADE',
         description:
-          'PDV moderno com pagamento integrado, cashback e gestão multi-loja.',
+          'App de checklist para inspeção veicular, com fotos, assinatura digital e laudo em PDF.',
         bullets: [
-          'Pagamento por QR, pix e cartão',
-          'Programa de fidelidade embutido',
-          'Relatórios operacionais em tempo real',
+          'Checklist configurável por tipo de veículo',
+          'Captura de fotos e assinatura offline',
+          'Laudo em PDF automático + histórico',
         ],
-        technologies: [],
+        technologies: ['React Native', 'Node.js', 'PostgreSQL', 'S3'],
         colorClass: 'd',
-        ctaLabel: 'Ver demo →',
+        ctaLabel: 'Ver detalhes →',
         order: 4,
       },
       {
-        title: 'Sistema de Frota & Multas',
-        tag: 'FROTA & LOGÍSTICA',
+        title: 'Alpha Gateway',
+        tag: 'FINTECH · PAGAMENTOS',
         description:
-          'Gestão de veículos, motoristas e autuações com prazos e recursos automatizados.',
+          'Gateway de pagamento seguro com split de recebíveis, antifraude e conciliação automática.',
         bullets: [
-          'Alertas de vencimento',
-          'OCR de notificações',
-          'Indicação de condutor em 1 clique',
+          'Split automático entre contas',
+          'Antifraude com machine learning',
+          'API REST + webhooks + painel completo',
         ],
-        technologies: [],
+        technologies: ['Node.js', 'Go', 'PostgreSQL', 'Redis'],
         colorClass: 'e',
-        ctaLabel: 'Ver demo →',
+        ctaLabel: 'Ver detalhes →',
         order: 5,
       },
       {
-        title: 'Assistente Jurídico via WhatsApp',
-        tag: 'JURÍDICO & IA',
+        title: 'Tribunal Eclesiástico',
+        tag: 'JURÍDICO',
         description:
-          'Atendimento 24/7 com triagem de casos, captação de clientes e integração a sistemas jurídicos.',
+          'Sistema de processos de nulidade matrimonial com fluxo de decisões, documentos e notificações.',
         bullets: [
-          'Multi-tenant escalável',
-          'Treinado no seu repositório',
-          'Handoff suave para humano',
+          'Fluxo configurável por diocese',
+          'Assinatura digital e ICP-Brasil',
+          'Handoff suave para humano em dúvidas',
         ],
         technologies: [],
+        technologies: ['React', 'Node.js', 'PostgreSQL'],
         colorClass: 'f',
-        ctaLabel: 'Ver demo →',
+        ctaLabel: 'Ver detalhes →',
         order: 6,
       },
     ],
@@ -759,6 +762,60 @@ async function main() {
         colorClass: 'c4',
         order: 4,
       },
+    ],
+  });
+
+  // 20. Etapas do processo (Como trabalhamos — home)
+  await prisma.processStep.createMany({
+    data: [
+      {
+        number: '01',
+        title: 'Diagnóstico',
+        description:
+          'Mergulhamos na sua operação para entender contexto, dor real e restrições. Sem tecniquês.',
+        duration: '1 semana',
+        order: 1,
+      },
+      {
+        number: '02',
+        title: 'Proposta',
+        description:
+          'Escopo claro com entregas, prazos e preço fixo. Você decide o que entra no MVP.',
+        duration: '3-5 dias',
+        order: 2,
+      },
+      {
+        number: '03',
+        title: 'Sprint & Entregas',
+        description:
+          'Squad montado em 5 dias. Demos semanais, sem surpresas — você acompanha cada sprint.',
+        duration: '2 semanas/sprint',
+        order: 3,
+      },
+      {
+        number: '04',
+        title: 'Go-live & Evolução',
+        description:
+          'Deploy monitorado 24/7 + roadmap contínuo. A parceria não acaba no lançamento.',
+        duration: 'contínuo',
+        order: 4,
+      },
+    ],
+  });
+
+  // 21. Clientes reais por setor (substitui lista vazia)
+  await prisma.client.createMany({
+    data: [
+      { name: 'Casa do Construtor', logoUrl: '', sector: 'Construção', order: 1 },
+      { name: 'Velz Rent a Car', logoUrl: '', sector: 'Mobilidade', order: 2 },
+      { name: 'Tribunal Eclesiástico', logoUrl: '', sector: 'Jurídico', order: 3 },
+      { name: 'Empresta Capital', logoUrl: '', sector: 'Fintech', order: 4 },
+      { name: 'Colégio Salesiano', logoUrl: '', sector: 'Educação', order: 5 },
+      { name: 'Colégio São Judas Tadeu', logoUrl: '', sector: 'Educação', order: 6 },
+      { name: 'Colégio São Gonçalo', logoUrl: '', sector: 'Educação', order: 7 },
+      { name: 'Colégio Santo Antônio', logoUrl: '', sector: 'Educação', order: 8 },
+      { name: 'Passaleti', logoUrl: '', sector: 'Varejo', order: 9 },
+      { name: 'Musiva', logoUrl: '', sector: 'Entretenimento', order: 10 },
     ],
   });
 

@@ -63,9 +63,17 @@ export default function ContactPage() {
           começa com um <em>diagnóstico</em>.
         </h1>
         <p>
-          Conte o desafio. Em até 24 horas úteis, um parceiro da BSN responde com um próximo passo concreto — sem
-          lengalenga comercial.
+          Conte o desafio em linguagem de humano. Sem tecniquês, sem lengalenga comercial — respondemos em até
+          24 horas úteis com um próximo passo concreto.
         </p>
+        <div className="hero-badges" style={{ marginTop: 28 }}>
+          <span className="hero-badge">
+            <span className="dot-pulse" />
+            Resposta em até 24h úteis
+          </span>
+          <span className="hero-badge">🔒 Dados tratados conforme LGPD</span>
+          <span className="hero-badge">💬 Sem tecniquês</span>
+        </div>
       </section>
 
       <section className="contact-wrap shell">

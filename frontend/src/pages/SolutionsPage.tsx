@@ -10,6 +10,8 @@ interface Solution {
   tag?: string | null
   description: string
   bullets: string[]
+  technologies?: string[]
+  projectUrl?: string | null
   colorClass?: string | null
   ctaLabel?: string | null
 }
@@ -30,16 +32,18 @@ export default function SolutionsPage() {
       <section className="hero-s shell">
         <div className="eyebrow mono">
           <span className="dot" />
-          <span>Soluções · produtos verticais</span>
+          <span>Soluções · produtos reais no ar</span>
         </div>
         <h1>
-          Plataformas prontas,
+          Plataformas que
           <br />
-          <em>customizáveis</em> para seu setor.
+          <em>impactam negócios</em>
+          <br />
+          de verdade.
         </h1>
         <p>
-          Aceleradores que condensam anos de experiência em setores específicos — adaptamos a base ao seu processo em
-          semanas, não em meses.
+          Não vendemos promessas, mostramos projetos ao vivo. Cada produto aqui roda em produção com clientes reais —
+          e pode ser adaptado ao seu setor em semanas, não meses.
         </p>
       </section>
 
@@ -57,9 +61,22 @@ export default function SolutionsPage() {
                 ))}
               </ul>
             )}
-            <Link to="/contato" className="sol-cta">
-              {sol.ctaLabel ?? 'Ver demo →'}
-            </Link>
+            {sol.technologies && sol.technologies.length > 0 && (
+              <div className="sol-tech">
+                {sol.technologies.map((t) => (
+                  <span key={t} className="sol-tech-pill">{t}</span>
+                ))}
+              </div>
+            )}
+            {sol.projectUrl ? (
+              <a href={sol.projectUrl} target="_blank" rel="noopener noreferrer" className="sol-cta sol-cta-live">
+                Ver solução ao vivo ↗
+              </a>
+            ) : (
+              <Link to="/contato" className="sol-cta">
+                {sol.ctaLabel ?? 'Ver detalhes →'}
+              </Link>
+            )}
           </div>
         ))}
       </section>

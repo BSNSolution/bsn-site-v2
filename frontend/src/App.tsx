@@ -45,6 +45,7 @@ const AdminPermissionGroupsPage = lazy(() => import('@/pages/admin/AdminPermissi
 // Components
 import LoadingSpinner from '@/components/LoadingSpinner'
 import SiteBackground from '@/components/layout/SiteBackground'
+import WhatsAppFloat from '@/components/layout/WhatsAppFloat'
 
 // Page transition variants - AWWWARDS style
 const pageVariants = {
@@ -142,6 +143,9 @@ function App() {
     <div className="App">
       {/* Vitral/glass background layers — mounted once so they don't remount on route changes */}
       {!isAdmin && <SiteBackground />}
+
+      {/* WhatsApp flutuante (apenas no site público) */}
+      {!isAdmin && <WhatsAppFloat />}
 
       {/* Page transitions with AnimatePresence */}
       <AnimatePresence mode="wait" initial={false}>
