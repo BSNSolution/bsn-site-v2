@@ -1247,6 +1247,254 @@ body.menu-open .nav-burger span::after {
   left: -40px;
 }
 
+/* ============================================================
+   HERO ORBIT — centro + anéis girando + 6 nodes ao redor
+   ============================================================ */
+.hero-orbit {
+  position: relative;
+  padding-top: 40px;
+  padding-bottom: 60px;
+  min-height: 820px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.orbit-sun {
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(122, 91, 255, 0.22), transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}
+
+.orbit-rings {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed var(--line);
+  animation: ringRotate 60s linear infinite;
+}
+.ring.r1 { width: 520px; height: 520px; animation-duration: 80s; }
+.ring.r2 {
+  width: 720px;
+  height: 720px;
+  border-style: solid;
+  border-color: var(--line);
+  animation-duration: 120s;
+  animation-direction: reverse;
+}
+.ring.r3 { width: 920px; height: 920px; animation-duration: 160s; }
+@keyframes ringRotate {
+  to { transform: rotate(360deg); }
+}
+
+.orbit-center {
+  text-align: center;
+  position: relative;
+  z-index: 5;
+  max-width: 720px;
+  padding: 0 20px;
+}
+.orbit-center .eyebrow {
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.orbit-center h1 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: clamp(40px, 5.5vw, 80px);
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+.orbit-center h1 em {
+  font-style: italic;
+  font-weight: 400;
+  background: linear-gradient(110deg, var(--violet), var(--cyan), var(--magenta));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.orbit-center p {
+  margin: 24px auto 32px;
+  font-size: 16px;
+  color: var(--ink-dim);
+  line-height: 1.55;
+  max-width: 520px;
+}
+.orbit-center .ctas {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.orbit-center .hero-badges {
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.orbit-nodes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.node {
+  position: absolute;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+  pointer-events: auto;
+  transition: 0.3s;
+  animation: nodeFloat 6s ease-in-out infinite;
+  text-decoration: none;
+  color: var(--ink);
+}
+.node:hover {
+  transform: translateY(-3px);
+  border-color: var(--line-strong);
+}
+.node .ico {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 14px -4px rgba(0, 0, 0, 0.4);
+}
+.node .ico svg {
+  width: 14px;
+  height: 14px;
+  stroke: #fff;
+  stroke-width: 1.8;
+  fill: none;
+}
+.node .txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.2;
+}
+.node .txt b {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+.node .txt > span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+/* posição dos 6 nodes + ícone com gradiente colorido */
+.node.n1 { top: 14%; left: 4%; animation-delay: 0s; }
+.node.n1 .ico { background: linear-gradient(135deg, var(--violet), #5637d4); }
+.node.n2 { top: 18%; right: 4%; animation-delay: -1s; }
+.node.n2 .ico { background: linear-gradient(135deg, var(--cyan), #0aa6c9); }
+.node.n3 { bottom: 22%; left: 3%; animation-delay: -2s; }
+.node.n3 .ico { background: linear-gradient(135deg, var(--magenta), #c93191); }
+.node.n4 { bottom: 16%; right: 3%; animation-delay: -3s; }
+.node.n4 .ico { background: linear-gradient(135deg, var(--amber), #d98f1f); }
+.node.n5 { top: 50%; left: 0; transform: translateY(-50%); animation-delay: -4s; }
+.node.n5 .ico { background: linear-gradient(135deg, var(--emerald), #1fa57a); }
+.node.n6 { top: 50%; right: 0; transform: translateY(-50%); animation-delay: -5s; }
+.node.n6 .ico { background: linear-gradient(135deg, var(--violet), var(--magenta)); }
+
+@keyframes nodeFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+/* nodes que têm translateY(-50%) para centralizar verticalmente mantêm */
+.node.n5 { animation-name: nodeFloat5; }
+.node.n6 { animation-name: nodeFloat6; }
+@keyframes nodeFloat5 {
+  0%, 100% { transform: translateY(-50%); }
+  50% { transform: translateY(calc(-50% - 8px)); }
+}
+@keyframes nodeFloat6 {
+  0%, 100% { transform: translateY(-50%); }
+  50% { transform: translateY(calc(-50% - 8px)); }
+}
+
+/* KPIs em seção própria (saíram do hero) */
+.kpis-section {
+  padding-top: 0;
+  padding-bottom: 40px;
+}
+
+/* Strip com card-live e card-pill em 2 colunas */
+.live-strip {
+  padding-top: 20px;
+  padding-bottom: 40px;
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 14px;
+  align-items: stretch;
+}
+.live-strip .card-live,
+.live-strip .card-pill {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .hero-orbit {
+    min-height: auto;
+    padding-top: 30px;
+    padding-bottom: 40px;
+  }
+  .ring, .orbit-sun { display: none; }
+  .orbit-center h1 { font-size: clamp(32px, 8vw, 48px); }
+  .orbit-center p { font-size: 15px; }
+  .orbit-nodes {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 40px;
+    inset: auto;
+  }
+  .node,
+  .node.n1, .node.n2, .node.n3, .node.n4, .node.n5, .node.n6 {
+    position: static;
+    animation: none;
+    transform: none !important;
+    min-width: 0;
+    width: 100%;
+    padding: 12px 14px;
+    top: auto; left: auto; right: auto; bottom: auto;
+  }
+  .node .txt { min-width: 0; flex: 1; }
+  .node .txt b { font-size: 13px; white-space: normal; overflow-wrap: anywhere; }
+
+  .live-strip { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .orbit-nodes { grid-template-columns: 1fr; }
+  .node { padding: 10px 14px; }
+}
+
 /* Hero trust badges */
 .hero-badges {
   margin-top: 24px;

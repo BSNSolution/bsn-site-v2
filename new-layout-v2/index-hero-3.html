@@ -7,13 +7,13 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BSN Solution — Engenharia de software sob medida</title>
+<title>Hero 3 · Terminal — BSN Solution</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/shared.css">
 <style>
-/* ===== HERO premium ===== */
+  /* ===== HERO premium ===== */
   .hero{padding:60px 0 80px;position:relative}
   .hero-wrap{display:grid;grid-template-columns:1.35fr .85fr;gap:40px;align-items:stretch}
   .hero-left{position:relative;padding:56px 0 0}
@@ -168,60 +168,50 @@
     .bsn-footer .bottom{flex-direction:column;align-items:flex-start;gap:12px}
   }
 
-  /* ===== HERO 4 — ORBIT ===== */
-  .hero{padding:40px 0 60px;position:relative}
-  .hero-orbit{position:relative;min-height:820px;display:flex;align-items:center;justify-content:center;padding:40px 0}
-  .orbit-center{text-align:center;position:relative;z-index:5;max-width:720px;padding:0 20px}
-  .orbit-center .eyebrow{justify-content:center;margin-bottom:24px}
-  .orbit-center h1{font-family:'Inter',sans-serif;font-weight:500;font-size:clamp(40px,5.5vw,80px);line-height:1;letter-spacing:-.045em}
-  .orbit-center h1 em{font-style:italic;font-weight:400;background:linear-gradient(110deg,var(--violet),var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .orbit-center p{margin:24px auto 32px;font-size:16px;color:var(--ink-dim);line-height:1.55;max-width:520px}
-  .orbit-center .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-  .orbit-rings{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center}
-  .ring{position:absolute;border-radius:50%;border:1px dashed var(--line);animation:rotate 60s linear infinite}
-  .ring.r1{width:520px;height:520px;animation-duration:80s}
-  .ring.r2{width:720px;height:720px;animation-direction:reverse;animation-duration:120s;border-style:solid;border-color:var(--line)}
-  .ring.r3{width:920px;height:920px;animation-duration:160s}
-  @keyframes rotate{to{transform:rotate(360deg)}}
-  .orbit-nodes{position:absolute;inset:0;pointer-events:none}
-  .node{position:absolute;padding:14px 18px;display:flex;align-items:center;gap:10px;min-width:180px;pointer-events:auto;transition:.3s;animation:nodeFloat 6s ease-in-out infinite}
-  .node:hover{transform:translateY(-3px);border-color:var(--line-strong)}
-  .node .ico{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(255,255,255,.2)}
-  .node .ico svg{width:14px;height:14px;stroke:#fff;stroke-width:1.8;fill:none}
-  .node .txt{font-size:13px;line-height:1.2}
-  .node .txt b{display:block;font-weight:500;font-family:'Inter'}
-  .node .txt span{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--ink-faint);text-transform:uppercase}
-  .node.n1{top:14%;left:8%;animation-delay:0s}
-  .node.n1 .ico{background:linear-gradient(135deg,var(--violet),#5637d4)}
-  .node.n2{top:18%;right:10%;animation-delay:-1s}
-  .node.n2 .ico{background:linear-gradient(135deg,var(--cyan),#0aa6c9)}
-  .node.n3{bottom:22%;left:6%;animation-delay:-2s}
-  .node.n3 .ico{background:linear-gradient(135deg,var(--magenta),#c93191)}
-  .node.n4{bottom:16%;right:6%;animation-delay:-3s}
-  .node.n4 .ico{background:linear-gradient(135deg,var(--amber),#d98f1f)}
-  .node.n5{top:50%;left:4%;animation-delay:-4s}
-  .node.n5 .ico{background:linear-gradient(135deg,var(--emerald),#1fa57a)}
-  .node.n6{top:48%;right:4%;animation-delay:-5s}
-  .node.n6 .ico{background:linear-gradient(135deg,var(--violet),var(--magenta))}
-  @keyframes nodeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .orbit-sun{position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(122,91,255,.22),transparent 70%);filter:blur(30px);pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%)}
-  @media(max-width:900px){
-    .hero-orbit{min-height:auto;padding:40px 0}
-    .ring,.orbit-sun{display:none}
-    .orbit-center h1{font-size:clamp(32px,8vw,48px)}
-    .orbit-center p{font-size:15px}
-    .orbit-nodes{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:36px}
-    .node{position:static;animation:none;min-width:0;width:100%;padding:12px 14px;gap:10px;align-items:center}
-    .node .txt{min-width:0;flex:1}
-    .node .txt b{font-size:13px;line-height:1.2;white-space:normal;overflow-wrap:anywhere}
-    .node .txt span{font-size:9px;display:block;margin-bottom:2px}
-    .node.n1,.node.n2,.node.n3,.node.n4,.node.n5,.node.n6{top:auto;left:auto;right:auto;bottom:auto}
-  }
-  @media(max-width:480px){
-    .orbit-nodes{grid-template-columns:1fr}
-    .node{padding:10px 14px}
-  }
+  /* ===== HERO 3 — TERMINAL / CODE ===== */
+  .hero{padding:60px 0 80px}
+  .hero-term{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center}
+  .hero-term .left .eyebrow{margin-bottom:28px}
+  .hero-term h1{font-family:'Inter',sans-serif;font-weight:500;font-size:clamp(40px,5.5vw,80px);line-height:1;letter-spacing:-.045em;max-width:620px}
+  .hero-term h1 .prism{background:linear-gradient(110deg,var(--cyan),var(--violet),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic;font-weight:400}
+  .hero-term p{margin-top:28px;font-size:16px;color:var(--ink-dim);line-height:1.6;max-width:540px}
+  .hero-term .ctas{margin-top:36px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .hero-term .trust{margin-top:40px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding-top:24px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase}
+  .hero-term .trust strong{color:var(--ink);font-weight:500}
 
+  .term-box{padding:0;overflow:hidden;position:relative}
+  .term-box .bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.3)}
+  .term-box .bar .dots{display:flex;gap:6px}
+  .term-box .bar .dots i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.18)}
+  .term-box .bar .dots i:nth-child(1){background:#ff5f57}
+  .term-box .bar .dots i:nth-child(2){background:#febc2e}
+  .term-box .bar .dots i:nth-child(3){background:#28c840}
+  .term-box .bar .title{margin-left:auto;margin-right:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-faint);letter-spacing:.1em}
+  .term-body{padding:22px 24px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.75;color:var(--ink-dim);min-height:340px;position:relative;overflow:hidden}
+  .term-line{display:block;white-space:pre;opacity:0;animation:termIn .4s ease both}
+  .term-line:nth-child(1){animation-delay:.2s}
+  .term-line:nth-child(2){animation-delay:.9s}
+  .term-line:nth-child(3){animation-delay:1.2s}
+  .term-line:nth-child(4){animation-delay:1.5s}
+  .term-line:nth-child(5){animation-delay:2.1s}
+  .term-line:nth-child(6){animation-delay:2.4s}
+  .term-line:nth-child(7){animation-delay:2.7s}
+  .term-line:nth-child(8){animation-delay:3.1s}
+  .term-line:nth-child(9){animation-delay:3.5s}
+  .term-line:nth-child(10){animation-delay:3.9s}
+  @keyframes termIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .term-line .prompt{color:var(--violet)}
+  .term-line .cmd{color:var(--ink)}
+  .term-line .ok{color:var(--emerald)}
+  .term-line .warn{color:var(--amber)}
+  .term-line .key{color:var(--cyan)}
+  .term-line .str{color:var(--magenta)}
+  .term-line .dim{color:var(--ink-faint)}
+  .term-blink::after{content:"▊";color:var(--emerald);animation:blink3 1s step-end infinite;margin-left:4px}
+  @keyframes blink3{50%{opacity:0}}
+
+  @media(max-width:980px){.hero-term{grid-template-columns:1fr;gap:32px}}
+  @media(max-width:640px){.term-body{font-size:11px;padding:16px}}
 </style>
 </head>
 <body class="page" style="cursor: crosshair;" data-cc-id="cc-1">
@@ -265,29 +255,38 @@
   </div>
 </div>
 
-<section class="hero hero-orbit">
-  <div class="orbit-sun"></div>
-  <div class="orbit-rings">
-    <div class="ring r1"></div>
-    <div class="ring r2"></div>
-    <div class="ring r3"></div>
-  </div>
-  <div class="orbit-center">
-    <div class="eyebrow mono"><span class="dot"></span><span>7 capacidades · 1 parceiro</span></div>
-    <h1>Tudo que sua operação precisa <em>girando</em> no mesmo eixo.</h1>
-    <p>Desenvolvimento, cloud, automação e suporte 24/7 sob a mesma governança. Um ponto de contato, um SLA, um time que fala a mesma língua.</p>
+<section class="hero hero-term shell">
+  <div class="left">
+    <div class="eyebrow mono"><span class="dot"></span><span>Abril 2026 · aceitando projetos para Q3</span></div>
+    <h1>Código que <span class="prism">roda</span>.<br>Equipe que <span class="prism">entrega</span>.</h1>
+    <p>Somos uma engenharia-produto brasileira especializada em software crítico. Você descreve o problema — a gente implementa, mede, e refaz até o KPI mexer.</p>
     <div class="ctas">
-      <a href="contato.html" class="btn btn-primary auto">Começar <span>↗</span></a>
-      <a href="servicos.html" class="btn btn-ghost auto">Explorar capacidades</a>
+      <a href="contato.html" class="btn btn-primary auto">Iniciar projeto <span>↗</span></a>
+      <a href="servicos.html" class="btn btn-ghost auto">Ver stack técnica</a>
+    </div>
+    <div class="trust">
+      <span><strong>80+</strong> projetos</span>
+      <span><strong>12</strong> anos</span>
+      <span><strong>24/7</strong> suporte</span>
+      <span><strong>14</strong> setores</span>
     </div>
   </div>
-  <div class="orbit-nodes">
-    <a href="servicos.html#sob-medida" class="node glass n1"><div class="ico"><svg viewBox="0 0 24 24"><path d="M8 6 3 12l5 6M16 6l5 6-5 6"></path></svg></div><div class="txt"><span>SVC 01</span><b>Software sob medida</b></div></a>
-    <a href="servicos.html#squads" class="node glass n2"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/></svg></div><div class="txt"><span>SVC 02</span><b>Squads ágeis</b></div></a>
-    <a href="servicos.html#automacao" class="node glass n3"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83"/></svg></div><div class="txt"><span>SVC 03</span><b>Automação RPA</b></div></a>
-    <a href="servicos.html#consultoria" class="node glass n4"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l9 4.5v9L12 21 3 16.5v-9L12 3z"/></svg></div><div class="txt"><span>SVC 04</span><b>Consultoria</b></div></a>
-    <a href="servicos.html#infra" class="node glass n5"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="15" width="18" height="5" rx="1"/></svg></div><div class="txt"><span>SVC 05</span><b>Infra &amp; VPS</b></div></a>
-    <a href="servicos.html#suporte" class="node glass n6"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 10c0-1.66 1.34-3 3-3s3 1.34 3 3-3 2-3 4"/></svg></div><div class="txt"><span>SVC 06</span><b>Suporte 24/7</b></div></a>
+  <div class="right">
+    <div class="term-box glass">
+      <div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="title">bsn@prod — zsh — 120×32</div></div>
+      <div class="term-body">
+        <span class="term-line"><span class="prompt">➜ bsn/core</span> <span class="cmd">git pull &amp;&amp; ./deploy prod</span></span>
+        <span class="term-line"><span class="dim">▸ Fetching from origin/main … done</span></span>
+        <span class="term-line"><span class="dim">▸ Running test suite …</span> <span class="ok">✔ 847 passed</span> <span class="dim">(3.2s)</span></span>
+        <span class="term-line"><span class="dim">▸ Building assets …</span> <span class="ok">✔ bundle 1.2MB</span></span>
+        <span class="term-line"><span class="dim">▸ Deploying to</span> <span class="key">prod-cluster-br-01</span> <span class="dim">…</span></span>
+        <span class="term-line"><span class="ok">✔</span> <span class="cmd">Released</span> <span class="str">v4.12.3</span> <span class="dim">in 38s</span></span>
+        <span class="term-line"><span class="dim">  └─ uptime</span> <span class="ok">99.97%</span> <span class="dim">· p95</span> <span class="ok">127ms</span> <span class="dim">· rps</span> <span class="ok">2.4k</span></span>
+        <span class="term-line"> </span>
+        <span class="term-line"><span class="warn">▸</span> <span class="dim">monitoring:</span> 32 projetos em produção agora</span>
+        <span class="term-line"><span class="prompt">➜ bsn/core</span><span class="term-blink"></span></span>
+      </div>
+    </div>
   </div>
 </section>
 

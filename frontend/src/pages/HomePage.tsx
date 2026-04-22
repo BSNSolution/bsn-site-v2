@@ -184,91 +184,65 @@ export default function HomePage() {
     <div className="page">
       <Header />
 
-      <section className="hero shell home-hero">
-        <div className="wrap">
-          <div className="left">
-            <div className="eyebrow mono">
-              <span className="dot" />
-              <span>Abr 2026 · aceitando novos projetos para Q3</span>
-            </div>
-            <h1 className="hero-h1">
-              <span className="hero-line">
-                <span className="word"><span>Engenharia</span></span>{' '}
-                <span className="word"><span>de software</span></span>
-              </span>
-              <span className="hero-line">
-                <span className="word">
-                  <span>
-                    que <em className="prism">transforma</em>
-                  </span>
-                </span>
-              </span>
-              <span className="hero-line">
-                <span className="word"><span>operações em vantagem</span></span>{' '}
-                <span className="word"><span>competitiva.</span></span>
-              </span>
-            </h1>
-            <p className="sub">
-              Sem tecniquês. Viramos ideia em software — sob medida, rápido e pra durar.
-              Squads ágeis, automação e consultoria pra acelerar sua transformação digital.
-            </p>
-            <div className="ctas">
-              <Link to="/contato" className="btn btn-primary">
-                Agendar diagnóstico <span>↗</span>
-              </Link>
-              <Link to="/servicos" className="play">
-                <span className="pi">▶</span>
-                <span>
-                  Ver como trabalhamos <span style={{ color: 'var(--ink-faint)' }}>· 2 min</span>
-                </span>
-              </Link>
-            </div>
-            <div className="hero-badges">
-              <span className="hero-badge">
-                <span className="dot-pulse" />
-                Resposta em até 24h úteis
-              </span>
-              <span className="hero-badge">
-                🔒 LGPD-ready
-              </span>
-            </div>
+      {/* HERO ORBIT — serviços como nodes ao redor do centro */}
+      <section className="hero hero-orbit shell">
+        <div className="orbit-sun" aria-hidden="true" />
+        <div className="orbit-rings" aria-hidden="true">
+          <div className="ring r1" />
+          <div className="ring r2" />
+          <div className="ring r3" />
+        </div>
+        <div className="orbit-center">
+          <div className="eyebrow mono">
+            <span className="dot" />
+            <span>{services.length || 7} capacidades · 1 parceiro</span>
           </div>
-
-          <aside className="right">
-            {live && (
-              <div className="card-live glass">
-                <div className="shard" />
-                <div className="pulse">
-                  <span className="bullet" />
-                  <span>{live.label}</span>
-                </div>
-                <h4>{live.title}</h4>
-                <div className="ticker">
-                  {live.rows.map((row, idx) => (
-                    <div key={idx} className="row">
-                      <span>{row.label}</span>
-                      <b className={row.highlight === 'up' ? 'up' : ''}>{row.value}</b>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {pill && (
-              <div className="card-pill glass">
-                <div className="shard" />
-                <div className="av" style={pill.avatarUrl ? { backgroundImage: `url(${pill.avatarUrl})`, backgroundSize: 'cover' } : undefined} />
-                <div className="t">
-                  <b>{pill.personName}</b>
-                  {pill.company ? ` · ${pill.company}` : ''}
-                  <br />
-                  {pill.quote}
-                </div>
-              </div>
-            )}
-          </aside>
+          <h1>
+            Tudo que sua operação precisa <em>girando</em> no mesmo eixo.
+          </h1>
+          <p>
+            Desenvolvimento, cloud, automação e suporte 24/7 sob a mesma governança.
+            Um ponto de contato, um SLA, um time que fala a mesma língua.
+          </p>
+          <div className="ctas">
+            <Link to="/contato" className="btn btn-primary auto">
+              Começar <span>↗</span>
+            </Link>
+            <Link to="/servicos" className="btn btn-ghost auto">
+              Explorar capacidades
+            </Link>
+          </div>
+          <div className="hero-badges">
+            <span className="hero-badge">
+              <span className="dot-pulse" />
+              Resposta em até 24h úteis
+            </span>
+            <span className="hero-badge">🔒 LGPD-ready</span>
+          </div>
         </div>
 
-        {kpis.length > 0 && (
+        {services.length > 0 && (
+          <div className="orbit-nodes">
+            {services.slice(0, 6).map((svc, i) => (
+              <Link
+                key={svc.id}
+                to={svc.anchor ? `/servicos#${svc.anchor}` : '/servicos'}
+                className={`node glass n${i + 1}`}
+              >
+                <span className="ico">{iconFor(svc.iconName)}</span>
+                <span className="txt">
+                  <span>{svc.numLabel || `SVC ${String(i + 1).padStart(2, '0')}`}</span>
+                  <b>{svc.subtitle || svc.title.split(' ').slice(0, 3).join(' ')}</b>
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* KPI strip — movido pra fora do hero, em seção própria */}
+      {kpis.length > 0 && (
+        <section className="kpis-section shell">
           <div className="hero-meta">
             {kpis.map((kpi) => (
               <div key={kpi.id}>
@@ -281,13 +255,54 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        )}
+        </section>
+      )}
 
+      {/* Operação ao vivo + depoimento em destaque */}
+      {(live || pill) && (
+        <section className="live-strip shell">
+          {live && (
+            <div className="card-live glass">
+              <div className="shard" />
+              <div className="pulse">
+                <span className="bullet" />
+                <span>{live.label}</span>
+              </div>
+              <h4>{live.title}</h4>
+              <div className="ticker">
+                {live.rows.map((row, idx) => (
+                  <div key={idx} className="row">
+                    <span>{row.label}</span>
+                    <b className={row.highlight === 'up' ? 'up' : ''}>{row.value}</b>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {pill && (
+            <div className="card-pill glass">
+              <div className="shard" />
+              <div
+                className="av"
+                style={pill.avatarUrl ? { backgroundImage: `url(${pill.avatarUrl})`, backgroundSize: 'cover' } : undefined}
+              />
+              <div className="t">
+                <b>{pill.personName}</b>
+                {pill.company ? ` · ${pill.company}` : ''}
+                <br />
+                {pill.quote}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      <div className="shell">
         <a href="#vitral" className="scroll-hint" aria-label="Rolar para ver mais">
           <span className="mono">Role para explorar</span>
           <span className="scroll-arrow">↓</span>
         </a>
-      </section>
+      </div>
 
       <div className="shell"><div className="section-star">✶ ✶ ✶</div></div>
 
