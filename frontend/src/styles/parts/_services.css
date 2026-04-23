@@ -29,6 +29,29 @@
   z-index: 1;
   margin-bottom: 18px;
 }
+.svc .svc-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.svc .svc-ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.svc .svc-ico .svc-ico-svg { width: 20px; height: 20px; }
+.svc .svc-ico.v { color: var(--violet); }
+.svc .svc-ico.c { color: var(--cyan); }
+.svc .svc-ico.m { color: var(--magenta); }
+.svc .svc-ico.a { color: var(--amber); }
+.svc .svc-ico.e { color: var(--emerald); }
 .svc .num {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -86,6 +109,27 @@
   opacity: 0.38;
   pointer-events: none;
 }
+.svc .svc-watermark {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 280px;
+  height: 280px;
+  pointer-events: none;
+  opacity: 0.08;
+  z-index: 0;
+}
+.svc .svc-watermark .svc-watermark-svg {
+  width: 100%;
+  height: 100%;
+  stroke-width: 1.5;
+  display: block;
+}
+.svc .svc-watermark.v { color: var(--violet); }
+.svc .svc-watermark.c { color: var(--cyan); }
+.svc .svc-watermark.m { color: var(--magenta); }
+.svc .svc-watermark.a { color: var(--amber); }
+.svc .svc-watermark.e { color: var(--emerald); }
 .svc.v .shard { background: var(--violet); top: -60px; right: -50px; width: 240px; height: 240px; }
 .svc.c .shard { background: var(--cyan); top: -60px; right: -50px; width: 240px; height: 240px; }
 .svc.m .shard { background: var(--magenta); top: -60px; right: -50px; width: 240px; height: 240px; }

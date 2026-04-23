@@ -3,7 +3,7 @@
    ============================================================ */
 .hero-orbit {
   position: relative;
-  padding-top: 40px;
+  padding-top: 120px;
   padding-bottom: 60px;
   min-height: 820px;
   display: flex;
@@ -64,7 +64,7 @@
   text-align: center;
   position: relative;
   z-index: 5;
-  max-width: 720px;
+  max-width: 900px;
   padding: 0 20px;
 }
 .orbit-center .eyebrow {
@@ -85,6 +85,8 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  padding-right: 0.08em;
+  margin-right: -0.04em;
 }
 .orbit-center p {
   margin: 24px auto 32px;
@@ -167,17 +169,19 @@
   text-transform: uppercase;
 }
 /* posição dos 6 nodes + ícone com gradiente colorido */
-.node.n1 { top: 14%; left: 4%; animation-delay: 0s; }
+/* Formato de "banana" leve acompanhando o ring — centros mais pra fora que
+   as pontas (topo/base), criando um arco suave em cada lado */
+.node.n1 { top: 14%; left: -5%; animation-delay: 0s; }
 .node.n1 .ico { background: linear-gradient(135deg, var(--violet), #5637d4); }
-.node.n2 { top: 18%; right: 4%; animation-delay: -1s; }
+.node.n2 { top: 14%; right: -5%; animation-delay: -1s; }
 .node.n2 .ico { background: linear-gradient(135deg, var(--cyan), #0aa6c9); }
-.node.n3 { bottom: 22%; left: 3%; animation-delay: -2s; }
+.node.n3 { bottom: 10%; left: -5%; animation-delay: -2s; }
 .node.n3 .ico { background: linear-gradient(135deg, var(--magenta), #c93191); }
-.node.n4 { bottom: 16%; right: 3%; animation-delay: -3s; }
+.node.n4 { bottom: 4%; right: -5%; animation-delay: -3s; }
 .node.n4 .ico { background: linear-gradient(135deg, var(--amber), #d98f1f); }
-.node.n5 { top: 50%; left: 0; transform: translateY(-50%); animation-delay: -4s; }
+.node.n5 { top: 48%; left: -11%; animation-delay: -4s; }
 .node.n5 .ico { background: linear-gradient(135deg, var(--emerald), #1fa57a); }
-.node.n6 { top: 50%; right: 0; transform: translateY(-50%); animation-delay: -5s; }
+.node.n6 { top: 48%; right: -11%; animation-delay: -5s; }
 .node.n6 .ico { background: linear-gradient(135deg, var(--violet), var(--magenta)); }
 
 @keyframes nodeFloat {

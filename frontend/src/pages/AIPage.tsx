@@ -15,9 +15,6 @@ import {
   FileSearch,
   FileText,
   Table,
-  Paperclip,
-  Mic,
-  Image as ImageIcon,
   Clock,
   Gauge,
 } from 'lucide-react'
@@ -26,7 +23,7 @@ import Footer from '@/components/layout/Footer'
 import { aiApi } from '@/lib/api'
 import { usePageSections } from '@/hooks/use-page-sections'
 
-const AI_SECTION_KEYS = ['hero', 'benefits', 'cases', 'stages', 'data', 'cta-band'] as const
+const AI_SECTION_KEYS = ['hero', 'benefits', 'cases', 'data', 'stages', 'cta-band'] as const
 
 type AIBlockType = 'HERO_BENEFIT' | 'STAGE' | 'EDU_HIGHLIGHT'
 
@@ -219,9 +216,18 @@ export default function AIPage() {
 
   const sectionRenderers: Record<string, () => JSX.Element | null> = {
     hero: () => (
-      <section key="hero" className="ai-hero shell" data-reveal>
-        <div className="ai-hero-spark" aria-hidden>
-          <Sparkles />
+      <section key="hero" className="ai-hero shell a" data-reveal>
+        <div className="svc-detail-hero-icon" aria-hidden>
+          <span className="svc-detail-hero-icon-ring svc-detail-hero-icon-ring-1" />
+          <span className="svc-detail-hero-icon-ring svc-detail-hero-icon-ring-2" />
+          <span className="svc-detail-hero-icon-ring svc-detail-hero-icon-ring-3" />
+          <span className="svc-detail-hero-icon-orb svc-detail-hero-icon-orb-1" />
+          <span className="svc-detail-hero-icon-orb svc-detail-hero-icon-orb-2" />
+          <span className="svc-detail-hero-icon-orb svc-detail-hero-icon-orb-3" />
+          <span className="svc-detail-hero-icon-glow" />
+          <span className="svc-detail-hero-icon-core">
+            <Brain className="svc-detail-ico-svg" />
+          </span>
         </div>
         <div className="eyebrow mono">
           <span className="dot" />
@@ -328,6 +334,31 @@ export default function AIPage() {
           </p>
         </div>
         <div className="ai-orbit" aria-hidden>
+          {/* Linhas conectando nodes externos ao core — curvas bezier */}
+          <svg className="ai-orbit-lines" viewBox="0 0 720 420" preserveAspectRatio="none">
+            {/* Camada base (tracejado discreto sempre visível) */}
+            <g>
+              <path className="line-n-left-1"  d="M 360 210 C 240 210, 200 72,  55 72" />
+              <path className="line-n-left-2"  d="M 360 210 C 240 210, 180 168, 20 168" />
+              <path className="line-n-left-3"  d="M 360 210 C 240 210, 200 275, 55 275" />
+              <path className="line-n-left-4"  d="M 360 210 C 300 230, 240 340, 149 357" />
+              <path className="line-n-right-1" d="M 360 210 C 480 210, 520 72, 665 72" />
+              <path className="line-n-right-2" d="M 360 210 C 540 210, 580 168, 700 168" />
+              <path className="line-n-right-3" d="M 360 210 C 480 210, 520 275, 665 275" />
+              <path className="line-n-right-4" d="M 360 210 C 420 230, 480 340, 571 357" />
+            </g>
+            {/* Camada pulso (traço luminoso que viaja do node ao core) — mesmos paths */}
+            <g className="ai-orbit-lines-pulse">
+              <path className="line-n-left-1"  d="M 360 210 C 240 210, 200 72,  55 72" />
+              <path className="line-n-left-2"  d="M 360 210 C 240 210, 180 168, 20 168" />
+              <path className="line-n-left-3"  d="M 360 210 C 240 210, 200 275, 55 275" />
+              <path className="line-n-left-4"  d="M 360 210 C 300 230, 240 340, 149 357" />
+              <path className="line-n-right-1" d="M 360 210 C 480 210, 520 72, 665 72" />
+              <path className="line-n-right-2" d="M 360 210 C 540 210, 580 168, 700 168" />
+              <path className="line-n-right-3" d="M 360 210 C 480 210, 520 275, 665 275" />
+              <path className="line-n-right-4" d="M 360 210 C 420 230, 480 340, 571 357" />
+            </g>
+          </svg>
           <div className="ai-orbit-ring ring-outer" />
           <div className="ai-orbit-ring ring-inner" />
           <div className="ai-orbit-core">
@@ -338,17 +369,11 @@ export default function AIPage() {
           <div className="ai-orbit-node n-left-2"><Database /></div>
           <div className="ai-orbit-node n-left-3"><FileSearch /></div>
           <div className="ai-orbit-node n-left-4"><Table /></div>
-          <div className="ai-orbit-node n-left-5"><Paperclip /></div>
           {/* Saídas (direita) */}
           <div className="ai-orbit-node n-right-1"><TrendingUp /></div>
           <div className="ai-orbit-node n-right-2"><Gauge /></div>
           <div className="ai-orbit-node n-right-3"><LineChart /></div>
           <div className="ai-orbit-node n-right-4"><Zap /></div>
-          {/* Orbitais próximos */}
-          <div className="ai-orbit-node n-top"><Sparkles /></div>
-          <div className="ai-orbit-node n-bottom"><Mic /></div>
-          <div className="ai-orbit-node n-near-left"><ImageIcon /></div>
-          <div className="ai-orbit-node n-near-right"><Bot /></div>
         </div>
       </section>
     ),

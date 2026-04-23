@@ -11,12 +11,7 @@
   font-size: clamp(40px, 5vw, 72px);
   line-height: 1.05;
   letter-spacing: -0.04em;
-  max-width: 1000px;
-  /* limita a no máximo 3 linhas */
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  max-width: 1120px;
 }
 
 .hero-s h1 em {
@@ -26,6 +21,8 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  padding-right: 0.08em;
+  margin-right: -0.04em;
 }
 
 .hero-s p {

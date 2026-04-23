@@ -27,6 +27,34 @@
   .nav-burger {
     display: inline-flex;
   }
+
+  /* Mobile nav: remove card translucido, logo centralizada, burger à direita */
+  .nav-inner {
+    display: grid !important;
+    grid-template-columns: 40px 1fr 40px;
+    align-items: center;
+    background: transparent !important;
+    border: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 12px 16px;
+    border-radius: 0;
+  }
+  .nav-inner::before,
+  .nav-inner::after {
+    display: none !important;
+  }
+  .nav-inner > .bsn-spot {
+    display: none !important;
+  }
+  .nav-inner .brand {
+    grid-column: 2;
+    justify-self: center;
+  }
+  .nav-inner .nav-burger {
+    grid-column: 3;
+    justify-self: end;
+  }
   .section-head {
     flex-direction: column;
     align-items: flex-start;
@@ -155,10 +183,10 @@
     margin-top: 8px;
   }
   .nav-inner {
-    padding: 8px 8px 8px 14px;
+    padding: 10px 16px;
   }
   .brand img {
-    height: 36px !important;
+    height: 136px !important;
   }
   .btn {
     padding: 13px 20px;
@@ -187,7 +215,6 @@
   }
   .bsn-footer {
     padding: 40px 0 24px;
-    margin-top: 60px;
   }
   .bsn-footer .top {
     grid-template-columns: 1fr;

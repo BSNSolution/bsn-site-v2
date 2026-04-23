@@ -9,8 +9,6 @@ import { homeExtrasApi, stackApi } from '@/lib/api'
 
 import HeroOrbitSection from './home/HeroOrbitSection'
 import KpisSection from './home/KpisSection'
-import LiveStripSection from './home/LiveStripSection'
-import ScrollHintSection from './home/ScrollHintSection'
 import VitralSection from './home/VitralSection'
 import TimelineSection from './home/TimelineSection'
 import ClientsSection from './home/ClientsSection'
@@ -20,8 +18,6 @@ import StackSection from './home/StackSection'
 import type {
   Service,
   KPI,
-  LiveCard,
-  BrandPill,
   HomeBand,
   HomeClient,
   StackItem,
@@ -32,13 +28,11 @@ import type {
 const HOME_SECTION_KEYS = [
   'hero-orbit',
   'kpis',
-  'live-strip',
-  'scroll-hint',
+  'stack',
   'vitral',
   'timeline',
   'clients',
   'band',
-  'stack',
 ] as const
 
 export default function HomePage() {
@@ -56,16 +50,6 @@ export default function HomePage() {
   const clientsQuery = useApiQuery<{ clients: HomeClient[] }>(['clients-home'], '/clients')
 
   // Queries com funções nomeadas (api client customizado) seguem com useQuery
-  const liveCardQuery = useQuery<{ card: LiveCard | null }>({
-    queryKey: ['home-live-card'],
-    queryFn: homeExtrasApi.getLiveCard,
-    staleTime: 5 * 60 * 1000,
-  })
-  const pillQuery = useQuery<{ pill: BrandPill | null }>({
-    queryKey: ['home-brand-pill'],
-    queryFn: homeExtrasApi.getBrandPill,
-    staleTime: 5 * 60 * 1000,
-  })
   const bandQuery = useQuery<{ band: HomeBand | null }>({
     queryKey: ['home-band'],
     queryFn: homeExtrasApi.getBand,
@@ -79,8 +63,6 @@ export default function HomePage() {
 
   const services = (servicesQuery.data?.services ?? []).slice(0, 7)
   const kpis = kpiQuery.data?.kpis ?? []
-  const live = liveCardQuery.data?.card
-  const pill = pillQuery.data?.pill
   const band = bandQuery.data?.band
   const stack = stackQuery.data?.items ?? []
   const steps = stepsQuery.data?.steps ?? []
@@ -93,8 +75,6 @@ export default function HomePage() {
   const sectionRenderers: Record<string, () => JSX.Element | null> = {
     'hero-orbit': () => <HeroOrbitSection services={services} />,
     kpis: () => <KpisSection kpis={kpis} />,
-    'live-strip': () => <LiveStripSection live={live} pill={pill} />,
-    'scroll-hint': () => <ScrollHintSection />,
     vitral: () => <VitralSection services={services} />,
     timeline: () => <TimelineSection steps={steps} />,
     clients: () => <ClientsSection clients={clients} />,

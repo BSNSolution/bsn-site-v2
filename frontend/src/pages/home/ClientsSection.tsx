@@ -53,8 +53,7 @@ export default function ClientsSection({ clients }: Props) {
         <div>
           <div className="mono" style={{ marginBottom: 12 }}>Prova social · {clients.length} clientes em produção</div>
           <h2 className="display" style={{ fontSize: 'clamp(28px, 4vw, 48px)' }}>
-            Empresas que escolhem a BSN<br />
-            <span className="dim">para crescer com tecnologia.</span>
+            Empresas que escolheram a <span className="dim">BSN Solution</span>
           </h2>
         </div>
       </div>

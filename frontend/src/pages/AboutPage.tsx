@@ -62,11 +62,9 @@ export default function AboutPage() {
         eyebrow="Sobre a BSN · quem somos"
         title={
           <>
-            Engenharia com foco
+            Engenharia com foco em
             <br />
-            em <em>problemas reais</em>
-            <br />
-            de negócio.
+            <em>problemas reais</em> de negócio.
           </>
         }
         lede="Há mais de uma década ajudamos empresas a transformar operação em vantagem competitiva. Software que é fácil de usar, difícil de ignorar e feito para durar tanto quanto seu negócio."

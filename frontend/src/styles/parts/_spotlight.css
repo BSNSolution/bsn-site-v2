@@ -156,10 +156,10 @@
 .mobile-sheet .glass > .bsn-spot { display: none !important; }
 
 /* conteúdo acima do spotlight — exclui .shard/.band-shard que precisam continuar absolute */
-.glass > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.glass > *:not(.bsn-spot):not(.shard):not(.band-shard):not(.svc-watermark),
 .tile > *:not(.bsn-spot):not(.shard):not(.band-shard),
 .node > *:not(.bsn-spot):not(.shard):not(.band-shard),
-.svc > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.svc > *:not(.bsn-spot):not(.shard):not(.band-shard):not(.svc-watermark),
 .sol > *:not(.bsn-spot):not(.shard):not(.band-shard),
 .feat-card > *:not(.bsn-spot):not(.shard):not(.band-shard),
 .post > *:not(.bsn-spot):not(.shard):not(.band-shard),
@@ -191,6 +191,12 @@
   transform: translateY(-4px);
   box-shadow: 0 22px 60px -24px rgba(0, 0, 0, 0.55);
   border-color: var(--line-strong);
+}
+/* .band-inner / .stack-inner são faixas full-width — sem lift vertical no hover */
+.band-inner.glass:hover,
+.stack-inner.glass:hover {
+  transform: none;
+  box-shadow: none;
 }
 /* .ai-stage é linha horizontal larga — sem lift vertical para não destacar demais */
 .ai-stage:hover {

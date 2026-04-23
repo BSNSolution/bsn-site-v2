@@ -54,9 +54,7 @@ export default function BlogPage() {
         eyebrow="Blog · engenharia aplicada"
         title={
           <>
-            Ideias, cases
-            <br />
-            e <em>aprendizados</em>.
+            Ideias, cases e <em>aprendizados</em>.
           </>
         }
         lede="Registros técnicos e estratégicos dos projetos e das discussões internas da BSN. Curto, direto e sem fluff."

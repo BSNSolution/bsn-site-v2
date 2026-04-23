@@ -4,6 +4,7 @@ import Footer from '@/components/layout/Footer'
 import PublicPageHero from '@/components/layout/PublicPageHero'
 import { usePageSections } from '@/hooks/use-page-sections'
 import { useApiQuery } from '@/hooks/use-api-query'
+import { renderServiceIcon } from '@/lib/service-icons'
 
 interface Feature {
   title: string
@@ -19,6 +20,7 @@ interface Service {
   slug?: string | null
   numLabel?: string | null
   shardColor?: string | null
+  iconName?: string | null
   ctaLabel?: string | null
   features?: Feature[] | null
   order: number
@@ -39,11 +41,9 @@ export default function ServicesPage() {
         eyebrow="Serviços · o que construímos"
         title={
           <>
-            Capacidades técnicas
+            Capacidades técnicas que viram
             <br />
-            que viram <em>resultado</em>
-            <br />
-            no seu balanço.
+            <em>resultado</em> no seu balanço.
           </>
         }
         lede="Sete frentes especializadas. Entregamos como peças avulsas ou montadas como um vitral — do diagnóstico à operação contínua."
@@ -63,8 +63,14 @@ export default function ServicesPage() {
           return (
             <article id={svc.anchor ?? undefined} key={svc.id} className={`svc glass ${shard}`}>
               <div className="shard" />
+              <div className={`svc-watermark ${shard}`} aria-hidden>
+                {renderServiceIcon(svc.iconName, 'svc-watermark-svg')}
+              </div>
               <div className="side">
-                <div className="num">{svc.numLabel}</div>
+                <div className="svc-head">
+                  <div className={`svc-ico ${shard}`}>{renderServiceIcon(svc.iconName, 'svc-ico-svg')}</div>
+                  <div className="num">{svc.numLabel}</div>
+                </div>
                 <h2>
                   {detailHref ? (
                     <Link to={detailHref} style={{ color: 'inherit', textDecoration: 'none' }}>

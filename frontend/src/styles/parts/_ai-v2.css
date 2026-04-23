@@ -106,18 +106,6 @@
   text-align: center;
   position: relative;
 }
-.ai-hero .ai-hero-spark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  margin-bottom: 20px;
-  background: radial-gradient(closest-side, rgba(167, 139, 250, 0.25), transparent 70%);
-  color: var(--violet);
-}
-.ai-hero .ai-hero-spark svg { width: 36px; height: 36px; }
 .ai-hero .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -160,6 +148,8 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  padding-right: 0.08em;
+  margin-right: -0.04em;
 }
 .ai-hero-lede {
   font-size: 16px;
@@ -204,6 +194,8 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  padding-right: 0.08em;
+  margin-right: -0.04em;
 }
 .ai-section-head .lede {
   margin-top: 14px;
@@ -446,8 +438,24 @@
   border: 1px dashed rgba(255, 255, 255, 0.12);
   border-radius: 50%;
 }
-.ai-orbit-ring.ring-outer { width: 280px; height: 280px; animation: ai-spin 40s linear infinite; }
-.ai-orbit-ring.ring-inner { width: 180px; height: 180px; animation: ai-spin 25s linear infinite reverse; }
+.ai-orbit-ring.ring-outer {
+  width: 280px;
+  height: 280px;
+  animation: ai-spin 40s linear infinite;
+  border-top-color: rgba(167, 139, 250, 0.5);
+  border-style: solid;
+  border-width: 1px;
+  border-right-color: rgba(255, 255, 255, 0.06);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+  border-left-color: rgba(255, 255, 255, 0.06);
+}
+.ai-orbit-ring.ring-inner {
+  width: 180px;
+  height: 180px;
+  animation: ai-spin 25s linear infinite reverse;
+  border-color: rgba(255, 255, 255, 0.10);
+  border-right-color: rgba(236, 72, 153, 0.45);
+}
 @keyframes ai-spin {
   to { transform: translate(-50%, -50%) rotate(360deg); }
 }
@@ -464,8 +472,29 @@
   justify-content: center;
   background: radial-gradient(circle at 30% 30%, var(--magenta), var(--violet));
   box-shadow: 0 0 60px rgba(236, 72, 153, 0.55), 0 0 120px rgba(167, 139, 250, 0.35);
+  animation: ai-core-pulse 3.5s ease-in-out infinite;
 }
-.ai-orbit-core svg { width: 32px; height: 32px; color: #fff; }
+.ai-orbit-core svg {
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+  animation: ai-core-wobble 5s ease-in-out infinite;
+}
+@keyframes ai-core-pulse {
+  0%, 100% {
+    box-shadow: 0 0 60px rgba(236, 72, 153, 0.55), 0 0 120px rgba(167, 139, 250, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 90px rgba(236, 72, 153, 0.75), 0 0 180px rgba(167, 139, 250, 0.5);
+  }
+}
+@keyframes ai-core-wobble {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.08) rotate(4deg); }
+}
 .ai-orbit-node {
   position: absolute;
   width: 52px;
@@ -478,13 +507,129 @@
   border: 1px solid var(--line);
   color: var(--ink-dim);
   backdrop-filter: blur(8px);
-  transition: transform 0.3s, border-color 0.3s, color 0.3s;
+  transition: border-color 0.3s, color 0.3s, box-shadow 0.3s;
 }
-.ai-orbit-node svg { width: 20px; height: 20px; }
+.ai-orbit-node svg {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  z-index: 1;
+  animation: ai-node-icon-glow 16s linear infinite;
+}
+@keyframes ai-node-icon-glow {
+  0%, 7%, 16%, 100% { filter: none; }
+  8%, 13% {
+    filter:
+      drop-shadow(0 0 6px rgba(255, 255, 255, 0.9))
+      drop-shadow(0 0 14px rgba(167, 139, 250, 0.8));
+  }
+}
+.ai-orbit-node::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.55), rgba(236, 72, 153, 0.2) 40%, transparent 75%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+  animation: ai-node-flash-bg 8s ease-in-out infinite;
+  filter: blur(2px);
+}
 .ai-orbit-node:hover {
-  transform: scale(1.08);
   border-color: var(--violet);
   color: var(--ink);
+  box-shadow: 0 0 24px rgba(167, 139, 250, 0.35);
+}
+.ai-orbit-node:hover::before { opacity: 1; }
+
+/* Node acende SÓ quando o pulso chega ao final da linha (aos ~8% do ciclo de 16s).
+   Fica aceso por ~5% (0.8s), depois apaga. */
+@keyframes ai-node-flash {
+  0%, 7% {
+    border-color: var(--line);
+    color: var(--ink-dim);
+    box-shadow: none;
+  }
+  8% {
+    border-color: #fff;
+    color: #fff;
+    box-shadow:
+      0 0 0 2px rgba(167, 139, 250, 0.6),
+      0 0 32px rgba(167, 139, 250, 0.95),
+      0 0 70px rgba(236, 72, 153, 0.6);
+  }
+  12% {
+    border-color: var(--violet);
+    color: #fff;
+    box-shadow:
+      0 0 0 1px rgba(167, 139, 250, 0.35),
+      0 0 48px rgba(167, 139, 250, 0.85),
+      0 0 90px rgba(167, 139, 250, 0.5);
+  }
+  16%, 100% {
+    border-color: var(--line);
+    color: var(--ink-dim);
+    box-shadow: none;
+  }
+}
+@keyframes ai-node-flash-bg {
+  0%, 7%, 16%, 100% { opacity: 0; }
+  8%, 13% { opacity: 1; }
+}
+
+/* Float + flash sincronizado com pulso viajante.
+   Ciclo total = 16s, distribuído em 8 turnos de 2s (pulso viaja ~1.3s + node aceso ~0.7s).
+   Ordem caótica (não alterna lado, pula alturas aleatoriamente). */
+.ai-orbit-node {
+  animation:
+    ai-node-float 6s ease-in-out infinite,
+    ai-node-flash 16s linear infinite;
+}
+
+/* Ordem de turnos (caótica): n-right-2 → n-left-3 → n-right-4 → n-left-1 → n-right-1 → n-left-4 → n-right-3 → n-left-2 */
+.ai-orbit-node.n-right-2 { animation-delay: -1.8s, 0s;    animation-duration: 7.2s, 16s; }
+.ai-orbit-node.n-left-3  { animation-delay: -2.4s, -2s;   animation-duration: 6.5s, 16s; }
+.ai-orbit-node.n-right-4 { animation-delay: -4.2s, -4s;   animation-duration: 7.8s, 16s; }
+.ai-orbit-node.n-left-1  { animation-delay: 0s,    -6s;   animation-duration: 6s,   16s; }
+.ai-orbit-node.n-right-1 { animation-delay: -0.6s, -8s;   animation-duration: 6.2s, 16s; }
+.ai-orbit-node.n-left-4  { animation-delay: -3.6s, -10s;  animation-duration: 7.5s, 16s; }
+.ai-orbit-node.n-right-3 { animation-delay: -3s,   -12s;  animation-duration: 6.8s, 16s; }
+.ai-orbit-node.n-left-2  { animation-delay: -1.2s, -14s;  animation-duration: 7s,   16s; }
+
+/* Glow interno (::before) — sincronizado com o flash do node (mesmos delays) */
+.ai-orbit-node.n-right-2::before { animation: ai-node-flash-bg 16s linear infinite; animation-delay: 0s; }
+.ai-orbit-node.n-left-3::before  { animation: ai-node-flash-bg 16s linear infinite; animation-delay: -2s; }
+.ai-orbit-node.n-right-4::before { animation: ai-node-flash-bg 16s linear infinite; animation-delay: -4s; }
+.ai-orbit-node.n-left-1::before  { animation: ai-node-flash-bg 16s linear infinite; animation-delay: -6s; }
+.ai-orbit-node.n-right-1::before { animation: ai-node-flash-bg 16s linear infinite; animation-delay: -8s; }
+.ai-orbit-node.n-left-4::before  { animation: ai-node-flash-bg 16s linear infinite; animation-delay: -10s; }
+.ai-orbit-node.n-right-3::before { animation: ai-node-flash-bg 16s linear infinite; animation-delay: -12s; }
+.ai-orbit-node.n-left-2::before  { animation: ai-node-flash-bg 16s linear infinite; animation-delay: -14s; }
+
+/* Glow do ícone svg — mesmo delay do node */
+.ai-orbit-node.n-right-2 svg { animation-delay: 0s; }
+.ai-orbit-node.n-left-3 svg  { animation-delay: -2s; }
+.ai-orbit-node.n-right-4 svg { animation-delay: -4s; }
+.ai-orbit-node.n-left-1 svg  { animation-delay: -6s; }
+.ai-orbit-node.n-right-1 svg { animation-delay: -8s; }
+.ai-orbit-node.n-left-4 svg  { animation-delay: -10s; }
+.ai-orbit-node.n-right-3 svg { animation-delay: -12s; }
+.ai-orbit-node.n-left-2 svg  { animation-delay: -14s; }
+
+/* Pulso viajante — cada path acende/viaja no mesmo turno do seu node */
+.ai-orbit-lines-pulse path.line-n-right-2 { animation-delay: 0s; }
+.ai-orbit-lines-pulse path.line-n-left-3  { animation-delay: -2s; }
+.ai-orbit-lines-pulse path.line-n-right-4 { animation-delay: -4s; }
+.ai-orbit-lines-pulse path.line-n-left-1  { animation-delay: -6s; }
+.ai-orbit-lines-pulse path.line-n-right-1 { animation-delay: -8s; }
+.ai-orbit-lines-pulse path.line-n-left-4  { animation-delay: -10s; }
+.ai-orbit-lines-pulse path.line-n-right-3 { animation-delay: -12s; }
+.ai-orbit-lines-pulse path.line-n-left-2  { animation-delay: -14s; }
+
+@keyframes ai-node-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 /* Conexões visuais sutis — linhas tracejadas dos nodes ao core */
 .ai-orbit::before {
@@ -495,26 +640,57 @@
     radial-gradient(circle at 50% 50%, transparent 90px, rgba(255, 255, 255, 0.03) 91px, transparent 92px);
   pointer-events: none;
 }
+
+/* SVG com linhas bezier ligando nodes ao core */
+.ai-orbit-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Linha base — sempre visível como tracejado discreto fluindo suavemente */
+.ai-orbit-lines > g:first-child path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1;
+  stroke-dasharray: 4 6;
+  stroke-linecap: round;
+  animation: ai-line-flow 4s linear infinite;
+}
+@keyframes ai-line-flow {
+  to { stroke-dashoffset: -40; }
+}
+/* Pulso viajante — um traço luminoso sobreposto percorrendo a linha */
+.ai-orbit-lines-pulse path {
+  fill: none;
+  stroke: rgba(167, 139, 250, 0.95);
+  stroke-width: 2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.8));
+  stroke-dasharray: 60 9999;
+  stroke-dashoffset: 60;
+  animation: ai-pulse-travel 16s linear infinite;
+  opacity: 0;
+}
+/* Pulso viaja em 1.5s, depois some; ciclo total 16s (1 pulso por node) */
+@keyframes ai-pulse-travel {
+  0%           { stroke-dashoffset: 60;  opacity: 0; }
+  0.5%         { opacity: 1; }
+  8%           { stroke-dashoffset: -900; opacity: 1; }
+  9%, 100%     { stroke-dashoffset: -900; opacity: 0; }
+}
 /* Lado esquerdo — fontes de dados */
 .ai-orbit-node.n-left-1 { top: 15%; left: 5%; }
 .ai-orbit-node.n-left-2 { top: 40%; left: 0%; }
 .ai-orbit-node.n-left-3 { top: 65%; left: 5%; }
 .ai-orbit-node.n-left-4 { top: 85%; left: 18%; }
-.ai-orbit-node.n-left-5 { top: 25%; left: 20%; }
 /* Lado direito — saídas */
 .ai-orbit-node.n-right-1 { top: 15%; right: 5%; }
 .ai-orbit-node.n-right-2 { top: 40%; right: 0%; }
 .ai-orbit-node.n-right-3 { top: 65%; right: 5%; }
 .ai-orbit-node.n-right-4 { top: 85%; right: 18%; }
-/* Próximos ao core */
-.ai-orbit-node.n-top { top: 18%; left: 50%; transform: translateX(-50%); width: 46px; height: 46px; }
-.ai-orbit-node.n-top svg { width: 18px; height: 18px; }
-.ai-orbit-node.n-bottom { bottom: 8%; left: 50%; transform: translateX(-50%); width: 46px; height: 46px; }
-.ai-orbit-node.n-bottom svg { width: 18px; height: 18px; }
-.ai-orbit-node.n-near-left { top: 50%; left: 30%; transform: translateY(-50%); width: 40px; height: 40px; }
-.ai-orbit-node.n-near-left svg { width: 16px; height: 16px; }
-.ai-orbit-node.n-near-right { top: 50%; right: 30%; transform: translateY(-50%); width: 40px; height: 40px; }
-.ai-orbit-node.n-near-right svg { width: 16px; height: 16px; }
 
 /* ─── CTA band (faixa colorida) ─── */
 .ai-cta-band {
@@ -602,6 +778,13 @@
   [data-reveal] { opacity: 1 !important; transform: none !important; filter: none !important; }
   .bsn-grain { display: none; }
   .bsn-spot { display: none !important; }
-  .ai-orbit-ring { animation: none !important; }
+  .ai-orbit-ring,
+  .ai-orbit-core,
+  .ai-orbit-core svg,
+  .ai-orbit-node,
+  .ai-orbit-node::before,
+  .ai-orbit-lines > g path,
+  .ai-orbit-lines-pulse path { animation: none !important; }
+  .ai-orbit-lines-pulse { display: none; }
 }
 

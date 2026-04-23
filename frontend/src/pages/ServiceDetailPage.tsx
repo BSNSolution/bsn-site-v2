@@ -1,24 +1,9 @@
 import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import {
-  Brain,
-  Database,
-  Scissors,
-  Shield,
-  Sparkles,
-  TrendingUp,
-  Zap,
-  Cpu,
-  LineChart,
-  Bot,
-  Workflow,
-  FileSearch,
-  Gauge,
-  Clock,
-} from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { servicesApi } from '@/lib/api'
+import { renderServiceIcon } from '@/lib/service-icons'
 
 interface ServiceDetailBlock {
   id: string
@@ -47,28 +32,6 @@ interface ServiceDetail {
   ctaButtonLabel?: string | null
   ctaButtonUrl?: string | null
   detailBlocks: ServiceDetailBlock[]
-}
-
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  'trending-up': TrendingUp,
-  scissors: Scissors,
-  zap: Zap,
-  brain: Brain,
-  database: Database,
-  shield: Shield,
-  sparkles: Sparkles,
-  cpu: Cpu,
-  'line-chart': LineChart,
-  bot: Bot,
-  workflow: Workflow,
-  'file-search': FileSearch,
-  gauge: Gauge,
-  clock: Clock,
-}
-
-function renderIcon(name?: string | null, fallback: React.ComponentType<{ className?: string }> = Sparkles) {
-  const Icon = (name && ICONS[name]) || fallback
-  return <Icon className="svc-detail-ico-svg" />
 }
 
 export default function ServiceDetailPage() {
@@ -122,6 +85,21 @@ export default function ServiceDetailPage() {
           {/* ─── Hero centralizado ─── */}
           <section className={`svc-detail-hero shell ${shard}`} data-reveal>
             <div className="svc-detail-hero-shard" aria-hidden />
+
+            {/* Hero icon grande animado */}
+            <div className="svc-detail-hero-icon" aria-hidden>
+              <span className="svc-detail-hero-icon-ring svc-detail-hero-icon-ring-1" />
+              <span className="svc-detail-hero-icon-ring svc-detail-hero-icon-ring-2" />
+              <span className="svc-detail-hero-icon-ring svc-detail-hero-icon-ring-3" />
+              <span className="svc-detail-hero-icon-orb svc-detail-hero-icon-orb-1" />
+              <span className="svc-detail-hero-icon-orb svc-detail-hero-icon-orb-2" />
+              <span className="svc-detail-hero-icon-orb svc-detail-hero-icon-orb-3" />
+              <span className="svc-detail-hero-icon-glow" />
+              <span className="svc-detail-hero-icon-core">
+                {renderServiceIcon(svc.iconName)}
+              </span>
+            </div>
+
             <div className="eyebrow mono">
               <span className="dot" />
               <span>{svc.heroEyebrow ?? `Serviço · ${svc.subtitle ?? svc.title}`}</span>
@@ -143,7 +121,7 @@ export default function ServiceDetailPage() {
                   return (
                     <article key={block.id} className={`svc-detail-block glass ${color}`}>
                       <div className="shard" />
-                      <div className="svc-detail-block-ico">{renderIcon(block.iconName)}</div>
+                      <div className="svc-detail-block-ico">{renderServiceIcon(block.iconName)}</div>
                       <h3>{block.title}</h3>
                       <p>{block.description}</p>
                     </article>
@@ -152,6 +130,13 @@ export default function ServiceDetailPage() {
               </div>
             </section>
           )}
+
+          {/* ─── Navegação: voltar pra lista ─── */}
+          <section className="shell" style={{ padding: '40px 32px 40px' }}>
+            <Link to="/servicos" className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+              <span>←</span> Todos os serviços
+            </Link>
+          </section>
 
           {/* ─── CTA band final ─── */}
           {(svc.ctaTitle || svc.ctaText || svc.ctaButtonLabel) && (
@@ -167,13 +152,6 @@ export default function ServiceDetailPage() {
               </div>
             </section>
           )}
-
-          {/* ─── Navegação: voltar pra lista ─── */}
-          <section className="shell" style={{ padding: '40px 32px 80px' }}>
-            <Link to="/servicos" className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-              <span>←</span> Todos os serviços
-            </Link>
-          </section>
         </>
       )}
 

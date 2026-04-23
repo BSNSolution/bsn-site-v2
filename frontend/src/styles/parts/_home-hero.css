@@ -67,6 +67,8 @@
   color: transparent;
   font-style: italic;
   font-weight: 400;
+  padding-right: 0.08em;
+  margin-right: -0.04em;
 }
 
 @keyframes riseIn {

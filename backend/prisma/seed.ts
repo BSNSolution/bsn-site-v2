@@ -264,7 +264,7 @@ async function main() {
       subtitle: 'multidisciplinares',
       description:
         'Times plug-and-play com devs, QAs, POs, designers e DevOps — montados no tamanho certo para o seu desafio e integrados em até 5 dias úteis.',
-      iconName: 'squad',
+      iconName: 'users',
       anchor: 'squads',
       slug: 'squads',
       numLabel: 'SVC · 02',
@@ -322,7 +322,7 @@ async function main() {
       subtitle: 'de processos',
       description:
         'Mapeamos fluxos manuais, orquestramos integrações e entregamos horas de volta à sua equipe. Ideal para operações com alto custo de repetição.',
-      iconName: 'auto',
+      iconName: 'workflow',
       anchor: 'automacao',
       slug: 'automacao',
       numLabel: 'SVC · 03',
@@ -380,7 +380,7 @@ async function main() {
       subtitle: 'em tecnologia',
       description:
         'Diagnóstico preciso que alinha processos, infraestrutura e inovação. Ajudamos sua liderança a tomar decisões técnicas mais inteligentes — e mais baratas.',
-      iconName: 'box',
+      iconName: 'compass',
       anchor: 'consultoria',
       slug: 'consultoria',
       numLabel: 'SVC · 04',
@@ -496,7 +496,7 @@ async function main() {
       subtitle: 'evolução contínua',
       description:
         'Planos que acompanham seu crescimento. Adicione funcionalidades, corrija rotas ou faça upgrades técnicos a qualquer momento — sem reiniciar o relacionamento.',
-      iconName: 'support',
+      iconName: 'life-buoy',
       anchor: 'suporte',
       slug: 'suporte',
       numLabel: 'SVC · 06',
@@ -554,7 +554,7 @@ async function main() {
       subtitle: 'estratégico de TI',
       description:
         'Mantenha o foco no core do seu negócio. Nossos especialistas assumem demandas específicas — com previsibilidade de custo, prazo e qualidade superior à contratação interna.',
-      iconName: 'build',
+      iconName: 'handshake',
       anchor: 'outsourcing',
       slug: 'outsourcing',
       numLabel: 'SVC · 07',
@@ -786,7 +786,7 @@ async function main() {
       subtitle: 'de serviço',
       description:
         'Mapeamos a jornada completa — do primeiro contato ao pós-venda — e redesenhamos touchpoints, processos e papéis. Menos atrito, mais experiência memorável.',
-      iconName: 'sparkles',
+      iconName: 'palette',
       anchor: 'design-servico',
       slug: 'design-servico',
       numLabel: 'SVC · 11',
@@ -1466,13 +1466,11 @@ async function main() {
     // Home
     { page: 'home', sectionKey: 'hero-orbit', label: 'Hero + Orbit de Serviços', order: 0 },
     { page: 'home', sectionKey: 'kpis', label: 'KPIs Strip', order: 1 },
-    { page: 'home', sectionKey: 'live-strip', label: 'Live Card + Brand Pill', order: 2 },
-    { page: 'home', sectionKey: 'scroll-hint', label: 'Scroll Hint + Section Star', order: 3 },
-    { page: 'home', sectionKey: 'vitral', label: 'Vitral de Serviços', order: 4 },
-    { page: 'home', sectionKey: 'timeline', label: 'Timeline do Processo', order: 5 },
-    { page: 'home', sectionKey: 'clients', label: 'Clientes (Marquee)', order: 6 },
-    { page: 'home', sectionKey: 'band', label: 'Band (Filosofia + CTA)', order: 7 },
-    { page: 'home', sectionKey: 'stack', label: 'Stack Marquee', order: 8 },
+    { page: 'home', sectionKey: 'stack', label: 'Stack Marquee', order: 2 },
+    { page: 'home', sectionKey: 'vitral', label: 'Vitral de Serviços', order: 3 },
+    { page: 'home', sectionKey: 'timeline', label: 'Timeline do Processo', order: 4 },
+    { page: 'home', sectionKey: 'clients', label: 'Clientes (Marquee)', order: 5 },
+    { page: 'home', sectionKey: 'band', label: 'Band (Filosofia + CTA)', order: 6 },
     // Services
     { page: 'services', sectionKey: 'hero', label: 'Hero', order: 0 },
     { page: 'services', sectionKey: 'grid', label: 'Grid de Serviços', order: 1 },
@@ -1499,8 +1497,8 @@ async function main() {
     { page: 'ai', sectionKey: 'hero', label: 'Hero', order: 0 },
     { page: 'ai', sectionKey: 'benefits', label: 'Benefícios (strip)', order: 1 },
     { page: 'ai', sectionKey: 'cases', label: 'Cases com IA', order: 2 },
-    { page: 'ai', sectionKey: 'stages', label: 'Etapas / Escopo', order: 3 },
-    { page: 'ai', sectionKey: 'data', label: 'Dados Orbital', order: 4 },
+    { page: 'ai', sectionKey: 'data', label: 'Dados Orbital', order: 3 },
+    { page: 'ai', sectionKey: 'stages', label: 'Etapas / Escopo', order: 4 },
     { page: 'ai', sectionKey: 'cta-band', label: 'CTA Band final', order: 5 },
   ]
 

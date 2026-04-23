@@ -34,11 +34,9 @@ export default function SolutionsPage() {
         eyebrow="Soluções · produtos reais no ar"
         title={
           <>
-            Plataformas que
+            Plataformas que <em>impactam</em>
             <br />
-            <em>impactam negócios</em>
-            <br />
-            de verdade.
+            negócios de verdade.
           </>
         }
         lede="Não vendemos promessas, mostramos projetos ao vivo. Cada produto aqui roda em produção com clientes reais — e pode ser adaptado ao seu setor em semanas, não meses."

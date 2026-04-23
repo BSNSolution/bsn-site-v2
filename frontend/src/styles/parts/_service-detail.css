@@ -6,21 +6,22 @@
 
 /* ─── Hero ─── */
 .svc-detail-hero {
-  padding-top: 80px;
-  padding-bottom: 40px;
+  padding-top: 48px;
+  padding-bottom: 20px;
   text-align: center;
   position: relative;
+  overflow: hidden;
 }
 .svc-detail-hero-shard {
   position: absolute;
-  top: -40px;
+  top: 40px;
   left: 50%;
-  transform: translateX(-50%);
-  width: 520px;
-  height: 320px;
+  transform: translate(-50%, 0);
+  width: 420px;
+  height: 240px;
   border-radius: 50%;
-  filter: blur(110px);
-  opacity: 0.35;
+  filter: blur(100px);
+  opacity: 0.3;
   pointer-events: none;
   z-index: 0;
 }
@@ -29,7 +30,149 @@
 .svc-detail-hero.m .svc-detail-hero-shard { background: var(--magenta); }
 .svc-detail-hero.a .svc-detail-hero-shard { background: var(--amber); }
 .svc-detail-hero.e .svc-detail-hero-shard { background: var(--emerald); }
-.svc-detail-hero > * { position: relative; z-index: 1; }
+.svc-detail-hero > *:not(.svc-detail-hero-shard) { position: relative; z-index: 1; }
+
+/* ─── Hero icon animado (grande, com rings + orbs + glow + core flutuante) ─── */
+.svc-detail-hero-icon {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.svc-detail-hero-icon-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+.svc-detail-hero-icon-ring-1 {
+  inset: 0;
+  border-color: rgba(255, 255, 255, 0.10);
+  animation: svcHeroRingSpin 22s linear infinite;
+  border-top-color: currentColor;
+}
+.svc-detail-hero-icon-ring-2 {
+  inset: 22px;
+  border-color: rgba(255, 255, 255, 0.07);
+  border-style: dashed;
+  animation: svcHeroRingSpin 30s linear infinite reverse;
+}
+.svc-detail-hero-icon-ring-3 {
+  inset: 44px;
+  border-color: rgba(255, 255, 255, 0.14);
+  animation: svcHeroRingSpin 16s linear infinite;
+  border-right-color: currentColor;
+}
+.svc-detail-hero-icon-orb {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  margin: -5px 0 0 -5px;
+  background: currentColor;
+  box-shadow: 0 0 16px currentColor;
+  animation: svcHeroOrbit 12s linear infinite;
+}
+.svc-detail-hero-icon-orb-1 {
+  --r: 110px;
+  animation-duration: 10s;
+}
+.svc-detail-hero-icon-orb-2 {
+  --r: 88px;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  animation-duration: 14s;
+  animation-direction: reverse;
+  animation-delay: -3s;
+  opacity: 0.8;
+}
+.svc-detail-hero-icon-orb-3 {
+  --r: 66px;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  animation-duration: 8s;
+  animation-delay: -1.5s;
+  opacity: 0.7;
+}
+.svc-detail-hero-icon-glow {
+  position: absolute;
+  inset: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, currentColor 0%, transparent 70%);
+  opacity: 0.35;
+  filter: blur(28px);
+  animation: svcHeroPulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+.svc-detail-hero-icon-core {
+  position: relative;
+  z-index: 2;
+  width: 92px;
+  height: 92px;
+  border-radius: 24px;
+  background: rgba(10, 10, 12, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: svcHeroFloat 6s ease-in-out infinite;
+}
+.svc-detail-hero-icon-core .svc-detail-ico-svg {
+  width: 40px;
+  height: 40px;
+  color: currentColor;
+  filter: drop-shadow(0 0 12px currentColor);
+}
+
+/* cor do hero icon herda do modifier do hero */
+.svc-detail-hero.v .svc-detail-hero-icon,
+.ai-hero.v .svc-detail-hero-icon { color: var(--violet); }
+.svc-detail-hero.c .svc-detail-hero-icon,
+.ai-hero.c .svc-detail-hero-icon { color: var(--cyan); }
+.svc-detail-hero.m .svc-detail-hero-icon,
+.ai-hero.m .svc-detail-hero-icon { color: var(--magenta); }
+.svc-detail-hero.a .svc-detail-hero-icon,
+.ai-hero.a .svc-detail-hero-icon { color: var(--amber); }
+.svc-detail-hero.e .svc-detail-hero-icon,
+.ai-hero.e .svc-detail-hero-icon { color: var(--emerald); }
+
+@keyframes svcHeroRingSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes svcHeroOrbit {
+  from { transform: rotate(0deg) translateX(var(--r, 90px)) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(var(--r, 90px)) rotate(-360deg); }
+}
+@keyframes svcHeroPulse {
+  0%, 100% { opacity: 0.28; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.08); }
+}
+@keyframes svcHeroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .svc-detail-hero-icon-ring,
+  .svc-detail-hero-icon-orb,
+  .svc-detail-hero-icon-glow,
+  .svc-detail-hero-icon-core {
+    animation: none !important;
+  }
+}
+
 .svc-detail-hero .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -72,6 +215,8 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  padding-right: 0.08em;
+  margin-right: -0.04em;
 }
 .svc-detail-hero-lede {
   font-size: 17px;
@@ -229,7 +374,8 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 12px;
+  margin-top: auto;
+  padding-top: 12px;
 }
 .svc-cta-ghost {
   background: transparent !important;
@@ -251,7 +397,15 @@
 }
 @media (max-width: 640px) {
   .svc-detail-hero { padding-top: 60px; padding-bottom: 30px; }
-  .svc-detail-hero-shard { width: 360px; height: 220px; }
+  .svc-detail-hero-shard { width: 320px; height: 200px; top: 20px; }
+  .svc-detail-hero-icon { width: 160px; height: 160px; margin-bottom: 26px; }
+  .svc-detail-hero-icon-ring-2 { inset: 18px; }
+  .svc-detail-hero-icon-ring-3 { inset: 34px; }
+  .svc-detail-hero-icon-orb-1 { --r: 80px; }
+  .svc-detail-hero-icon-orb-2 { --r: 64px; }
+  .svc-detail-hero-icon-orb-3 { --r: 48px; }
+  .svc-detail-hero-icon-core { width: 72px; height: 72px; border-radius: 20px; }
+  .svc-detail-hero-icon-core .svc-detail-ico-svg { width: 32px; height: 32px; }
   .svc-detail-cta-band { padding: 56px 0; }
   .svc-detail-block { padding: 26px; }
   .svc-cta-row { flex-direction: column; align-items: stretch; }
