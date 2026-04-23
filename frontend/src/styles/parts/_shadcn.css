@@ -1,0 +1,64 @@
+/* shadcn overrides — usar tokens do site ao invés de HSL defaults */
+.admin-shell .bg-card {
+  background: rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(20px) saturate(160%);
+}
+.admin-shell .bg-background {
+  background: transparent !important;
+}
+.admin-shell .bg-muted {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+.admin-shell .border-border {
+  border-color: var(--line) !important;
+}
+
+/* ============================================================
+   shadcn/ui compatibility layer (admin panel mostly)
+   ============================================================ */
+/* Sem @apply border-border global — estava pintando rings azuis no site */
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-header {
+    @apply bg-black/30 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(122, 91, 255, 0.3);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(122, 91, 255, 0.5);
+}
+
+::selection {
+  background: rgba(122, 91, 255, 0.3);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

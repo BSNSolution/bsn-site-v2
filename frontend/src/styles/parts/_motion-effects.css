@@ -1,0 +1,151 @@
+/* Botões: shimmer + magnetismo */
+.btn { position: relative; overflow: hidden; }
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.16) 50%, transparent 80%);
+  transform: translateX(-110%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+.btn:hover::after { transform: translateX(110%); }
+.btn-primary {
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease, filter 0.3s ease;
+}
+.btn-primary:hover {
+  box-shadow: 0 14px 40px -14px rgba(122, 91, 255, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+  filter: brightness(1.06);
+}
+
+/* Link underline animado */
+a.link-under { position: relative; }
+a.link-under::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+a.link-under:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* Dot pulse */
+.mono .dot, .eyebrow .dot, .pulse .bullet, .eyebrow.mono .dot {
+  animation: bsnDotPulse 2.4s ease-in-out infinite;
+}
+@keyframes bsnDotPulse {
+  0%, 100% { box-shadow: 0 0 10px currentColor; opacity: 0.9; }
+  50% { box-shadow: 0 0 20px currentColor; opacity: 1; }
+}
+
+/* Ícones que se movem no hover do card */
+.tile:hover .tile-icon,
+.node:hover .ico { transform: rotate(-4deg) scale(1.08); }
+.tile-icon, .node .ico { transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* H-accent — underline gradient animado em títulos */
+.h-accent { position: relative; }
+.h-accent::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: min(360px, 60%);
+  bottom: -0.22em;
+  height: 2px;
+  background: linear-gradient(90deg, var(--violet), var(--cyan), var(--magenta));
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s;
+  border-radius: 2px;
+  box-shadow: 0 0 12px rgba(122, 91, 255, 0.35);
+}
+.h-accent.is-in::after { transform: scaleX(1); }
+.section-head h2 { position: relative; }
+.section-head h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: min(360px, 52%);
+  bottom: -0.22em;
+  height: 2px;
+  background: linear-gradient(90deg, var(--violet), var(--cyan), var(--magenta));
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s;
+  border-radius: 2px;
+  box-shadow: 0 0 12px rgba(122, 91, 255, 0.35);
+}
+.section-head h2.is-in::after,
+.section-head.is-in h2::after,
+[data-reveal].is-in.section-head h2::after { transform: scaleX(1); }
+
+/* Shimmer nos gradientes de texto */
+.hero h1 em,
+.hero h1 .prism,
+.orbit-center h1 em,
+.hero-s h1 em,
+h1 em, h2 em,
+.prism {
+  background-size: 200% 200%;
+  animation: bsnShimmer 12s ease-in-out infinite;
+}
+@keyframes bsnShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Grain overlay sutil */
+.bsn-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
+}
+
+/* Marquee pausa no hover */
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+/* Footer links deslizam lateralmente no hover */
+body .bsn-footer .link-col a,
+body .bsn-footer .link-col ul a,
+body .bsn-footer a {
+  transition: color 0.3s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  display: inline-block;
+  position: relative;
+  will-change: transform;
+}
+body .bsn-footer .link-col a:hover,
+body .bsn-footer .link-col ul a:hover {
+  color: var(--ink);
+  transform: translateX(6px) !important;
+}
+
+/* Chip / pill sheen no hover */
+@keyframes bsnChipSheen {
+  0% { background-position: -120% 0; }
+  100% { background-position: 220% 0; }
+}
+.pill, .chip, .sol-tech-pill {
+  position: relative;
+  overflow: hidden;
+}
+.pill::after, .chip::after, .sol-tech-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.18) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: bsnChipSheen 6s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.pill:hover::after, .chip:hover::after, .sol-tech-pill:hover::after { opacity: 1; }

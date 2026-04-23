@@ -1,0 +1,53 @@
+/* responsive overrides for public pages */
+@media (max-width: 980px) {
+  .home-hero .wrap { grid-template-columns: 1fr; }
+  .hero-meta { grid-template-columns: repeat(2, 1fr); }
+  .mosaic { grid-auto-rows: auto; }
+  .mosaic .tile { grid-column: span 12 !important; grid-row: span 1 !important; min-height: 220px; }
+}
+
+@media (max-width: 900px) {
+  .svc-grid { grid-template-columns: 1fr; }
+  .svc { padding: 24px; }
+  .svc .feats { grid-template-columns: 1fr; }
+  .sol-grid { grid-template-columns: 1fr; }
+  .about-grid, .values-grid, .team-grid { grid-template-columns: 1fr; }
+  .feat-card { grid-template-columns: 1fr; padding: 28px; }
+  .posts { grid-template-columns: 1fr; }
+  .contact-wrap { grid-template-columns: 1fr; }
+  .perks { grid-template-columns: 1fr 1fr; }
+  .job { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .vitral { padding-top: 64px; padding-bottom: 32px; }
+  .band-inner { padding: 32px 24px; }
+  .home-hero { padding-top: 40px; padding-bottom: 40px; }
+  .home-hero .left { padding: 24px 0 0; }
+  .hero-meta > div { padding: 18px 20px; }
+  .svc { padding: 22px; gap: 24px; }
+  .svc h2 { font-size: 26px; }
+  .svc-grid { padding-top: 32px; padding-bottom: 32px; gap: 12px; }
+  .sol-grid { padding-top: 32px; padding-bottom: 32px; gap: 12px; }
+  .sol { padding: 24px; min-height: 0; }
+  .sol .sol-cover { margin: -24px -24px 20px; height: 130px; border-radius: 18px 18px 0 0; }
+  .about-grid { padding-top: 32px; padding-bottom: 32px; }
+  .about-grid .card { padding: 24px; min-height: 0; }
+  .values, .team { padding-top: 48px; padding-bottom: 48px; }
+  .val, .person { padding: 22px; min-height: 0; }
+  .val .vn { font-size: 36px; }
+  .feat-card { padding: 24px; gap: 24px; }
+  .post { padding: 22px; }
+  .posts { gap: 12px; }
+  .contact-wrap { padding-top: 40px; padding-bottom: 60px; }
+  .channels, .form-card { padding: 24px; }
+  .channels h2 { font-size: 28px; }
+  .chan { padding: 16px 18px; }
+  .perks { grid-template-columns: 1fr !important; gap: 12px; }
+  .perk { padding: 22px; }
+  .job { padding: 22px; gap: 14px; }
+  .legal { padding-top: 48px; padding-bottom: 48px; }
+  .doc { padding: 28px 22px; }
+  .doc h2 { font-size: 22px; }
+}
+

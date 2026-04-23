@@ -771,4 +771,42 @@ export const aiApi = {
   },
 }
 
+// ============================================================
+// Page Sections — controla ordem/visibilidade das seções
+// de cada página pública (home, services, ..., ai)
+// ============================================================
+
+export interface PageSection {
+  id: string
+  page: string
+  sectionKey: string
+  label: string
+  order: number
+  isVisible: boolean
+}
+
+export const pageSectionsApi = {
+  // público
+  getSections: async (page: string): Promise<{ sections: PageSection[] }> =>
+    (await api.get(`/pages/${page}/sections`)).data,
+
+  // admin
+  getSectionsAdmin: async (page: string): Promise<{ sections: PageSection[] }> =>
+    (await api.get(`/admin/pages/${page}/sections`)).data,
+
+  updateSection: async (
+    page: string,
+    id: string,
+    data: Partial<Pick<PageSection, 'isVisible' | 'label' | 'order'>>
+  ): Promise<PageSection> =>
+    (await api.put(`/admin/pages/${page}/sections/${id}`, data)).data,
+
+  reorder: async (
+    page: string,
+    ids: string[]
+  ): Promise<{ sections: PageSection[] }> =>
+    (await api.put(`/admin/pages/${page}/sections/reorder`, { ids })).data,
+}
+
+
 export default api

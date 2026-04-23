@@ -1,0 +1,108 @@
+/* Services page — grid 2 colunas compacto (v3) */
+.svc-grid {
+  padding-top: 48px;
+  padding-bottom: 48px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+.svc {
+  padding: 26px 28px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  position: relative;
+  overflow: hidden;
+  scroll-margin-top: 100px;
+  height: 100%;
+}
+.svc .svc-cta {
+  margin-top: auto;
+  align-self: flex-start;
+}
+.svc:hover {
+  border-color: var(--line-strong);
+}
+.svc .side {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 18px;
+}
+.svc .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+.svc h2 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-top: 8px;
+}
+.svc .content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.svc .lede {
+  font-size: 14.5px;
+  color: var(--ink-dim);
+  line-height: 1.55;
+  max-width: 640px;
+}
+.svc .feats {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.svc .feats div {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  line-height: 1.4;
+}
+.svc .feats div b {
+  color: var(--ink);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 2px;
+  font-size: 12.5px;
+}
+.svc .shard {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.38;
+  pointer-events: none;
+}
+.svc.v .shard { background: var(--violet); top: -60px; right: -50px; width: 240px; height: 240px; }
+.svc.c .shard { background: var(--cyan); top: -60px; right: -50px; width: 240px; height: 240px; }
+.svc.m .shard { background: var(--magenta); top: -60px; right: -50px; width: 240px; height: 240px; }
+.svc.a .shard { background: var(--amber); top: -60px; right: -50px; width: 240px; height: 240px; }
+.svc.e .shard { background: var(--emerald); top: -60px; right: -50px; width: 240px; height: 240px; }
+.svc-cta {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  font-size: 13px;
+  transition: 0.2s;
+}
+.svc-cta:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+

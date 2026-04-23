@@ -1,0 +1,37 @@
+/* generic inner-page hero */
+.hero-s {
+  padding-top: 80px;
+  padding-bottom: 40px;
+}
+
+.hero-s h1 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  /* reduzido: páginas internas usam fonte menor que a home */
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  max-width: 1000px;
+  /* limita a no máximo 3 linhas */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hero-s h1 em {
+  font-style: italic;
+  font-weight: 400;
+  background: linear-gradient(110deg, #fff, var(--cyan), var(--violet), var(--magenta));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-s p {
+  margin-top: 24px;
+  max-width: 620px;
+  font-size: 17px;
+  color: var(--ink-dim);
+}
+

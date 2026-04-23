@@ -214,4 +214,7 @@ export const CacheKeys = {
 
   // AI page blocks
   aiBlocks: "ai-blocks",
+
+  // Page sections (home, services, solutions, about, blog, careers, contact, ai)
+  pageSections: (page: string) => `page-sections:${page}`,
 };

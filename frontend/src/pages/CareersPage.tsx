@@ -1,7 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { jobsApi, api } from '@/lib/api'
+import PublicPageHero from '@/components/layout/PublicPageHero'
+import { jobsApi } from '@/lib/api'
+import { usePageSections } from '@/hooks/use-page-sections'
+import { useApiQuery } from '@/hooks/use-api-query'
+
+const CAREERS_SECTION_KEYS = ['hero', 'perks', 'jobs'] as const
 
 interface Perk {
   id: string
@@ -28,37 +33,31 @@ export default function CareersPage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const perksQuery = useQuery<{ perks: Perk[] }>({
-    queryKey: ['perks-public'],
-    queryFn: async () => (await api.get('/perks')).data,
-    staleTime: 5 * 60 * 1000,
-  })
+  const perksQuery = useApiQuery<{ perks: Perk[] }>(['perks-public'], '/perks')
 
   const jobs = (jobsQuery.data?.jobs ?? []).filter((j) => j.isActive)
   const perks = perksQuery.data?.perks ?? []
+  const { effectiveKeys } = usePageSections('careers', CAREERS_SECTION_KEYS)
 
-  return (
-    <div className="page">
-      <Header />
+  const sectionRenderers: Record<string, () => JSX.Element | null> = {
+    hero: () => (
+      <PublicPageHero
+        key="hero"
+        eyebrow="Carreiras · vagas abertas"
+        title={
+          <>
+            Venha construir
+            <br />
+            software que <em>importa</em>.
+          </>
+        }
+        lede="Times sêniores, projetos com propósito, autonomia real. Remoto-first no Brasil, presencial opcional em São Paulo."
+      />
+    ),
 
-      <section className="hero-s shell">
-        <div className="eyebrow mono">
-          <span className="dot" />
-          <span>Carreiras · vagas abertas</span>
-        </div>
-        <h1>
-          Venha construir
-          <br />
-          software que <em>importa</em>.
-        </h1>
-        <p>
-          Times sêniores, projetos com propósito, autonomia real. Remoto-first no Brasil, presencial opcional em São
-          Paulo.
-        </p>
-      </section>
-
-      {perks.length > 0 && (
-        <section className="perks shell">
+    perks: () =>
+      perks.length === 0 ? null : (
+        <section key="perks" className="perks shell">
           {perks.map((perk) => (
             <div key={perk.id} className="perk glass">
               <h4>{perk.title}</h4>
@@ -66,9 +65,10 @@ export default function CareersPage() {
             </div>
           ))}
         </section>
-      )}
+      ),
 
-      <section className="jobs shell">
+    jobs: () => (
+      <section key="jobs" className="jobs shell">
         <h2>Vagas abertas · {jobs.length}</h2>
         {jobs.map((job) => (
           <div key={job.id} className="job glass">
@@ -79,7 +79,13 @@ export default function CareersPage() {
           </div>
         ))}
       </section>
+    ),
+  }
 
+  return (
+    <div className="page">
+      <Header />
+      {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />
     </div>
   )

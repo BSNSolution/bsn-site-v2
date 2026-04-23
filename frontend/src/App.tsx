@@ -44,6 +44,8 @@ const AdminAboutCardsPage = lazy(() => import('@/pages/admin/AdminAboutCardsPage
 const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'))
 const AdminPermissionGroupsPage = lazy(() => import('@/pages/admin/AdminPermissionGroupsPage'))
 const AdminAIPage = lazy(() => import('@/pages/admin/AdminAIPage'))
+const AdminPagesPage = lazy(() => import('@/pages/admin/AdminPagesPage'))
+const AdminPageSectionsPage = lazy(() => import('@/pages/admin/AdminPageSectionsPage'))
 
 // Components
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -336,6 +338,8 @@ function App() {
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="permission-groups" element={<AdminPermissionGroupsPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
+            <Route path="pages" element={<AdminPagesPage />} />
+            <Route path="pages/:page" element={<AdminPageSectionsPage />} />
           </Route>
 
           {/* 404 page */}

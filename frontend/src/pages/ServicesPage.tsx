@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { api } from '@/lib/api'
+import PublicPageHero from '@/components/layout/PublicPageHero'
+import { usePageSections } from '@/hooks/use-page-sections'
+import { useApiQuery } from '@/hooks/use-api-query'
 
 interface Feature {
   title: string
@@ -23,38 +24,34 @@ interface Service {
   order: number
 }
 
+const SERVICES_SECTION_KEYS = ['hero', 'grid'] as const
+
 export default function ServicesPage() {
-  const { data } = useQuery<{ services: Service[] }>({
-    queryKey: ['services-public'],
-    queryFn: async () => (await api.get('/services')).data,
-    staleTime: 5 * 60 * 1000,
-  })
+  const { data } = useApiQuery<{ services: Service[] }>(['services-public'], '/services')
 
   const services = data?.services ?? []
+  const { effectiveKeys } = usePageSections('services', SERVICES_SECTION_KEYS)
 
-  return (
-    <div className="page">
-      <Header />
+  const sectionRenderers: Record<string, () => JSX.Element | null> = {
+    hero: () => (
+      <PublicPageHero
+        key="hero"
+        eyebrow="Serviços · o que construímos"
+        title={
+          <>
+            Capacidades técnicas
+            <br />
+            que viram <em>resultado</em>
+            <br />
+            no seu balanço.
+          </>
+        }
+        lede="Sete frentes especializadas. Entregamos como peças avulsas ou montadas como um vitral — do diagnóstico à operação contínua."
+      />
+    ),
 
-      <section className="hero-s shell">
-        <div className="eyebrow mono">
-          <span className="dot" />
-          <span>Serviços · o que construímos</span>
-        </div>
-        <h1>
-          Capacidades técnicas
-          <br />
-          que viram <em>resultado</em>
-          <br />
-          no seu balanço.
-        </h1>
-        <p>
-          Sete frentes especializadas. Entregamos como peças avulsas ou montadas como um vitral — do diagnóstico à
-          operação contínua.
-        </p>
-      </section>
-
-      <section className="svc-grid shell">
+    grid: () => (
+      <section key="grid" className="svc-grid shell">
         {services.map((svc) => {
           const shard = svc.shardColor ?? 'v'
           const features: Feature[] = Array.isArray(svc.features) ? svc.features : []
@@ -119,7 +116,13 @@ export default function ServicesPage() {
           )
         })}
       </section>
+    ),
+  }
 
+  return (
+    <div className="page">
+      <Header />
+      {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />
     </div>
   )

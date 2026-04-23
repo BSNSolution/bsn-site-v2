@@ -580,6 +580,23 @@ enum AIBlockType {
   EDU_HIGHLIGHT   // Seção educacional ("Dados como fundação", etc.)
 }
 
+// Seções genéricas de qualquer página pública (home, services, solutions, about, blog, careers, contact, ai)
+// Permite que o admin reordene/oculte sections sem mexer no código.
+model PageSection {
+  id          String   @id @default(uuid())
+  page        String   // 'home' | 'services' | 'solutions' | 'about' | 'blog' | 'careers' | 'contact' | 'ai'
+  sectionKey  String   // identificador único dentro da página (ex: 'hero', 'vitral', 'timeline')
+  label       String   // label exibido no admin
+  order       Int
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([page, sectionKey])
+  @@index([page])
+  @@map("page_sections")
+}
+
 // Menu do footer
 model FooterMenu {
   id        String      @id @default(uuid())

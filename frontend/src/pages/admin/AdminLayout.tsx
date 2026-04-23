@@ -32,6 +32,7 @@ import {
   Handshake,
   UserCog,
   Shield,
+  Layers,
 } from 'lucide-react'
 import { authApi } from '@/lib/api'
 
@@ -53,6 +54,7 @@ const SECTIONS: SidebarSection[] = [
     items: [
       { name: 'Dashboard', href: '/admin', icon: BarChart3 },
       { name: 'Inbox', href: '/admin/inbox', icon: Inbox },
+      { name: 'Seções das páginas', href: '/admin/pages', icon: Layers },
     ],
   },
   {

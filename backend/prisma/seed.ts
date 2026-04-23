@@ -1452,6 +1452,72 @@ async function main() {
     ],
   });
 
+  // ─────────────────────────────────────────────
+  // 🧩 Page Sections — controla ordem / visibilidade
+  // das seções de cada página pública via admin.
+  // Idempotente: upsert por (page, sectionKey).
+  // ─────────────────────────────────────────────
+  const pageSectionsSeed: Array<{
+    page: string
+    sectionKey: string
+    label: string
+    order: number
+  }> = [
+    // Home
+    { page: 'home', sectionKey: 'hero-orbit', label: 'Hero + Orbit de Serviços', order: 0 },
+    { page: 'home', sectionKey: 'kpis', label: 'KPIs Strip', order: 1 },
+    { page: 'home', sectionKey: 'live-strip', label: 'Live Card + Brand Pill', order: 2 },
+    { page: 'home', sectionKey: 'scroll-hint', label: 'Scroll Hint + Section Star', order: 3 },
+    { page: 'home', sectionKey: 'vitral', label: 'Vitral de Serviços', order: 4 },
+    { page: 'home', sectionKey: 'timeline', label: 'Timeline do Processo', order: 5 },
+    { page: 'home', sectionKey: 'clients', label: 'Clientes (Marquee)', order: 6 },
+    { page: 'home', sectionKey: 'band', label: 'Band (Filosofia + CTA)', order: 7 },
+    { page: 'home', sectionKey: 'stack', label: 'Stack Marquee', order: 8 },
+    // Services
+    { page: 'services', sectionKey: 'hero', label: 'Hero', order: 0 },
+    { page: 'services', sectionKey: 'grid', label: 'Grid de Serviços', order: 1 },
+    // Solutions
+    { page: 'solutions', sectionKey: 'hero', label: 'Hero', order: 0 },
+    { page: 'solutions', sectionKey: 'grid', label: 'Grid de Soluções', order: 1 },
+    // About
+    { page: 'about', sectionKey: 'hero', label: 'Hero', order: 0 },
+    { page: 'about', sectionKey: 'cards', label: 'Cards (Missão / Visão / …)', order: 1 },
+    { page: 'about', sectionKey: 'values', label: 'Valores / Princípios', order: 2 },
+    { page: 'about', sectionKey: 'team', label: 'Time', order: 3 },
+    // Blog
+    { page: 'blog', sectionKey: 'hero', label: 'Hero', order: 0 },
+    { page: 'blog', sectionKey: 'featured', label: 'Post em Destaque', order: 1 },
+    { page: 'blog', sectionKey: 'posts', label: 'Grid de Posts', order: 2 },
+    // Careers
+    { page: 'careers', sectionKey: 'hero', label: 'Hero', order: 0 },
+    { page: 'careers', sectionKey: 'perks', label: 'Perks / Benefícios', order: 1 },
+    { page: 'careers', sectionKey: 'jobs', label: 'Lista de Vagas', order: 2 },
+    // Contact
+    { page: 'contact', sectionKey: 'hero', label: 'Hero', order: 0 },
+    { page: 'contact', sectionKey: 'wrap', label: 'Canais + Formulário', order: 1 },
+    // AI
+    { page: 'ai', sectionKey: 'hero', label: 'Hero', order: 0 },
+    { page: 'ai', sectionKey: 'benefits', label: 'Benefícios (strip)', order: 1 },
+    { page: 'ai', sectionKey: 'cases', label: 'Cases com IA', order: 2 },
+    { page: 'ai', sectionKey: 'stages', label: 'Etapas / Escopo', order: 3 },
+    { page: 'ai', sectionKey: 'data', label: 'Dados Orbital', order: 4 },
+    { page: 'ai', sectionKey: 'cta-band', label: 'CTA Band final', order: 5 },
+  ]
+
+  for (const sec of pageSectionsSeed) {
+    await prisma.pageSection.upsert({
+      where: { page_sectionKey: { page: sec.page, sectionKey: sec.sectionKey } },
+      update: { label: sec.label, order: sec.order },
+      create: {
+        page: sec.page,
+        sectionKey: sec.sectionKey,
+        label: sec.label,
+        order: sec.order,
+        isVisible: true,
+      },
+    })
+  }
+
   console.log('✅ Seed concluído com sucesso!');
   console.log('👤 Admin criado:', {
     email: 'admin@bsnsolution.com.br',

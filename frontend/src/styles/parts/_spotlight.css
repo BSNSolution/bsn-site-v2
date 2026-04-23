@@ -1,0 +1,209 @@
+/* SPOTLIGHT cursor-aware */
+/* Nota: .node foi removido daqui — ele já tem position: absolute próprio
+   para posicionamento na orbit do hero; sobrescrever para relative quebra
+   o layout. O .bsn-spot funciona igual dentro de absolute. */
+.glass, .tile, .svc, .sol, .feat-card, .post, .person,
+.val, .job, .perk, .chan, .form-card, .doc, .clients-card,
+.process-step, .timeline-desc,
+.ai-benefit-item, .ai-case, .ai-stage, .ai-edu-card, .ai-cta-card {
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 0.3s ease,
+              box-shadow 0.45s ease;
+}
+.node {
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 0.3s ease,
+              box-shadow 0.45s ease;
+}
+
+.bsn-spot {
+  /* Retira completamente do fluxo: display block + absolute evita ser contabilizado como flex/grid item */
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  inset: 0 !important;
+  /* grid containers: ocupa todas as tracks sem roubar 1 slot */
+  grid-area: 1 / 1 / -1 / -1 !important;
+  grid-column: 1 / -1 !important;
+  grid-row: 1 / -1 !important;
+  /* flex containers: flex-basis 0 e não cresce */
+  flex: 0 0 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  align-self: stretch !important;
+  /* visual */
+  border-radius: inherit;
+  pointer-events: none;
+  /* .bsn-spot legacy — efeito foi movido para ::before do próprio card.
+     Mantido como no-op para não quebrar referências antigas. */
+  background: transparent;
+  opacity: 0;
+  z-index: 0;
+}
+/* ========= Efeitos do card direto via pseudo-elementos =========
+   Movidos do .bsn-spot filho para o card principal porque o border-radius
+   herdado entre pai/filho criava retângulos concêntricos desalinhados.
+   Usa mesmas vars --mx/--my que o MotionLayer seta no card. */
+
+/* cursor: pointer em todos os cards que recebem spotlight (sinaliza interatividade) */
+.tile, .svc, .sol, .post, .person, .val, .job, .perk, .chan, .process-step,
+.timeline-desc,
+.ai-benefit-item, .ai-case, .ai-stage, .ai-edu-card, .ai-cta-card {
+  cursor: pointer;
+}
+
+/* ::before = SPOTLIGHT radial (glow interno que segue o cursor) */
+.tile::before, .svc::before, .sol::before, .post::before, .person::before,
+.val::before, .job::before, .perk::before, .chan::before, .process-step::before,
+.timeline-desc::before,
+.ai-benefit-item::before, .ai-case::before, .ai-stage::before,
+.ai-edu-card::before, .ai-cta-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(var(--card-spot-size, 340px) circle at var(--mx, 50%) var(--my, 50%),
+    rgba(120, 200, 255, 0.22),
+    rgba(120, 200, 255, 0.08) 35%,
+    transparent 65%);
+  z-index: 0;
+}
+.tile:hover::before, .svc:hover::before, .sol:hover::before, .post:hover::before,
+.person:hover::before, .val:hover::before, .job:hover::before, .perk:hover::before,
+.chan:hover::before, .process-step:hover::before, .timeline-desc:hover::before,
+.ai-benefit-item:hover::before, .ai-case:hover::before, .ai-stage:hover::before,
+.ai-edu-card:hover::before, .ai-cta-card:hover::before {
+  opacity: 1;
+}
+
+/* ::after = GRADIENT BORDER (moldura colorida na borda) */
+.tile::after, .svc::after, .sol::after, .post::after, .person::after,
+.val::after, .job::after, .perk::after, .chan::after, .process-step::after,
+.timeline-desc::after,
+.ai-benefit-item::after, .ai-case::after, .ai-stage::after,
+.ai-edu-card::after, .ai-cta-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 1px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(var(--card-glow-size, 600px) circle at var(--mx, 50%) var(--my, 50%),
+    rgba(120, 220, 255, 0.9),
+    rgba(120, 220, 255, 0.35) 25%,
+    rgba(120, 220, 255, 0.08) 55%,
+    transparent 80%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  z-index: 4;
+}
+.tile:hover::after, .svc:hover::after, .sol:hover::after, .post:hover::after,
+.person:hover::after, .val:hover::after, .job:hover::after, .perk:hover::after,
+.chan:hover::after, .process-step:hover::after, .timeline-desc:hover::after,
+.ai-benefit-item:hover::after, .ai-case:hover::after, .ai-stage:hover::after,
+.ai-edu-card:hover::after, .ai-cta-card:hover::after {
+  opacity: 1;
+}
+.glass:hover > .bsn-spot,
+.tile:hover > .bsn-spot,
+.node:hover > .bsn-spot,
+.svc:hover > .bsn-spot,
+.sol:hover > .bsn-spot,
+.feat-card:hover > .bsn-spot,
+.post:hover > .bsn-spot,
+.person:hover > .bsn-spot,
+.val:hover > .bsn-spot,
+.job:hover > .bsn-spot,
+.perk:hover > .bsn-spot,
+.chan:hover > .bsn-spot,
+.form-card:hover > .bsn-spot,
+.doc:hover > .bsn-spot,
+.clients-card:hover > .bsn-spot,
+.process-step:hover > .bsn-spot,
+.timeline-desc:hover > .bsn-spot,
+.ai-benefit-item:hover > .bsn-spot,
+.ai-case:hover > .bsn-spot,
+.ai-stage:hover > .bsn-spot,
+.ai-edu-card:hover > .bsn-spot,
+.ai-cta-card:hover > .bsn-spot {
+  opacity: 1;
+}
+/* Cards grandes — spotlight e gradient border proporcionais ao tamanho */
+.svc { --card-spot-size: 700px; --card-glow-size: 1400px; }
+.ai-stage { --card-spot-size: 600px; --card-glow-size: 1400px; }
+.ai-edu-card { --card-spot-size: 520px; --card-glow-size: 1100px; }
+.ai-cta-card { --card-spot-size: 700px; --card-glow-size: 1400px; }
+.feat-card { --card-spot-size: 600px; --card-glow-size: 1300px; }
+.form-card, .channels { --card-spot-size: 500px; --card-glow-size: 1100px; }
+
+/* Nav não tem spotlight */
+.nav-inner > .bsn-spot,
+.nav .glass > .bsn-spot { display: none !important; }
+/* Mobile sheet sem spotlight */
+.mobile-sheet .glass > .bsn-spot { display: none !important; }
+
+/* conteúdo acima do spotlight — exclui .shard/.band-shard que precisam continuar absolute */
+.glass > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.tile > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.node > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.svc > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.sol > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.feat-card > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.post > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.person > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.val > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.job > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.perk > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.chan > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.form-card > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.doc > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.clients-card > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.process-step > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.timeline-desc > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.ai-benefit-item > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.ai-case > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.ai-stage > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.ai-edu-card > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.ai-cta-card > *:not(.bsn-spot):not(.shard):not(.band-shard) {
+  position: relative;
+  z-index: 3;
+}
+
+/* hover lift padrão (exceto nav) */
+.glass:hover, .tile:hover,
+.svc:hover, .sol:hover, .feat-card:hover, .post:hover, .person:hover,
+.val:hover, .job:hover, .perk:hover, .chan:hover, .process-step:hover,
+.timeline-desc:hover,
+.ai-case:hover, .ai-edu-card:hover, .ai-cta-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 60px -24px rgba(0, 0, 0, 0.55);
+  border-color: var(--line-strong);
+}
+/* .ai-stage é linha horizontal larga — sem lift vertical para não destacar demais */
+.ai-stage:hover {
+  border-color: var(--line-strong);
+  box-shadow: 0 14px 38px -20px rgba(0, 0, 0, 0.5);
+}
+.nav .glass:hover,
+.nav-inner.glass:hover,
+.nav-inner:hover { transform: none !important; box-shadow: none !important; }
+.node:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 38px -16px rgba(122, 91, 255, 0.45);
+}
+/* Footer glass não levanta */
+.bsn-footer .glass:hover { transform: none !important; }
+

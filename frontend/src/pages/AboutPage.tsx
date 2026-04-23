@@ -1,7 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { teamApi, api, aboutCardsApi } from '@/lib/api'
+import PublicPageHero from '@/components/layout/PublicPageHero'
+import { teamApi, aboutCardsApi } from '@/lib/api'
+import { usePageSections } from '@/hooks/use-page-sections'
+import { useApiQuery } from '@/hooks/use-api-query'
+
+const ABOUT_SECTION_KEYS = ['hero', 'cards', 'values', 'team'] as const
 
 interface TeamMember {
   id: string
@@ -37,11 +42,7 @@ export default function AboutPage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const valuesQuery = useQuery<{ values: Value[] }>({
-    queryKey: ['values-public'],
-    queryFn: async () => (await api.get('/values')).data,
-    staleTime: 5 * 60 * 1000,
-  })
+  const valuesQuery = useApiQuery<{ values: Value[] }>(['values-public'], '/values')
 
   const aboutQuery = useQuery<{ cards: AboutCard[] }>({
     queryKey: ['about-cards-public'],
@@ -52,31 +53,29 @@ export default function AboutPage() {
   const team = teamQuery.data?.team ?? teamQuery.data?.members ?? []
   const values = valuesQuery.data?.values ?? []
   const aboutCards = aboutQuery.data?.cards ?? []
+  const { effectiveKeys } = usePageSections('about', ABOUT_SECTION_KEYS)
 
-  return (
-    <div className="page">
-      <Header />
+  const sectionRenderers: Record<string, () => JSX.Element | null> = {
+    hero: () => (
+      <PublicPageHero
+        key="hero"
+        eyebrow="Sobre a BSN · quem somos"
+        title={
+          <>
+            Engenharia com foco
+            <br />
+            em <em>problemas reais</em>
+            <br />
+            de negócio.
+          </>
+        }
+        lede="Há mais de uma década ajudamos empresas a transformar operação em vantagem competitiva. Software que é fácil de usar, difícil de ignorar e feito para durar tanto quanto seu negócio."
+      />
+    ),
 
-      <section className="hero-s shell">
-        <div className="eyebrow mono">
-          <span className="dot" />
-          <span>Sobre a BSN · quem somos</span>
-        </div>
-        <h1>
-          Engenharia com foco
-          <br />
-          em <em>problemas reais</em>
-          <br />
-          de negócio.
-        </h1>
-        <p>
-          Há mais de uma década ajudamos empresas a transformar operação em vantagem competitiva. Software que é fácil
-          de usar, difícil de ignorar e feito para durar tanto quanto seu negócio.
-        </p>
-      </section>
-
-      {aboutCards.length > 0 && (
-        <section className="about-grid shell">
+    cards: () =>
+      aboutCards.length === 0 ? null : (
+        <section key="cards" className="about-grid shell">
           {aboutCards.map((card) => (
             <div key={card.id} className={`card glass ${card.colorClass}`}>
               <div className="shard" />
@@ -86,10 +85,11 @@ export default function AboutPage() {
             </div>
           ))}
         </section>
-      )}
+      ),
 
-      {values.length > 0 && (
-        <section className="values shell">
+    values: () =>
+      values.length === 0 ? null : (
+        <section key="values" className="values shell">
           <div className="head">
             <h2>
               Quatro <em>princípios</em> que atravessam cada linha de código.
@@ -105,10 +105,11 @@ export default function AboutPage() {
             ))}
           </div>
         </section>
-      )}
+      ),
 
-      {team.length > 0 && (
-        <section className="team shell">
+    team: () =>
+      team.length === 0 ? null : (
+        <section key="team" className="team shell">
           <div className="head">
             <h2>
               Um time <em>sênior</em> que você gostaria de ter contratado.
@@ -134,8 +135,13 @@ export default function AboutPage() {
             })}
           </div>
         </section>
-      )}
+      ),
+  }
 
+  return (
+    <div className="page">
+      <Header />
+      {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />
     </div>
   )

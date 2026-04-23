@@ -1,0 +1,215 @@
+/* Timeline (Nosso ritmo de trabalho) — zigzag com rail central */
+.timeline {
+  padding-top: 80px;
+  padding-bottom: 60px;
+}
+.timeline-wrap {
+  position: relative;
+  padding: 20px 0;
+}
+/* rail central com gradiente vertical (vitral) */
+.timeline-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--violet) 10%,
+    var(--cyan) 40%,
+    var(--magenta) 70%,
+    var(--emerald) 95%,
+    transparent 100%
+  );
+  opacity: 0.35;
+  border-radius: 2px;
+}
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 28px 0;
+  min-height: 160px;
+}
+/* dot central na linha */
+.timeline-dot {
+  position: absolute;
+  left: 50%;
+  top: 40px;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--violet);
+  z-index: 2;
+  box-shadow: 0 0 18px rgba(122, 91, 255, 0.6);
+}
+.timeline-dot-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid var(--violet);
+  opacity: 0.4;
+  animation: timelineRing 2.4s ease-out infinite;
+}
+@keyframes timelineRing {
+  0% { transform: scale(0.8); opacity: 0.7; }
+  100% { transform: scale(2); opacity: 0; }
+}
+/* alternância zigzag */
+.timeline-item.left .timeline-content {
+  grid-column: 1;
+  margin-right: 48px;
+  text-align: right;
+}
+.timeline-item.right .timeline-content {
+  grid-column: 2;
+  margin-left: 48px;
+  text-align: left;
+}
+.timeline-item.right .timeline-head {
+  justify-content: flex-start;
+}
+.timeline-item.left .timeline-head {
+  justify-content: flex-end;
+}
+.timeline-item.left .timeline-desc {
+  margin-left: auto;
+  text-align: left;
+}
+.timeline-item.right .timeline-desc {
+  margin-right: auto;
+  text-align: left;
+}
+/* cor do dot varia por etapa */
+.timeline-item:nth-child(1) .timeline-dot { border-color: var(--violet); box-shadow: 0 0 18px rgba(122, 91, 255, 0.6); }
+.timeline-item:nth-child(1) .timeline-dot-ring { border-color: var(--violet); }
+.timeline-item:nth-child(2) .timeline-dot { border-color: var(--cyan); box-shadow: 0 0 18px rgba(38, 217, 255, 0.6); }
+.timeline-item:nth-child(2) .timeline-dot-ring { border-color: var(--cyan); }
+.timeline-item:nth-child(3) .timeline-dot { border-color: var(--magenta); box-shadow: 0 0 18px rgba(255, 79, 184, 0.6); }
+.timeline-item:nth-child(3) .timeline-dot-ring { border-color: var(--magenta); }
+.timeline-item:nth-child(4) .timeline-dot { border-color: var(--emerald); box-shadow: 0 0 18px rgba(61, 224, 168, 0.6); }
+.timeline-item:nth-child(4) .timeline-dot-ring { border-color: var(--emerald); }
+
+.timeline-content {
+  padding: 28px 30px;
+  padding-top: 90px;
+  position: relative;
+  /* SEM border/background: apenas posicionamento do watermark + head + título + desc */
+}
+.timeline-watermark {
+  position: absolute;
+  /* número fica ACIMA do bloco de título, sem sobrepor eyebrow/heading */
+  top: -30px;
+  font-family: 'Inter', sans-serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 130px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  letter-spacing: -0.04em;
+}
+/* item "left" = título à esquerda → número cola na rail pelo lado direito do content */
+.timeline-item.left .timeline-watermark {
+  right: 20px;
+  left: auto;
+}
+/* item "right" = título à direita → número cola na rail pelo lado esquerdo do content */
+.timeline-item.right .timeline-watermark {
+  left: 20px;
+  right: auto;
+}
+.timeline-head {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+}
+.timeline-duration {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+}
+.timeline-content h3 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 30px;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+.timeline-desc {
+  padding: 18px 22px;
+  border-radius: 16px;
+  max-width: 380px;
+  position: relative;
+  z-index: 1;
+}
+.timeline-desc p {
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .timeline-rail {
+    left: 22px;
+    transform: none;
+  }
+  .timeline-item {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .timeline-dot {
+    left: 22px;
+    top: 28px;
+  }
+  .timeline-item.left .timeline-content,
+  .timeline-item.right .timeline-content {
+    grid-column: 1;
+    margin-left: 56px;
+    margin-right: 0;
+    text-align: left;
+  }
+  .timeline-item.left .timeline-head,
+  .timeline-item.right .timeline-head {
+    justify-content: flex-start;
+  }
+  .timeline-item.left .timeline-watermark,
+  .timeline-item.right .timeline-watermark {
+    left: 18px;
+    right: auto;
+  }
+  .timeline-item.left .timeline-desc,
+  .timeline-item.right .timeline-desc {
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+@media (max-width: 640px) {
+  .timeline { padding-top: 56px; padding-bottom: 40px; }
+  .timeline-content { padding: 22px; }
+  .timeline-content h3 { font-size: 22px; }
+  .timeline-watermark { font-size: 110px; top: -28px; }
+  .timeline-desc { padding: 16px 18px; }
+}
+

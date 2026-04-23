@@ -1,0 +1,96 @@
+/* ============================================================
+   BSN SOLUTION — vitral / glassmorphism design tokens
+   ============================================================ */
+:root {
+  --bg: #07070c;
+  --ink: #f6f4ef;
+  --ink-dim: rgba(246, 244, 239, 0.68);
+  --ink-faint: rgba(246, 244, 239, 0.42);
+  --violet: #7a5bff;
+  --cyan: #26d9ff;
+  --magenta: #ff4fb8;
+  --amber: #ffb547;
+  --emerald: #3de0a8;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --glass: rgba(255, 255, 255, 0.045);
+  --glass-strong: rgba(255, 255, 255, 0.08);
+  --radius: 22px;
+
+  /* shadcn tokens kept for admin panel compatibility */
+  --background: 240 17% 4%;
+  --foreground: 40 17% 95%;
+  --card: 240 17% 7%;
+  --card-foreground: 40 17% 95%;
+  --popover: 240 17% 7%;
+  --popover-foreground: 40 17% 95%;
+  --primary: 250 100% 68%;
+  --primary-foreground: 240 17% 4%;
+  --secondary: 240 10% 12%;
+  --secondary-foreground: 40 17% 95%;
+  --muted: 240 10% 12%;
+  --muted-foreground: 0 0% 65%;
+  --accent: 189 100% 58%;
+  --accent-foreground: 240 17% 4%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 100% / 0.08;
+  --input: 0 0% 100% / 0.08;
+  --ring: 250 100% 68%;
+  --radius-sm: 0.75rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+body {
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.011em;
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0;
+  line-height: 1.05;
+}
+
+.display {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+

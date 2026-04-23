@@ -1,0 +1,447 @@
+/* ==========================================================================
+   AI page  (/inteligencia-artificial)
+   Segue o mesmo padrão visual de services / solutions / about:
+   - .glass + .shard (shard é sempre position: absolute)
+   - grids com align-items: stretch + cards com height: 100%
+   - CTAs com margin-top: auto para alinhar cards irmãos
+   ========================================================================== */
+
+/* ── Benefícios (4 cards) ── */
+.ai-benefits {
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+.ai-benefits-head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 760px;
+  margin-bottom: 40px;
+}
+.ai-benefits-head h2 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: clamp(30px, 4.2vw, 52px);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.ai-benefits-head h2 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink-dim);
+}
+.ai-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+.ai-benefit {
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+}
+.ai-benefit .shard {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  pointer-events: none;
+  top: -60px;
+  right: -50px;
+  width: 220px;
+  height: 220px;
+}
+.ai-benefit.a .shard { background: var(--violet); }
+.ai-benefit.b .shard { background: var(--cyan); }
+.ai-benefit.c .shard { background: var(--magenta); }
+.ai-benefit.d .shard { background: var(--amber); }
+.ai-benefit.e .shard { background: var(--emerald); }
+.ai-benefit.f .shard { background: var(--violet); left: -50px; right: auto; }
+.ai-benefit .ai-ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+}
+.ai-benefit .ai-ico .ai-ico-svg,
+.ai-benefit .ai-ico svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.6;
+}
+.ai-benefit .tag {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.ai-benefit h3 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+.ai-benefit p {
+  color: var(--ink-dim);
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: auto;
+}
+
+/* ── Etapas numeradas (3 cards) ── */
+.ai-stages {
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+.ai-stages-head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 780px;
+  margin-bottom: 40px;
+}
+.ai-stages-head h2 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: clamp(32px, 4.6vw, 56px);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.ai-stages-head h2 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink-dim);
+}
+.ai-stages-head .lede {
+  font-size: 16px;
+  color: var(--ink-dim);
+  max-width: 640px;
+  margin-top: 4px;
+}
+.ai-stages-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+.ai-stage {
+  padding: 36px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+.ai-stage .shard {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.45;
+  pointer-events: none;
+  top: -60px;
+  right: -60px;
+  width: 300px;
+  height: 300px;
+}
+.ai-stage.a { --accent: var(--violet); }
+.ai-stage.a .shard { background: var(--violet); }
+.ai-stage.b { --accent: var(--cyan); }
+.ai-stage.b .shard { background: var(--cyan); }
+.ai-stage.c { --accent: var(--magenta); }
+.ai-stage.c .shard { background: var(--magenta); }
+.ai-stage.d { --accent: var(--amber); }
+.ai-stage.d .shard { background: var(--amber); }
+.ai-stage.e { --accent: var(--emerald); }
+.ai-stage.e .shard { background: var(--emerald); }
+.ai-stage .ai-stage-num {
+  font-family: 'Inter', sans-serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 56px;
+  line-height: 1;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.03em;
+}
+.ai-stage .tag {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.ai-stage h3 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.ai-stage p {
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.ai-stage ul {
+  margin-top: auto;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.ai-stage ul li {
+  font-size: 13px;
+  color: var(--ink-dim);
+  padding-left: 18px;
+  position: relative;
+  line-height: 1.45;
+}
+.ai-stage ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--accent, #7a5bff);
+}
+
+/* ── Educacional (2 cards lado a lado) ── */
+.ai-edu {
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+.ai-edu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+.ai-edu-card {
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 100%;
+}
+.ai-edu-card .shard {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.5;
+  pointer-events: none;
+  top: -80px;
+  right: -80px;
+  width: 340px;
+  height: 340px;
+}
+.ai-edu-card.a { --accent: var(--violet); }
+.ai-edu-card.a .shard { background: var(--violet); }
+.ai-edu-card.b { --accent: var(--cyan); }
+.ai-edu-card.b .shard { background: var(--cyan); }
+.ai-edu-card.c { --accent: var(--magenta); }
+.ai-edu-card.c .shard { background: var(--magenta); }
+.ai-edu-card.d { --accent: var(--amber); }
+.ai-edu-card.d .shard { background: var(--amber); }
+.ai-edu-card.e { --accent: var(--emerald); }
+.ai-edu-card.e .shard { background: var(--emerald); }
+.ai-edu-card.f { --accent: var(--violet); }
+.ai-edu-card.f .shard { background: var(--magenta); left: -80px; right: auto; }
+.ai-edu-card .ai-ico.lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+}
+.ai-edu-card .ai-ico.lg .ai-ico-svg,
+.ai-edu-card .ai-ico.lg svg {
+  width: 28px;
+  height: 28px;
+}
+.ai-edu-card .tag {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.ai-edu-card h3 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: clamp(22px, 2.2vw, 28px);
+  line-height: 1.15;
+  letter-spacing: -0.028em;
+}
+.ai-edu-card p {
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.ai-edu-card ul {
+  margin-top: auto;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+.ai-edu-card ul li {
+  font-size: 13px;
+  color: var(--ink-dim);
+  padding-left: 18px;
+  position: relative;
+  line-height: 1.4;
+}
+.ai-edu-card ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--accent, var(--emerald));
+}
+
+/* ── CTA final ── */
+.ai-cta-section {
+  padding-top: 60px;
+  padding-bottom: 100px;
+}
+.ai-cta-card {
+  padding: 56px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
+  align-items: center;
+}
+.ai-cta-card .shard {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.55;
+  pointer-events: none;
+  top: -120px;
+  right: -100px;
+  width: 420px;
+  height: 420px;
+  background: var(--violet);
+}
+.ai-cta-copy .tag {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.ai-cta-copy h2 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: clamp(32px, 4.4vw, 56px);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  margin-top: 14px;
+}
+.ai-cta-copy h2 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink-dim);
+}
+.ai-cta-copy p {
+  color: var(--ink-dim);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-top: 16px;
+  max-width: 540px;
+}
+.ai-cta-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: center;
+}
+.ai-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #0a0a0e;
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s;
+  white-space: nowrap;
+}
+.ai-cta-btn:hover {
+  transform: translateX(4px);
+  box-shadow: 0 8px 28px rgba(122, 91, 255, 0.35);
+}
+.ai-cta-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: 0.25s;
+}
+.ai-cta-btn-ghost:hover {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  transform: translateX(4px);
+}
+
+/* ── Responsivo ── */
+@media (max-width: 1080px) {
+  .ai-benefits-grid { grid-template-columns: repeat(2, 1fr); }
+  .ai-stages-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .ai-edu-grid { grid-template-columns: 1fr; }
+  .ai-cta-card {
+    grid-template-columns: 1fr;
+    padding: 40px 28px;
+    gap: 28px;
+  }
+  .ai-cta-actions { flex-direction: row; flex-wrap: wrap; }
+}
+@media (max-width: 640px) {
+  .ai-benefits-grid { grid-template-columns: 1fr; }
+  .ai-benefit { padding: 22px; }
+  .ai-stage { padding: 28px; }
+  .ai-edu-card { padding: 28px; }
+  .ai-edu-card ul { grid-template-columns: 1fr; }
+  .ai-cta-card { padding: 32px 22px; }
+  .ai-cta-btn, .ai-cta-btn-ghost { width: 100%; justify-content: center; }
+}
+

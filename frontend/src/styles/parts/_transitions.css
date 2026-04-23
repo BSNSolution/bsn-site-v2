@@ -1,0 +1,226 @@
+/* page transitions — body only, so fixed bg layers aren't remounted */
+.page > .shell,
+.page > section,
+.page > footer {
+  animation: pageIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* responsive */
+@media (max-width: 1024px) {
+  .nav-links {
+    display: none;
+  }
+  .nav-cta {
+    display: none;
+  }
+  .nav-burger {
+    display: inline-flex;
+  }
+  .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .section-head h2 {
+    font-size: clamp(30px, 6vw, 44px);
+  }
+  .bsn-footer .top {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .bsn-footer .mid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .bsn-footer .social {
+    justify-self: start;
+  }
+
+  /* mobile sheet */
+  .mobile-sheet {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 49;
+    background: rgba(7, 7, 12, 0.92);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    flex-direction: column;
+    padding: 96px 28px 36px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .mobile-sheet .ms-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .mobile-sheet .ms-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+  body.menu-open .mobile-sheet {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  body.menu-open {
+    overflow: hidden;
+  }
+  .mobile-sheet .ms-links {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .mobile-sheet .ms-links a {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: clamp(26px, 7vw, 34px);
+    letter-spacing: -0.035em;
+    padding: 18px 0;
+    color: var(--ink);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: 0.2s;
+  }
+  .mobile-sheet .ms-links a.active {
+    background: linear-gradient(90deg, rgba(122, 91, 255, 0.12), transparent);
+    padding-left: 12px;
+    margin-left: -12px;
+    border-radius: 8px 8px 0 0;
+  }
+  .mobile-sheet .ms-links a span {
+    color: var(--ink-faint);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.14em;
+  }
+  .mobile-sheet .ms-cta {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 32px;
+  }
+  .mobile-sheet .ms-cta .mono {
+    color: var(--ink-faint);
+  }
+  .mobile-sheet .ms-cta .cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px 20px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 500;
+    background: var(--ink);
+    color: #0a0a12;
+  }
+}
+
+@media (max-width: 760px) {
+  .shell {
+    padding: 0 20px;
+  }
+  .nav-shell {
+    padding: 0 20px !important;
+  }
+  .nav {
+    top: 8px;
+    margin-top: 8px;
+  }
+  .nav-inner {
+    padding: 8px 8px 8px 14px;
+  }
+  .brand img {
+    height: 36px !important;
+  }
+  .btn {
+    padding: 13px 20px;
+    font-size: 14px;
+    width: 100%;
+    justify-content: center;
+  }
+  .btn.auto {
+    width: auto;
+  }
+  .glass {
+    border-radius: 18px;
+  }
+  .hero-s {
+    padding-top: 48px !important;
+    padding-bottom: 20px !important;
+  }
+  .hero-s h1 {
+    font-size: clamp(36px, 10vw, 52px) !important;
+    line-height: 1 !important;
+    letter-spacing: -0.035em !important;
+  }
+  .hero-s p {
+    font-size: 15px !important;
+    margin-top: 18px !important;
+  }
+  .bsn-footer {
+    padding: 40px 0 24px;
+    margin-top: 60px;
+  }
+  .bsn-footer .top {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-bottom: 32px;
+  }
+  .bsn-footer .news-form {
+    flex-direction: column;
+  }
+  .bsn-footer .bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 440px) {
+  .shell {
+    padding: 0 16px;
+  }
+  .nav-shell {
+    padding: 0 16px !important;
+  }
+  .nav-inner {
+    padding: 6px 6px 6px 12px;
+    gap: 8px;
+  }
+  .brand img {
+    height: 32px !important;
+  }
+  .nav-burger {
+    width: 36px;
+    height: 36px;
+  }
+}
+

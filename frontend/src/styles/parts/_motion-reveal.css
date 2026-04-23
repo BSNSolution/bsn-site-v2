@@ -1,0 +1,40 @@
+/* ============================================================
+   BSN Motion Layer (from new-layout-v3/motion.css)
+   - Reveal on scroll
+   - Cursor-aware spotlight nos cards
+   - Shimmer nos gradientes de texto
+   - Footer links deslizam lateralmente
+   - Border luminoso nos cards em hover
+   ============================================================ */
+
+/* REVEAL */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+[data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+[data-reveal="fade"] { transform: none; }
+[data-reveal="left"] { transform: translateX(-18px); }
+[data-reveal="right"] { transform: translateX(18px); }
+[data-reveal="scale"] { transform: scale(0.96); }
+[data-reveal="blur"] { filter: blur(8px); transform: translateY(14px); }
+[data-reveal="blur"].is-in { filter: blur(0); transform: none; }
+[data-reveal].is-in[data-reveal="left"],
+[data-reveal].is-in[data-reveal="right"],
+[data-reveal].is-in[data-reveal="scale"] { transform: none; }
+
+.reveal-group > [data-reveal]:nth-child(1)  { transition-delay: 0.05s; }
+.reveal-group > [data-reveal]:nth-child(2)  { transition-delay: 0.12s; }
+.reveal-group > [data-reveal]:nth-child(3)  { transition-delay: 0.19s; }
+.reveal-group > [data-reveal]:nth-child(4)  { transition-delay: 0.26s; }
+.reveal-group > [data-reveal]:nth-child(5)  { transition-delay: 0.33s; }
+.reveal-group > [data-reveal]:nth-child(6)  { transition-delay: 0.40s; }
+.reveal-group > [data-reveal]:nth-child(7)  { transition-delay: 0.47s; }
+.reveal-group > [data-reveal]:nth-child(8)  { transition-delay: 0.54s; }
+.reveal-group > [data-reveal]:nth-child(9)  { transition-delay: 0.61s; }
+.reveal-group > [data-reveal]:nth-child(10) { transition-delay: 0.68s; }
+

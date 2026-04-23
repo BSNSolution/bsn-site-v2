@@ -1,0 +1,223 @@
+/* KPI strip */
+.hero-meta {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(22px) saturate(160%);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.hero-meta > div {
+  padding: 24px 26px;
+  background: rgba(10, 10, 18, 0.35);
+  position: relative;
+}
+
+.hero-meta > div::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+}
+
+.hero-meta .km {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.hero-meta .k {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.hero-meta .k em {
+  font-size: 22px;
+  color: var(--ink-dim);
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.hero-meta .l {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--ink-dim);
+  line-height: 1.4;
+}
+
+/* mosaic */
+.vitral {
+  padding-top: 120px;
+  padding-bottom: 60px;
+}
+
+.mosaic {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 140px;
+  gap: 14px;
+}
+
+.tile {
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: 0.3s;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.tile:hover {
+  transform: translateY(-3px);
+  border-color: var(--line-strong);
+}
+
+.tile h3 {
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+.tile p {
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.tile .svc-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  align-self: flex-start;
+}
+
+.t1 {
+  grid-column: span 7;
+  grid-row: span 2;
+}
+.t2 {
+  grid-column: span 5;
+  grid-row: span 2;
+}
+.t3 {
+  grid-column: span 4;
+  grid-row: span 2;
+}
+.t4 {
+  grid-column: span 4;
+  grid-row: span 2;
+}
+.t5 {
+  grid-column: span 4;
+  grid-row: span 2;
+}
+.t6 {
+  grid-column: span 5;
+  grid-row: span 2;
+}
+.t7 {
+  grid-column: span 7;
+  grid-row: span 2;
+}
+
+.tile-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.tile-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.tile-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 14px -4px rgba(0, 0, 0, 0.4);
+}
+
+.tile-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: #fff;
+  stroke-width: 1.6;
+  fill: none;
+}
+
+.t1 .tile-icon {
+  background: linear-gradient(135deg, var(--violet), #5637d4);
+}
+.t2 .tile-icon {
+  background: linear-gradient(135deg, var(--cyan), #0aa6c9);
+}
+.t3 .tile-icon {
+  background: linear-gradient(135deg, var(--magenta), #c93191);
+}
+.t4 .tile-icon {
+  background: linear-gradient(135deg, var(--amber), #d98f1f);
+}
+.t5 .tile-icon {
+  background: linear-gradient(135deg, var(--emerald), #1fa57a);
+}
+.t6 .tile-icon {
+  background: linear-gradient(135deg, var(--violet), #5637d4);
+}
+.t7 .tile-icon {
+  background: linear-gradient(135deg, var(--cyan), #0aa6c9);
+}
+
+.t1 h3 {
+  font-size: 28px;
+}
+

@@ -24,6 +24,9 @@ import {
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { aiApi } from '@/lib/api'
+import { usePageSections } from '@/hooks/use-page-sections'
+
+const AI_SECTION_KEYS = ['hero', 'benefits', 'cases', 'stages', 'data', 'cta-band'] as const
 
 type AIBlockType = 'HERO_BENEFIT' | 'STAGE' | 'EDU_HIGHLIGHT'
 
@@ -212,13 +215,11 @@ export default function AIPage() {
 
   const benefits = data?.benefits?.length ? data.benefits : FALLBACK_BENEFITS
   const stages = data?.stages?.length ? data.stages : FALLBACK_STAGES
+  const { effectiveKeys } = usePageSections('ai', AI_SECTION_KEYS)
 
-  return (
-    <div className="page">
-      <Header />
-
-      {/* ─── Hero centralizado ─── */}
-      <section className="ai-hero shell" data-reveal>
+  const sectionRenderers: Record<string, () => JSX.Element | null> = {
+    hero: () => (
+      <section key="hero" className="ai-hero shell" data-reveal>
         <div className="ai-hero-spark" aria-hidden>
           <Sparkles />
         </div>
@@ -234,9 +235,10 @@ export default function AIPage() {
           e modelos sob medida para operações reais — com dados, métricas e um plano claro.
         </p>
       </section>
+    ),
 
-      {/* ─── Benefícios (strip única com 3 itens) ─── */}
-      <section className="ai-benefits-strip shell" data-reveal>
+    benefits: () => (
+      <section key="benefits" className="ai-benefits-strip shell" data-reveal>
         <div className="ai-benefits-wrap glass">
           {benefits.map((b) => (
             <div key={b.id} className={`ai-benefit-item ${b.colorClass ?? 'a'}`}>
@@ -247,9 +249,10 @@ export default function AIPage() {
           ))}
         </div>
       </section>
+    ),
 
-      {/* ─── Cases com IA ─── */}
-      <section className="ai-cases shell" data-reveal>
+    cases: () => (
+      <section key="cases" className="ai-cases shell" data-reveal>
         <div className="ai-section-head">
           <span className="tag mono">Cases com IA</span>
           <h2>
@@ -273,9 +276,10 @@ export default function AIPage() {
           ))}
         </div>
       </section>
+    ),
 
-      {/* ─── Etapas / Escopo ─── */}
-      <section className="ai-stages shell" data-reveal>
+    stages: () => (
+      <section key="stages" className="ai-stages shell" data-reveal>
         <div className="ai-section-head">
           <span className="tag mono">Escopo e serviços</span>
           <h2>
@@ -310,9 +314,10 @@ export default function AIPage() {
           ))}
         </div>
       </section>
+    ),
 
-      {/* ─── Dados como fator mais importante (diagrama orbital) ─── */}
-      <section className="ai-data shell" data-reveal>
+    data: () => (
+      <section key="data" className="ai-data shell" data-reveal>
         <div className="ai-section-head center">
           <h2>
             Dados como fator <em>mais importante</em>.
@@ -346,9 +351,10 @@ export default function AIPage() {
           <div className="ai-orbit-node n-near-right"><Bot /></div>
         </div>
       </section>
+    ),
 
-      {/* ─── CTA final em banda ─── */}
-      <section className="ai-cta-band" data-reveal>
+    'cta-band': () => (
+      <section key="cta-band" className="ai-cta-band" data-reveal>
         <div className="shell ai-cta-band-inner">
           <div className="ai-cta-band-copy">
             <h2>Fale com nossos especialistas hoje.</h2>
@@ -359,7 +365,13 @@ export default function AIPage() {
           </Link>
         </div>
       </section>
+    ),
+  }
 
+  return (
+    <div className="page">
+      <Header />
+      {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />
     </div>
   )
