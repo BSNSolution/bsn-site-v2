@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import Seo from '@/components/Seo'
 import { useAnalytics } from '@/hooks/use-analytics'
 import { usePageSections } from '@/hooks/use-page-sections'
 import { useApiQuery } from '@/hooks/use-api-query'
@@ -84,6 +85,24 @@ export default function HomePage() {
 
   return (
     <div className="page">
+      <Seo
+        title="BSN Solution — Desenvolvimento, IA e Tecnologia em Cuiabá"
+        description="Fábrica de software com 7 capacidades sob o mesmo time: desenvolvimento sob medida, squads, automação, IA aplicada, infra, consultoria e suporte 24/7. Um ponto de contato, um SLA, um time que fala a sua língua."
+        path="/"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'BSN Solution',
+            url: 'https://bsnsolution.com.br',
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: 'https://bsnsolution.com.br/blog?q={search_term_string}',
+              'query-input': 'required name=search_term_string',
+            },
+          },
+        ]}
+      />
       <Header />
       {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />

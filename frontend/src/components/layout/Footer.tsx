@@ -59,7 +59,7 @@ export default function Footer() {
         <div className="top">
           <div className="brand-col">
             <div className="logo-row">
-              <img src="/assets/logo.png" alt={settings.siteName ?? 'BSN Solution'} />
+              <img src="/assets/logo.png" alt={settings.siteName ?? 'BSN Solution'} loading="lazy" />
               <span className="tag">Tecnologia &amp; Inovação</span>
             </div>
             <p>{settings.siteDescription}</p>

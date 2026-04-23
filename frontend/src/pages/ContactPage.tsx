@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import PublicPageHero from '@/components/layout/PublicPageHero'
+import Seo from '@/components/Seo'
 import { contactApi, settingsApi } from '@/lib/api'
 import { usePageSections } from '@/hooks/use-page-sections'
 import { useApiQuery } from '@/hooks/use-api-query'
@@ -219,6 +220,11 @@ export default function ContactPage() {
 
   return (
     <div className="page">
+      <Seo
+        title="Contato — Vamos conversar sobre seu projeto"
+        description="Fale com a BSN Solution. Diagnóstico inicial gratuito de 45 minutos: viabilidade, próximos passos e primeiro escopo enxuto. Sem lengalenga comercial, em até 24h úteis."
+        path="/contato"
+      />
       <Header />
       {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />

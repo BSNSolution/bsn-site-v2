@@ -5,7 +5,9 @@ import DOMPurify from 'dompurify'
 import { ArrowLeft, Clock, Share2, Twitter, Linkedin, Link as LinkIcon } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import Seo from '@/components/Seo'
 import { blogApi } from '@/lib/api'
+import { articleSchema, breadcrumb } from '@/lib/schema'
 
 interface Author {
   id: string
@@ -99,6 +101,30 @@ export default function BlogPostPage() {
 
   return (
     <div className="page">
+      {post && (
+        <Seo
+          title={post.title}
+          description={post.excerpt || post.title}
+          path={`/blog/${post.slug}`}
+          type="article"
+          image={post.coverImage ?? undefined}
+          jsonLd={[
+            articleSchema({
+              title: post.title,
+              description: post.excerpt || post.title,
+              slug: post.slug,
+              author: post.author?.name,
+              datePublished: post.publishedAt ?? post.createdAt,
+              imageUrl: post.coverImage ?? undefined,
+            }),
+            breadcrumb([
+              { name: 'Home', path: '/' },
+              { name: 'Blog', path: '/blog' },
+              { name: post.title, path: `/blog/${post.slug}` },
+            ]),
+          ]}
+        />
+      )}
       <Header />
 
       <article className="shell" style={{ padding: '80px 32px 40px', maxWidth: 820 }}>
@@ -180,6 +206,8 @@ export default function BlogPostPage() {
               <img
                 src={post.coverImage}
                 alt={post.title}
+                loading="eager"
+                fetchPriority="high"
                 style={{
                   width: '100%',
                   borderRadius: 18,

@@ -2,10 +2,17 @@ import { Link } from 'react-router-dom'
 import { Home, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Header from '@/components/layout/Header'
+import Seo from '@/components/Seo'
 
 export default function NotFoundPage() {
   return (
     <>
+      <Seo
+        title="Página não encontrada"
+        description="A página que você procura não existe ou foi movida."
+        path="/404"
+        noIndex
+      />
       <Header />
       <main className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-6 max-w-md mx-auto px-4">

@@ -95,7 +95,7 @@ export default function AdminClientsPage() {
           {items.map((c) => (
             <div key={c.id} className="glass p-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3 flex-1">
-                {c.logoUrl && <img src={c.logoUrl} alt={c.name} className="h-10 w-10 object-contain" />}
+                {c.logoUrl && <img src={c.logoUrl} alt={c.name} loading="lazy" className="h-10 w-10 object-contain" />}
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium">{c.name}</h3>

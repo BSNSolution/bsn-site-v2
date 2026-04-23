@@ -1,9 +1,15 @@
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import Seo from '@/components/Seo'
 
 export default function TermsPage() {
   return (
     <div className="page">
+      <Seo
+        title="Termos de Uso"
+        description="Termos de uso do site e dos serviços BSN Solution — direitos, deveres, propriedade intelectual, limitação de responsabilidade e foro de eleição."
+        path="/termos"
+      />
       <Header />
 
       <section className="legal shell">

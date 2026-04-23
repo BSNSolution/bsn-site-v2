@@ -2,8 +2,10 @@ import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import Seo from '@/components/Seo'
 import { servicesApi } from '@/lib/api'
 import { renderServiceIcon } from '@/lib/service-icons'
+import { breadcrumb, serviceSchema } from '@/lib/schema'
 
 interface ServiceDetailBlock {
   id: string
@@ -57,6 +59,25 @@ export default function ServiceDetailPage() {
 
   return (
     <div className="page">
+      {svc && (
+        <Seo
+          title={`${svc.title} — Serviços`}
+          description={svc.heroDescription || svc.description}
+          path={`/servicos/${svc.slug}`}
+          jsonLd={[
+            serviceSchema({
+              name: svc.title,
+              description: svc.heroDescription || svc.description,
+              slug: svc.slug,
+            }),
+            breadcrumb([
+              { name: 'Home', path: '/' },
+              { name: 'Serviços', path: '/servicos' },
+              { name: svc.title, path: `/servicos/${svc.slug}` },
+            ]),
+          ]}
+        />
+      )}
       <Header />
 
       {isLoading && (

@@ -49,15 +49,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://api.fontshare.com" />
     
-    <!-- Structured Data -->
+    <!-- Structured Data — Organization + LocalBusiness -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
+      "@type": ["Organization", "LocalBusiness"],
       "name": "BSN Solution",
       "url": "https://bsnsolution.com.br",
       "logo": "https://bsnsolution.com.br/logo.png",
-      "description": "Especialistas em desenvolvimento web, mobile e soluções em tecnologia",
+      "image": "https://bsnsolution.com.br/og-image.jpg",
+      "description": "Fábrica de software com 11 capacidades sob o mesmo time — desenvolvimento sob medida, IA aplicada, squads ágeis, automação, infraestrutura, consultoria e suporte 24/7.",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Cuiabá",
@@ -83,6 +84,7 @@
         "@type": "Place",
         "name": "Brasil"
       },
+      "priceRange": "$$",
       "serviceType": [
         "Desenvolvimento Web",
         "Desenvolvimento Mobile",
@@ -94,8 +96,8 @@
     }
     </script>
     
-    <!-- Performance optimizations -->
-    <link rel="dns-prefetch" href="//localhost:3001" />
+    <!-- Performance — preload do logo (provável LCP) -->
+    <link rel="preload" as="image" href="/assets/logo.png" fetchpriority="high" />
     
     <!-- Security headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />

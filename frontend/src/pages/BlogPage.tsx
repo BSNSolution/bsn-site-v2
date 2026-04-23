@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import PublicPageHero from '@/components/layout/PublicPageHero'
+import Seo from '@/components/Seo'
 import { blogApi } from '@/lib/api'
 import { usePageSections } from '@/hooks/use-page-sections'
 
@@ -121,6 +122,11 @@ export default function BlogPage() {
 
   return (
     <div className="page">
+      <Seo
+        title="Blog — Ideias, Cases e Aprendizados"
+        description="Registros técnicos e estratégicos dos projetos da BSN Solution. Artigos curtos e diretos sobre arquitetura, IA aplicada, engenharia de dados e decisões de produto — sem fluff."
+        path="/blog"
+      />
       <Header />
       {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />

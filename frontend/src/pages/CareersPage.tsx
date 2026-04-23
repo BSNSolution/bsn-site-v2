@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import PublicPageHero from '@/components/layout/PublicPageHero'
+import Seo from '@/components/Seo'
 import { jobsApi } from '@/lib/api'
 import { usePageSections } from '@/hooks/use-page-sections'
 import { useApiQuery } from '@/hooks/use-api-query'
@@ -84,6 +85,11 @@ export default function CareersPage() {
 
   return (
     <div className="page">
+      <Seo
+        title="Carreiras — Vagas Abertas na BSN Solution"
+        description="Vagas abertas para devs, QAs, designers e product people. Venha construir produtos que rodam em produção e resolvem problemas reais de negócio — com autonomia, clareza de escopo e time sênior ao lado."
+        path="/carreiras"
+      />
       <Header />
       {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />

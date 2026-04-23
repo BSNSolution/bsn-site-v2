@@ -2,6 +2,7 @@ import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 
 // Styles
 import '@/styles/globals.css'
@@ -174,10 +175,11 @@ const root = createRoot(container)
 root.render(
   <StrictMode>
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <AnalyticsProvider>
-            <App />
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <AnalyticsProvider>
+              <App />
             {/* CustomCursor removed - causava lag no mouse */}
             <Toaster 
               theme="dark"
@@ -192,9 +194,10 @@ root.render(
                 },
               }}
             />
-          </AnalyticsProvider>
-        </BrowserRouter>
-      </QueryClientProvider>
+            </AnalyticsProvider>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   </StrictMode>
 )

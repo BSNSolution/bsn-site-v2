@@ -5,13 +5,14 @@ interface NavItem {
   href: string
   label: string
   num: string
+  highlight?: boolean
 }
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'Home', num: '01' },
   { href: '/servicos', label: 'Serviços', num: '02' },
   { href: '/solucoes', label: 'Soluções', num: '03' },
-  { href: '/inteligencia-artificial', label: 'IA', num: '04' },
+  { href: '/inteligencia-artificial', label: 'IA', num: '04', highlight: true },
   { href: '/sobre', label: 'Sobre', num: '05' },
   { href: '/blog', label: 'Blog', num: '06' },
   { href: '/contato', label: 'Contato', num: '07' },
@@ -38,6 +39,10 @@ export default function Header() {
               <img
                 src="/assets/logo.png"
                 alt="BSN Solution"
+                fetchPriority="high"
+                decoding="async"
+                width={140}
+                height={44}
                 style={{ height: 44, width: 'auto', display: 'block' }}
               />
             </Link>
@@ -48,7 +53,11 @@ export default function Header() {
                   key={item.href}
                   to={item.href}
                   end={item.href === '/'}
-                  className={({ isActive }) => (isActive ? 'active' : undefined)}
+                  className={({ isActive }) =>
+                    [isActive ? 'active' : '', item.highlight ? 'nav-highlight' : '']
+                      .filter(Boolean)
+                      .join(' ') || undefined
+                  }
                 >
                   {item.label}
                 </NavLink>
@@ -93,7 +102,11 @@ export default function Header() {
               <Link
                 key={item.href}
                 to={item.href}
-                className={isActive ? 'active' : undefined}
+                className={
+                  [isActive ? 'active' : '', item.highlight ? 'nav-highlight' : '']
+                    .filter(Boolean)
+                    .join(' ') || undefined
+                }
                 onClick={() => document.body.classList.remove('menu-open')}
               >
                 {item.label} <span>{item.num}</span>

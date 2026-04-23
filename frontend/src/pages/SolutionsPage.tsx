@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import PublicPageHero from '@/components/layout/PublicPageHero'
+import Seo from '@/components/Seo'
 import { usePageSections } from '@/hooks/use-page-sections'
 import { useApiQuery } from '@/hooks/use-api-query'
 import { solutionPlaceholder } from '@/lib/placeholders'
@@ -89,6 +90,11 @@ export default function SolutionsPage() {
 
   return (
     <div className="page">
+      <Seo
+        title="Soluções — Produtos e Plataformas em Produção"
+        description="Projetos reais rodando em produção com clientes reais. Cada solução pode ser adaptada ao seu setor em semanas, não meses — portais, PDVs, marketplaces, ERPs customizados, SaaS B2B e integrações complexas."
+        path="/solucoes"
+      />
       <Header />
       {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />

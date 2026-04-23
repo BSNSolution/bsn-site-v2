@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import PublicPageHero from '@/components/layout/PublicPageHero'
+import Seo from '@/components/Seo'
 import { teamApi, aboutCardsApi } from '@/lib/api'
 import { usePageSections } from '@/hooks/use-page-sections'
 import { useApiQuery } from '@/hooks/use-api-query'
@@ -138,6 +139,11 @@ export default function AboutPage() {
 
   return (
     <div className="page">
+      <Seo
+        title="Sobre a BSN Solution — Engenharia para Problemas Reais"
+        description="Há mais de uma década transformando operação em vantagem competitiva. Software fácil de usar, difícil de ignorar e feito para durar tanto quanto o seu negócio. Conheça o time, a história e os valores da BSN Solution."
+        path="/sobre"
+      />
       <Header />
       {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />

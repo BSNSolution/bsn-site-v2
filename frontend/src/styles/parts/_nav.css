@@ -54,6 +54,21 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+/* Destaque amber para o item de IA — tanto no desktop quanto no mobile sheet */
+.nav-links a.nav-highlight,
+.mobile-sheet .ms-links a.nav-highlight {
+  color: #ffb547;
+}
+.nav-links a.nav-highlight:hover,
+.mobile-sheet .ms-links a.nav-highlight:hover {
+  color: #ffc876;
+  background: rgba(255, 181, 71, 0.08);
+}
+.nav-links a.nav-highlight.active {
+  color: #ffb547;
+  background: rgba(255, 181, 71, 0.12);
+}
+
 .nav-cta {
   display: inline-flex;
   align-items: center;

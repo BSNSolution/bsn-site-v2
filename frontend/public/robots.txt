@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /admin/*
+
+# Sitemap
+Sitemap: https://bsnsolution.com.br/sitemap.xml

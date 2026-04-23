@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import PublicPageHero from '@/components/layout/PublicPageHero'
+import Seo from '@/components/Seo'
 import { usePageSections } from '@/hooks/use-page-sections'
 import { useApiQuery } from '@/hooks/use-api-query'
 import { renderServiceIcon } from '@/lib/service-icons'
@@ -127,6 +128,11 @@ export default function ServicesPage() {
 
   return (
     <div className="page">
+      <Seo
+        title="Serviços — Desenvolvimento, IA, Squads e Infraestrutura"
+        description="11 capacidades especializadas entregues como peças avulsas ou montadas como um vitral: dev sob medida, squads ágeis, automação, IA aplicada, infra, consultoria, suporte, outsourcing, dados para IA, product concept e design de serviço."
+        path="/servicos"
+      />
       <Header />
       {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import Seo from '@/components/Seo'
 import { aiApi } from '@/lib/api'
 import { usePageSections } from '@/hooks/use-page-sections'
 
@@ -395,6 +396,11 @@ export default function AIPage() {
 
   return (
     <div className="page">
+      <Seo
+        title="Inteligência Artificial Aplicada — Engenharia, não Keynote"
+        description="Construímos agentes, automações e modelos de IA sob medida para operações reais — com dados, métricas e plano claro. Diagnóstico de maturidade, pipelines, guardrails e integração profunda com seus sistemas. IA que vira resultado no balanço."
+        path="/inteligencia-artificial"
+      />
       <Header />
       {effectiveKeys.map((key) => sectionRenderers[key]?.() ?? null)}
       <Footer />

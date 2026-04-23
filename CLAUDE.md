@@ -121,6 +121,27 @@ Placeholder content é OK pro seed — o admin permite editar tudo depois.
 - ESLint + Biome para linting
 - Variáveis de ambiente via .env (com .env.example)
 
+## SEO — Regras obrigatórias
+
+Sempre que criar/alterar/remover algo que afete URLs públicas ou conteúdo
+indexável, atualizar estes arquivos **no mesmo PR/commit**:
+
+- `frontend/public/sitemap.xml` — adicionar/remover `<url>` para rotas novas,
+  atualizar `changefreq`/`priority` quando fizer sentido.
+- `frontend/public/robots.txt` — incluir `Disallow:` para áreas privadas
+  (admin, dashboards, rotas internas) e garantir que o `Sitemap:` aponta para
+  o domínio correto.
+- Meta tags dinâmicas via `react-helmet-async` nas páginas novas (title,
+  description, og:image, canonical).
+- Schema.org (JSON-LD) apropriado para o tipo de conteúdo
+  (`Service`, `Article`, `BreadcrumbList`, `FAQPage`, etc).
+
+Exemplos que disparam atualização:
+- Nova rota pública (ex: `/cases`, `/eventos`, `/servicos/novo-slug`)
+- Nova página de detalhe dinâmica (ex: novo blog post, novo serviço)
+- Página removida ou movida (remover do sitemap + redirect quando aplicável)
+- Nova área admin/privada (adicionar `Disallow:` no robots)
+
 ## Credenciais padrão do Admin
 - Email: admin@bsnsolution.com.br
 - Senha: bsn2024@admin

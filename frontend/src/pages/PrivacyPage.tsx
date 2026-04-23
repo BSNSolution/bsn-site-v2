@@ -1,9 +1,15 @@
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import Seo from '@/components/Seo'
 
 export default function PrivacyPage() {
   return (
     <div className="page">
+      <Seo
+        title="Política de Privacidade"
+        description="Como a BSN Solution coleta, usa e protege seus dados pessoais. Política alinhada à LGPD, cookies, compartilhamento, retenção e seus direitos como titular."
+        path="/politica-privacidade"
+      />
       <Header />
 
       <section className="legal shell">
