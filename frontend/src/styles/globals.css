@@ -2232,12 +2232,15 @@ body.menu-open .nav-burger span::after {
   flex-wrap: wrap;
 }
 
+.band-shard,
+.shard {
+  position: absolute !important;
+  pointer-events: none;
+}
 .band-shard {
-  position: absolute;
   border-radius: 50%;
   filter: blur(80px);
   opacity: 0.5;
-  pointer-events: none;
 }
 
 .band-shard.a {
@@ -3520,24 +3523,24 @@ body.menu-open .nav-burger span::after {
 /* Mobile sheet sem spotlight */
 .mobile-sheet .glass > .bsn-spot { display: none !important; }
 
-/* conteúdo acima do spotlight */
-.glass > *:not(.bsn-spot),
-.tile > *:not(.bsn-spot),
-.node > *:not(.bsn-spot),
-.svc > *:not(.bsn-spot),
-.sol > *:not(.bsn-spot),
-.feat-card > *:not(.bsn-spot),
-.post > *:not(.bsn-spot),
-.person > *:not(.bsn-spot),
-.val > *:not(.bsn-spot),
-.job > *:not(.bsn-spot),
-.perk > *:not(.bsn-spot),
-.chan > *:not(.bsn-spot),
-.form-card > *:not(.bsn-spot),
-.doc > *:not(.bsn-spot),
-.clients-card > *:not(.bsn-spot),
-.process-step > *:not(.bsn-spot),
-.timeline-card > *:not(.bsn-spot) {
+/* conteúdo acima do spotlight — exclui .shard/.band-shard que precisam continuar absolute */
+.glass > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.tile > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.node > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.svc > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.sol > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.feat-card > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.post > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.person > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.val > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.job > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.perk > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.chan > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.form-card > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.doc > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.clients-card > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.process-step > *:not(.bsn-spot):not(.shard):not(.band-shard),
+.timeline-card > *:not(.bsn-spot):not(.shard):not(.band-shard) {
   position: relative;
   z-index: 3;
 }
