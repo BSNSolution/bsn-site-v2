@@ -197,158 +197,659 @@ async function main() {
     ],
   });
 
-  // 4. Serviços — 7 frentes exatas do new-layout (servicos.html)
-  await prisma.service.createMany({
-    data: [
-      {
-        title: 'Desenvolvimento de software sob medida',
-        subtitle: 'sob medida',
-        description:
-          'Sistemas construídos para a realidade da sua operação — portais de autoatendimento, módulos de integração complexos, dashboards executivos e qualquer ferramenta que resolva um problema específico do seu negócio.',
-        iconName: 'code',
-        anchor: 'sob-medida',
-        numLabel: 'SVC · 01',
-        shardColor: 'v',
-        ctaLabel: 'Falar sobre um projeto ↗',
-        features: [
-          { title: 'Arquitetura escalável', description: 'Pronta para crescer sem retrabalho' },
-          { title: 'ROI mensurável', description: 'Foco em valor real, não em feature slop' },
-          { title: 'Integrações nativas', description: 'ERPs, CRMs, APIs públicas e legadas' },
-          { title: 'Código proprietário', description: 'Propriedade 100% sua, sem lock-in' },
-        ],
-        tileClass: 't1',
-        homePill: 'Ver detalhes →',
-        homePillTags: [],
-        order: 1,
-      },
-      {
-        title: 'Squads ágeis multidisciplinares',
-        subtitle: 'multidisciplinares',
-        description:
-          'Times plug-and-play com devs, QAs, POs, designers e DevOps — montados no tamanho certo para o seu desafio e integrados em até 5 dias úteis.',
-        iconName: 'squad',
-        anchor: 'squads',
-        numLabel: 'SVC · 02',
-        shardColor: 'c',
-        ctaLabel: 'Montar meu squad ↗',
-        features: [
-          { title: 'Integração em 5 dias', description: 'Do handshake ao primeiro PR' },
-          { title: 'Cerimônias ágeis', description: 'Daily, planning, review, retro' },
-          { title: 'Escala elástica', description: 'Aumente ou reduza sem burocracia' },
-          { title: 'Métricas claras', description: 'Velocity, CSAT, lead time' },
-        ],
-        tileClass: 't2',
-        homePill: 'Plug & play',
-        homePillTags: [],
-        order: 2,
-      },
-      {
-        title: 'Automação de processos',
-        subtitle: 'de processos',
-        description:
-          'Mapeamos fluxos manuais, orquestramos integrações e entregamos horas de volta à sua equipe. Ideal para operações com alto custo de repetição.',
-        iconName: 'auto',
-        anchor: 'automacao',
-        numLabel: 'SVC · 03',
-        shardColor: 'm',
-        ctaLabel: 'Automatizar um processo ↗',
-        features: [
-          { title: 'RPA & workflows', description: 'Processos multi-sistema sem dor' },
-          { title: 'ETL e pipelines', description: 'Dados no lugar certo, na hora certa' },
-          { title: 'Notificações', description: 'WhatsApp, e-mail, webhooks' },
-          { title: 'Monitoramento', description: 'Alertas quando algo sai do trilho' },
-        ],
-        tileClass: 't3',
-        homePill: '',
-        homePillTags: [],
-        order: 3,
-      },
-      {
-        title: 'Consultoria em tecnologia',
-        subtitle: 'em tecnologia',
-        description:
-          'Diagnóstico preciso que alinha processos, infraestrutura e inovação. Ajudamos sua liderança a tomar decisões técnicas mais inteligentes — e mais baratas.',
-        iconName: 'box',
-        anchor: 'consultoria',
-        numLabel: 'SVC · 04',
-        shardColor: 'a',
-        ctaLabel: 'Solicitar diagnóstico ↗',
-        features: [
-          { title: 'Tech assessment', description: 'Radiografia de stack, time e débito' },
-          { title: 'Roadmap técnico', description: 'Priorização orientada a valor' },
-          { title: 'Arquitetura', description: 'Revisão e redesenho de sistemas' },
-          { title: 'Due diligence', description: 'Suporte a M&A e investimentos' },
-        ],
-        tileClass: 't4',
-        homePill: '',
-        homePillTags: [],
-        order: 4,
-      },
-      {
-        title: 'Infraestrutura & VPS gerenciada',
-        subtitle: '& VPS gerenciada',
-        description:
-          'Servidores dimensionados para sua carga real, com backups, segurança, observabilidade e atualizações inclusas. Você usa a ferramenta; a gente cuida do resto.',
-        iconName: 'server',
-        anchor: 'infra',
-        numLabel: 'SVC · 05',
-        shardColor: 'e',
-        ctaLabel: 'Dimensionar infra ↗',
-        features: [
-          { title: 'Cloud-agnostic', description: 'AWS, GCP, Azure ou on-premise' },
-          { title: 'Backups auditáveis', description: '3-2-1, testados e criptografados' },
-          { title: 'SLA escalonado', description: 'De 99.9% a 99.99%' },
-          { title: 'Observabilidade', description: 'Logs, métricas, traces, alertas' },
-        ],
-        tileClass: 't5',
-        homePill: '',
-        homePillTags: [],
-        order: 5,
-      },
-      {
-        title: 'Suporte e evolução contínua',
-        subtitle: 'evolução contínua',
-        description:
-          'Planos que acompanham seu crescimento. Adicione funcionalidades, corrija rotas ou faça upgrades técnicos a qualquer momento — sem reiniciar o relacionamento.',
-        iconName: 'support',
-        anchor: 'suporte',
-        numLabel: 'SVC · 06',
-        shardColor: 'v',
-        ctaLabel: 'Contratar suporte ↗',
-        features: [
-          { title: 'SLA 24/7', description: 'Plantão técnico com priorização' },
-          { title: 'Roadmap compartilhado', description: 'Você vê cada sprint' },
-          { title: 'Dívida técnica', description: 'Refactors programados' },
-          { title: 'Onboarding contínuo', description: 'De novos membros do seu time' },
-        ],
-        tileClass: 't6',
-        homePill: 'SLA 24/7',
-        homePillTags: [],
-        order: 6,
-      },
-      {
-        title: 'Outsourcing estratégico de TI',
-        subtitle: 'estratégico de TI',
-        description:
-          'Mantenha o foco no core do seu negócio. Nossos especialistas assumem demandas específicas — com previsibilidade de custo, prazo e qualidade superior à contratação interna.',
-        iconName: 'build',
-        anchor: 'outsourcing',
-        numLabel: 'SVC · 07',
-        shardColor: 'c',
-        ctaLabel: 'Terceirizar com a BSN ↗',
-        features: [
-          { title: 'Dev & DevOps', description: 'Backend, frontend, mobile, infra' },
-          { title: 'QA & SRE', description: 'Automação de testes e confiabilidade' },
-          { title: 'Data & Produto', description: 'Analytics, BI, PMs e designers' },
-          { title: 'Contratos flex', description: 'Mensal, trimestral ou por projeto' },
-        ],
-        tileClass: 't7',
-        homePill: '',
-        homePillTags: ['Dev', 'DevOps', 'QA', 'Data', 'Produto'],
-        order: 7,
-      },
-    ],
-  });
+  // 4. Serviços — 11 frentes (7 originais do new-layout + IA + Dados + Product Concept + Design de Serviço)
+  //    Inclui campos da página de detalhe /servicos/:slug (hero, CTA) + ServiceDetailBlocks abaixo.
+  const serviceDefinitions = [
+    {
+      title: 'Desenvolvimento de software sob medida',
+      subtitle: 'sob medida',
+      description:
+        'Sistemas construídos para a realidade da sua operação — portais de autoatendimento, módulos de integração complexos, dashboards executivos e qualquer ferramenta que resolva um problema específico do seu negócio.',
+      iconName: 'code',
+      anchor: 'sob-medida',
+      slug: 'sob-medida',
+      numLabel: 'SVC · 01',
+      shardColor: 'v',
+      ctaLabel: 'Falar sobre um projeto ↗',
+      features: [
+        { title: 'Arquitetura escalável', description: 'Pronta para crescer sem retrabalho' },
+        { title: 'ROI mensurável', description: 'Foco em valor real, não em feature slop' },
+        { title: 'Integrações nativas', description: 'ERPs, CRMs, APIs públicas e legadas' },
+        { title: 'Código proprietário', description: 'Propriedade 100% sua, sem lock-in' },
+      ],
+      tileClass: 't1',
+      homePill: 'Ver detalhes →',
+      homePillTags: [],
+      order: 1,
+      // Hero + CTA da página de detalhe
+      heroEyebrow: 'Serviço · sob medida',
+      heroDescription:
+        'Software desenhado a partir do seu processo — não o contrário. Cada linha de código existe para resolver um problema claro da sua operação, com propriedade 100% sua.',
+      heroLongText:
+        'Em vez de adaptar um SaaS genérico a exceções infinitas, construímos a plataforma certa para como você realmente trabalha. Do diagnóstico ao go-live, sem zona cinzenta.',
+      ctaTitle: 'Pronto para começar sob medida?',
+      ctaText:
+        'Em até 45 minutos de conversa definimos viabilidade, próximos passos e um primeiro escopo enxuto. Sem lengalenga comercial.',
+      ctaButtonLabel: 'Agendar diagnóstico →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que começar sob medida',
+          description:
+            'Quando seu processo é diferencial competitivo, um SaaS genérico vira gargalo. Construir o software certo é mais barato no médio prazo e escala junto com o negócio.',
+          iconName: 'trending-up',
+          colorClass: 'a',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Discovery curto, escopo enxuto, sprints quinzenais com demo ao vivo. Você aprova cada entrega. Nenhum feature entra no roadmap sem métrica de valor.',
+          iconName: 'workflow',
+          colorClass: 'b',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'Produto rodando em produção, código e docs no seu repositório, pipeline de CI/CD, observabilidade configurada e um time pronto para evoluir o sistema ao longo do tempo.',
+          iconName: 'shield',
+          colorClass: 'c',
+          order: 3,
+        },
+      ],
+    },
+    {
+      title: 'Squads ágeis multidisciplinares',
+      subtitle: 'multidisciplinares',
+      description:
+        'Times plug-and-play com devs, QAs, POs, designers e DevOps — montados no tamanho certo para o seu desafio e integrados em até 5 dias úteis.',
+      iconName: 'squad',
+      anchor: 'squads',
+      slug: 'squads',
+      numLabel: 'SVC · 02',
+      shardColor: 'c',
+      ctaLabel: 'Montar meu squad ↗',
+      features: [
+        { title: 'Integração em 5 dias', description: 'Do handshake ao primeiro PR' },
+        { title: 'Cerimônias ágeis', description: 'Daily, planning, review, retro' },
+        { title: 'Escala elástica', description: 'Aumente ou reduza sem burocracia' },
+        { title: 'Métricas claras', description: 'Velocity, CSAT, lead time' },
+      ],
+      tileClass: 't2',
+      homePill: 'Plug & play',
+      homePillTags: [],
+      order: 2,
+      heroEyebrow: 'Serviço · squads ágeis',
+      heroDescription:
+        'Times sêniores que entram no seu fluxo como se já estivessem lá. Integração em dias, entregas em semanas — sem dor de contratação nem custo fixo sobrando.',
+      heroLongText:
+        'Você define o desafio, a gente monta o squad certo (dev, QA, PO, designer, DevOps). Cerimônias ágeis acontecem, métricas são públicas, o escopo se ajusta ao que o negócio precisa agora.',
+      ctaTitle: 'Monte seu squad ideal em dias',
+      ctaText:
+        'Conte o desafio e o prazo — voltamos com proposta de time, rituais e métricas em até 48 horas úteis.',
+      ctaButtonLabel: 'Quero montar um squad →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que começar com squads',
+          description:
+            'Contratação interna leva meses e trava em formação cultural. Um squad pronto entrega valor desde a primeira sprint e reduz risco de turnover no início do projeto.',
+          iconName: 'zap',
+          colorClass: 'b',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Time fixo dedicado, rituais ágeis semanais com seu PO/gestor, board compartilhado, métricas de entrega públicas. Você acompanha lead time, velocity e CSAT em tempo real.',
+          iconName: 'cpu',
+          colorClass: 'c',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'Incrementos de produto a cada sprint, transferência contínua de conhecimento ao seu time interno e autonomia para aumentar, reduzir ou encerrar o squad com aviso de 30 dias.',
+          iconName: 'bot',
+          colorClass: 'd',
+          order: 3,
+        },
+      ],
+    },
+    {
+      title: 'Automação de processos',
+      subtitle: 'de processos',
+      description:
+        'Mapeamos fluxos manuais, orquestramos integrações e entregamos horas de volta à sua equipe. Ideal para operações com alto custo de repetição.',
+      iconName: 'auto',
+      anchor: 'automacao',
+      slug: 'automacao',
+      numLabel: 'SVC · 03',
+      shardColor: 'm',
+      ctaLabel: 'Automatizar um processo ↗',
+      features: [
+        { title: 'RPA & workflows', description: 'Processos multi-sistema sem dor' },
+        { title: 'ETL e pipelines', description: 'Dados no lugar certo, na hora certa' },
+        { title: 'Notificações', description: 'WhatsApp, e-mail, webhooks' },
+        { title: 'Monitoramento', description: 'Alertas quando algo sai do trilho' },
+      ],
+      tileClass: 't3',
+      homePill: '',
+      homePillTags: [],
+      order: 3,
+      heroEyebrow: 'Serviço · automação',
+      heroDescription:
+        'Tire trabalho repetitivo do time e devolva horas ao que move o negócio. Automação com guardrails, logs auditáveis e pessoas no loop onde importa.',
+      heroLongText:
+        'Mapeamos o fluxo atual, identificamos o gargalo real e implementamos a automação na ordem certa — RPA, workflows, integrações, notificações. Nada de automatizar um processo errado.',
+      ctaTitle: 'Quais processos devolveriam mais tempo?',
+      ctaText:
+        'Fazemos um diagnóstico rápido e apontamos até 3 automações com maior ROI na sua operação antes de qualquer contrato.',
+      ctaButtonLabel: 'Mapear meus processos →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que automatizar agora',
+          description:
+            'Todo processo repetitivo custa horas que deveriam virar produto ou atendimento. Automação bem feita paga o investimento no primeiro trimestre e liberta o time para trabalho de maior valor.',
+          iconName: 'scissors',
+          colorClass: 'a',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Diagnóstico de fluxo em 1 semana, priorização por ROI, implementação incremental e revisão conjunta antes do go-live. Monitoramento ativo e pessoas no loop em decisões críticas.',
+          iconName: 'file-search',
+          colorClass: 'b',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'Automação rodando, logs auditáveis, alertas configurados e documentação acessível ao seu time. Você opera e audita; a gente mantém e evolui quando os sistemas mudam.',
+          iconName: 'gauge',
+          colorClass: 'c',
+          order: 3,
+        },
+      ],
+    },
+    {
+      title: 'Consultoria em tecnologia',
+      subtitle: 'em tecnologia',
+      description:
+        'Diagnóstico preciso que alinha processos, infraestrutura e inovação. Ajudamos sua liderança a tomar decisões técnicas mais inteligentes — e mais baratas.',
+      iconName: 'box',
+      anchor: 'consultoria',
+      slug: 'consultoria',
+      numLabel: 'SVC · 04',
+      shardColor: 'a',
+      ctaLabel: 'Solicitar diagnóstico ↗',
+      features: [
+        { title: 'Tech assessment', description: 'Radiografia de stack, time e débito' },
+        { title: 'Roadmap técnico', description: 'Priorização orientada a valor' },
+        { title: 'Arquitetura', description: 'Revisão e redesenho de sistemas' },
+        { title: 'Due diligence', description: 'Suporte a M&A e investimentos' },
+      ],
+      tileClass: 't4',
+      homePill: '',
+      homePillTags: [],
+      order: 4,
+      heroEyebrow: 'Serviço · consultoria',
+      heroDescription:
+        'Clareza sobre stack, time, débito técnico e roadmap. Diagnóstico honesto e recomendações priorizadas — sem jargão nem agenda de venda de mais horas.',
+      heroLongText:
+        'Mergulhamos na sua arquitetura, entrevistamos o time, analisamos métricas reais e entregamos um plano concreto com quick wins e apostas estratégicas. Você decide o que executar, com quem.',
+      ctaTitle: 'Seu tech stack está ajudando ou atrapalhando?',
+      ctaText:
+        'Em 2 semanas entregamos um relatório executivo com diagnóstico, priorização e ROI esperado para cada decisão.',
+      ctaButtonLabel: 'Solicitar diagnóstico →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que consultar',
+          description:
+            'Decisões técnicas tomadas sem diagnóstico independente acumulam dívida silenciosa. Uma revisão externa revela bottlenecks que o time interno já normalizou e economiza seis dígitos em retrabalho.',
+          iconName: 'brain',
+          colorClass: 'c',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Duas semanas imersos na sua realidade: code review, entrevistas com time, análise de métricas, benchmarks. Nenhuma recomendação sem evidência concreta no relatório final.',
+          iconName: 'file-search',
+          colorClass: 'a',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'Relatório executivo + plano de ação priorizado por ROI + sessão de debrief com sua liderança. Sem amarra de continuidade — você pode executar com a gente, com seu time, ou com um terceiro.',
+          iconName: 'line-chart',
+          colorClass: 'd',
+          order: 3,
+        },
+      ],
+    },
+    {
+      title: 'Infraestrutura & VPS gerenciada',
+      subtitle: '& VPS gerenciada',
+      description:
+        'Servidores dimensionados para sua carga real, com backups, segurança, observabilidade e atualizações inclusas. Você usa a ferramenta; a gente cuida do resto.',
+      iconName: 'server',
+      anchor: 'infra',
+      slug: 'infra',
+      numLabel: 'SVC · 05',
+      shardColor: 'e',
+      ctaLabel: 'Dimensionar infra ↗',
+      features: [
+        { title: 'Cloud-agnostic', description: 'AWS, GCP, Azure ou on-premise' },
+        { title: 'Backups auditáveis', description: '3-2-1, testados e criptografados' },
+        { title: 'SLA escalonado', description: 'De 99.9% a 99.99%' },
+        { title: 'Observabilidade', description: 'Logs, métricas, traces, alertas' },
+      ],
+      tileClass: 't5',
+      homePill: '',
+      homePillTags: [],
+      order: 5,
+      heroEyebrow: 'Serviço · infra',
+      heroDescription:
+        'Infraestrutura dimensionada pro seu tráfego real, com SLA claro e observabilidade fim-a-fim. Cloud-agnostic, backup testado, sem amarra de fornecedor.',
+      heroLongText:
+        'Você opera o produto; a gente opera a infra. Dimensionamento honesto, migrações sem drama, backup testado semanalmente e alerta que só toca quando precisa.',
+      ctaTitle: 'Sua infra atual está pronta para escalar?',
+      ctaText:
+        'Rodamos um health check gratuito de 48 horas com recomendações concretas antes de qualquer proposta.',
+      ctaButtonLabel: 'Pedir health check →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que nos preocupar com infra',
+          description:
+            'Infra mal dimensionada é o custo invisível do crescimento: conta de cloud inflada, incidentes frequentes e deploy lento. Uma revisão enxuta recupera margem e confiabilidade.',
+          iconName: 'shield',
+          colorClass: 'e',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Auditoria de custo e arquitetura, IaC versionado, pipelines de deploy blue-green, observabilidade com SLOs acordados. Migração incremental com rollback pronto.',
+          iconName: 'workflow',
+          colorClass: 'b',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'Infra documentada, SLA mensal com métricas reais, backup testado e plantão 24/7 opcional. Sem lock-in — todo o IaC fica no seu repositório.',
+          iconName: 'database',
+          colorClass: 'c',
+          order: 3,
+        },
+      ],
+    },
+    {
+      title: 'Suporte e evolução contínua',
+      subtitle: 'evolução contínua',
+      description:
+        'Planos que acompanham seu crescimento. Adicione funcionalidades, corrija rotas ou faça upgrades técnicos a qualquer momento — sem reiniciar o relacionamento.',
+      iconName: 'support',
+      anchor: 'suporte',
+      slug: 'suporte',
+      numLabel: 'SVC · 06',
+      shardColor: 'v',
+      ctaLabel: 'Contratar suporte ↗',
+      features: [
+        { title: 'SLA 24/7', description: 'Plantão técnico com priorização' },
+        { title: 'Roadmap compartilhado', description: 'Você vê cada sprint' },
+        { title: 'Dívida técnica', description: 'Refactors programados' },
+        { title: 'Onboarding contínuo', description: 'De novos membros do seu time' },
+      ],
+      tileClass: 't6',
+      homePill: 'SLA 24/7',
+      homePillTags: [],
+      order: 6,
+      heroEyebrow: 'Serviço · suporte',
+      heroDescription:
+        'Relação contínua com o time que construiu (ou entendeu) seu sistema. Sem reabrir contrato a cada melhoria — roadmap compartilhado, entregas previsíveis.',
+      heroLongText:
+        'Além de apagar incêndio: cuidamos de dívida técnica, evolução funcional, upgrade de stack e onboarding de novos membros do seu time. SLA ajustado à criticidade real do produto.',
+      ctaTitle: 'Quer um time de plantão que já conhece seu código?',
+      ctaText:
+        'Planos a partir de 20h/mês com roadmap compartilhado e priorização conjunta. Sem surpresas em fatura.',
+      ctaButtonLabel: 'Conhecer planos de suporte →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que ter suporte contínuo',
+          description:
+            'Todo sistema em produção acumula dívida, requer ajustes regulatórios e ganha demanda nova. Ter o time certo à mão reduz MTTR e evita o ciclo "parar tudo para apagar incêndio".',
+          iconName: 'zap',
+          colorClass: 'a',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Plantão técnico com níveis de prioridade acordados, roadmap compartilhado em board público, planning mensal conjunto e relatório executivo de atividades ao fim de cada ciclo.',
+          iconName: 'clock',
+          colorClass: 'b',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'SLAs honrados, dívida técnica tratada em esteira, features novas entregues a cada sprint e conhecimento transferido ao seu time continuamente. Sem reféns.',
+          iconName: 'shield',
+          colorClass: 'c',
+          order: 3,
+        },
+      ],
+    },
+    {
+      title: 'Outsourcing estratégico de TI',
+      subtitle: 'estratégico de TI',
+      description:
+        'Mantenha o foco no core do seu negócio. Nossos especialistas assumem demandas específicas — com previsibilidade de custo, prazo e qualidade superior à contratação interna.',
+      iconName: 'build',
+      anchor: 'outsourcing',
+      slug: 'outsourcing',
+      numLabel: 'SVC · 07',
+      shardColor: 'c',
+      ctaLabel: 'Terceirizar com a BSN ↗',
+      features: [
+        { title: 'Dev & DevOps', description: 'Backend, frontend, mobile, infra' },
+        { title: 'QA & SRE', description: 'Automação de testes e confiabilidade' },
+        { title: 'Data & Produto', description: 'Analytics, BI, PMs e designers' },
+        { title: 'Contratos flex', description: 'Mensal, trimestral ou por projeto' },
+      ],
+      tileClass: 't7',
+      homePill: '',
+      homePillTags: ['Dev', 'DevOps', 'QA', 'Data', 'Produto'],
+      order: 7,
+      heroEyebrow: 'Serviço · outsourcing',
+      heroDescription:
+        'Terceirize frentes específicas com previsibilidade de custo e qualidade superior à contratação interna. Você mantém o foco estratégico; a gente toca execução.',
+      heroLongText:
+        'Dev, QA, SRE, Data, Produto, Design — alocamos os perfis que seu negócio demanda, com contratos flexíveis e saída limpa sempre que você quiser internalizar.',
+      ctaTitle: 'Onde terceirizar agora faz mais sentido?',
+      ctaText:
+        'Conte a demanda — avaliamos e respondemos com perfis, custos e SLA esperado em até 2 dias úteis.',
+      ctaButtonLabel: 'Quero terceirizar →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que terceirizar estratégico',
+          description:
+            'Nem tudo precisa ser feito in-house. Terceirizar frentes bem delimitadas libera liderança interna para o core do negócio e traz maturidade que demoraria anos para construir.',
+          iconName: 'trending-up',
+          colorClass: 'd',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Perfis selecionados, contrato de SLA claro, integração ao seu processo (ferramentas, cerimônias, código) e governança de entrega auditável mês a mês.',
+          iconName: 'cpu',
+          colorClass: 'a',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'Capacidade imediata, conhecimento transferível, documentação de tudo que é construído e opção real de internalizar o time com aviso prévio de 60 dias.',
+          iconName: 'bot',
+          colorClass: 'c',
+          order: 3,
+        },
+      ],
+    },
+    {
+      title: 'Inteligência Artificial aplicada',
+      subtitle: 'aplicada',
+      description:
+        'Agentes, automações e modelos sob medida que resolvem problemas reais da sua operação — com dados, métricas e guardrails. Menos hype, mais integração profunda com seus sistemas.',
+      iconName: 'brain',
+      anchor: 'ia',
+      slug: 'ia',
+      numLabel: 'SVC · 08',
+      shardColor: 'm',
+      ctaLabel: 'Conhecer projetos de IA ↗',
+      features: [
+        { title: 'Agentes de IA', description: 'Triagem, atendimento e copilotos internos' },
+        { title: 'RAG & busca semântica', description: 'Base de conhecimento com citação de fonte' },
+        { title: 'Fine-tuning & LLMs', description: 'Modelos ajustados ao seu domínio' },
+        { title: 'MLOps & observabilidade', description: 'Métricas, drift e custo por inferência' },
+      ],
+      tileClass: '',
+      homePill: 'Novo',
+      homePillTags: ['LLM', 'RAG', 'Agentes', 'MLOps'],
+      order: 8,
+      heroEyebrow: 'Serviço · IA aplicada',
+      heroDescription:
+        'IA que vira resultado no balanço — não promessa em keynote. Construímos agentes, automações e modelos com dados, métricas e plano claro.',
+      heroLongText:
+        'Discovery honesto para separar o que dá ROI do que é demo de conferência. Depois, engenharia pesada: LLMs, RAG, agentes, guardrails, observabilidade.',
+      ctaTitle: 'Onde a IA faria diferença real no seu negócio?',
+      ctaText:
+        'Fazemos um discovery de 2 semanas e voltamos com casos priorizados por impacto, viabilidade técnica e prontidão dos seus dados.',
+      ctaButtonLabel: 'Explorar casos com IA →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que IA agora',
+          description:
+            'LLMs derrubaram o custo de tarefas antes inviáveis: triagem, classificação, assistência. Usada com critério, vira vantagem competitiva — usada com hype, vira teatro caro.',
+          iconName: 'sparkles',
+          colorClass: 'a',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Discovery IA → prova de conceito em 2-4 semanas → construção com guardrails → operação com MLOps. Sempre ancorados em métrica de negócio, nunca em métrica de modelo.',
+          iconName: 'workflow',
+          colorClass: 'b',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'Agente ou modelo em produção, integrado aos seus sistemas, com observabilidade, guardrails éticos, logs auditáveis e rituais mensais de retraining baseados em uso real.',
+          iconName: 'bot',
+          colorClass: 'c',
+          order: 3,
+        },
+      ],
+    },
+    {
+      title: 'Discovery & Engenharia de Dados para IA',
+      subtitle: 'Engenharia de Dados para IA',
+      description:
+        'Antes do modelo, a fundação: diagnóstico de maturidade, integração de fontes, pipelines confiáveis e governança. Sem dados bons, IA vira teatro caro.',
+      iconName: 'database',
+      anchor: 'dados-ia',
+      slug: 'dados-ia',
+      numLabel: 'SVC · 09',
+      shardColor: 'a',
+      ctaLabel: 'Diagnosticar minha base ↗',
+      features: [
+        { title: 'Diagnóstico de dados', description: 'Maturidade, qualidade e prontidão' },
+        { title: 'Lakehouse / DW', description: 'Arquitetura versionada e auditável' },
+        { title: 'Pipelines ETL/ELT', description: 'Confiáveis, monitorados e rastreáveis' },
+        { title: 'Catálogo & linhagem', description: 'Governança com LGPD e compliance' },
+      ],
+      tileClass: '',
+      homePill: '',
+      homePillTags: ['Data', 'ETL', 'Governança', 'LGPD'],
+      order: 9,
+      heroEyebrow: 'Serviço · dados para IA',
+      heroDescription:
+        'Antes de qualquer modelo, a base. Integramos fontes, organizamos qualidade e colocamos governança — a fundação sem a qual IA nunca sai do PowerPoint.',
+      heroLongText:
+        'Lakehouse ou DW com arquitetura versionada, pipelines ETL/ELT auditáveis, catálogo e linhagem documentados, conformidade com LGPD. Dados como ativo, não como aglomerado.',
+      ctaTitle: 'Sua base está pronta para IA?',
+      ctaText:
+        'Em 2 semanas entregamos um diagnóstico de maturidade de dados + plano incremental de engenharia para destravar casos com mais impacto.',
+      ctaButtonLabel: 'Diagnosticar base →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que começar por dados',
+          description:
+            'IA é tão boa quanto os dados que a alimentam. Pular a fundação acelera o fracasso — um diagnóstico honesto evita investir em modelo antes de ter o insumo básico pronto.',
+          iconName: 'database',
+          colorClass: 'e',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Mapa de fontes, qualidade e volume → arquitetura de lakehouse ou DW → pipelines versionados com testes → catálogo e políticas de acesso. Passo a passo, com quick wins pelo caminho.',
+          iconName: 'workflow',
+          colorClass: 'b',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'Arquitetura de dados documentada, pipelines rodando em produção, governança clara (quem acessa o quê, por quê, com que auditoria) e prontidão real para os próximos casos de IA.',
+          iconName: 'shield',
+          colorClass: 'c',
+          order: 3,
+        },
+      ],
+    },
+    {
+      title: 'Product Concept',
+      subtitle: 'concept',
+      description:
+        'Transformamos ideia em hipótese validada. Problema redondo, persona clara, proposta de valor afiada e um MVP enxuto — tudo em semanas, antes de escrever código caro.',
+      iconName: 'rocket',
+      anchor: 'product-concept',
+      slug: 'product-concept',
+      numLabel: 'SVC · 10',
+      shardColor: 'v',
+      ctaLabel: 'Validar minha ideia ↗',
+      features: [
+        { title: 'Descoberta focada', description: 'Entrevistas com usuário real, não opinião' },
+        { title: 'Prototipação rápida', description: 'Figma e mock navegável em dias' },
+        { title: 'Critério de kill', description: 'Você sai com go ou no-go, sem ambiguidade' },
+        { title: 'Backlog enxuto', description: 'O que é MVP, o que é v2, o que não é produto' },
+      ],
+      tileClass: '',
+      homePill: 'Discovery',
+      homePillTags: ['Produto', 'Discovery', 'MVP'],
+      order: 10,
+      heroEyebrow: 'Serviço · product concept',
+      heroDescription:
+        'Da ideia à hipótese validada. Em vez de construir e torcer, descobrimos o que merece virar produto antes de gastar a primeira linha de código.',
+      heroLongText:
+        'Combinação de pesquisa, design e arquitetura para sair com uma hipótese afiada: problema redondo, persona clara, proposta de valor, MVP minimamente útil e um critério honesto de go / no-go.',
+      ctaTitle: 'Sua ideia está pronta para virar produto?',
+      ctaText:
+        'Em 3 semanas validamos proposta, usuário e viabilidade técnica. Você sai com um plano — ou com um "não invista nisso".',
+      ctaButtonLabel: 'Começar discovery →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que começar por discovery',
+          description:
+            'A maioria dos produtos morre não por má execução, mas por ter resolvido o problema errado. Um discovery curto e honesto economiza 6 meses de engenharia que iria pra gaveta.',
+          iconName: 'file-search',
+          colorClass: 'a',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Entrevistas com usuários reais, mapa de jornadas, protótipo navegável, testes de desejabilidade e viabilidade técnica. Reports públicos a cada semana — nada escondido pra justificar honorário.',
+          iconName: 'brain',
+          colorClass: 'c',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'Hipótese escrita, protótipo testado, backlog priorizado pra MVP e uma recomendação clara: prossiga, ajuste ou descarte. Tudo no seu repositório, sem lock-in.',
+          iconName: 'sparkles',
+          colorClass: 'b',
+          order: 3,
+        },
+      ],
+    },
+    {
+      title: 'Design de Serviço',
+      subtitle: 'de serviço',
+      description:
+        'Mapeamos a jornada completa — do primeiro contato ao pós-venda — e redesenhamos touchpoints, processos e papéis. Menos atrito, mais experiência memorável.',
+      iconName: 'sparkles',
+      anchor: 'design-servico',
+      slug: 'design-servico',
+      numLabel: 'SVC · 11',
+      shardColor: 'a',
+      ctaLabel: 'Redesenhar minha operação ↗',
+      features: [
+        { title: 'Blueprint do serviço', description: 'Frontstage, backstage e suporte' },
+        { title: 'Jornada do usuário', description: 'Momentos de dor e de encantamento' },
+        { title: 'Redesign de processos', description: 'Do atendimento ao financeiro' },
+        { title: 'Métricas de experiência', description: 'NPS, CSAT, CES com plano de ação' },
+      ],
+      tileClass: '',
+      homePill: '',
+      homePillTags: ['Serviço', 'CX', 'Operação'],
+      order: 11,
+      heroEyebrow: 'Serviço · design de serviço',
+      heroDescription:
+        'Produto bom em operação ruim não escala. Redesenhamos a jornada completa do seu cliente — com atrito reduzido, processos claros e papéis afinados.',
+      heroLongText:
+        'Blueprint completo de frontstage e backstage, mapeamento de dor e de encantamento, reescrita de processos críticos e métricas de experiência com plano de ação.',
+      ctaTitle: 'Onde o seu serviço perde clientes hoje?',
+      ctaText:
+        'Fazemos uma imersão de 2 semanas, mapeamos a jornada real e voltamos com as 3 intervenções de maior impacto em CX e operação.',
+      ctaButtonLabel: 'Mapear jornada →',
+      ctaButtonUrl: '/contato',
+      blocks: [
+        {
+          title: 'Por que redesenhar o serviço',
+          description:
+            'Produto digital é só parte da experiência. Onboarding lento, suporte confuso ou cobrança opaca destroem percepção de valor mesmo quando o software é excelente.',
+          iconName: 'scissors',
+          colorClass: 'c',
+          order: 1,
+        },
+        {
+          title: 'Como trabalhamos',
+          description:
+            'Entrevistas com clientes reais, observação de operação, workshops com times internos (atendimento, vendas, sucesso). Blueprint do serviço versionado e priorização conjunta.',
+          iconName: 'workflow',
+          colorClass: 'a',
+          order: 2,
+        },
+        {
+          title: 'O que entregamos',
+          description:
+            'Blueprint detalhado, redesign dos processos mais críticos, playbooks para times operacionais e métricas de experiência com baseline + metas mensuráveis.',
+          iconName: 'line-chart',
+          colorClass: 'd',
+          order: 3,
+        },
+      ],
+    },
+  ];
+
+  for (const def of serviceDefinitions) {
+    const { blocks, ...serviceData } = def;
+    const created = await prisma.service.create({ data: serviceData });
+    if (blocks && blocks.length > 0) {
+      await prisma.serviceDetailBlock.createMany({
+        data: blocks.map((b) => ({ ...b, serviceId: created.id })),
+      });
+    }
+  }
 
   // 5. Soluções — aceleradores genéricos da BSN (não nomear produtos específicos)
   await prisma.solution.createMany({
@@ -813,6 +1314,141 @@ async function main() {
       { name: 'Cliente Indústria 01', logoUrl: '', sector: 'Indústria', order: 8 },
       { name: 'Cliente Varejo 01', logoUrl: '', sector: 'Varejo', order: 9 },
       { name: 'Cliente Serviços 01', logoUrl: '', sector: 'Serviços', order: 10 },
+    ],
+  });
+
+  // 22. Blocos da página Inteligência Artificial
+  await prisma.aIBlock.createMany({
+    data: [
+      // ─── HERO BENEFITS (4 cards) ───
+      {
+        type: 'HERO_BENEFIT',
+        tag: 'RECEITA',
+        title: 'Novas frentes de receita',
+        description:
+          'Produtos inteligentes que desbloqueiam ofertas personalizadas, cobrança dinâmica e canais antes inviáveis.',
+        bullets: [],
+        colorClass: 'a',
+        iconName: 'trending-up',
+        order: 1,
+      },
+      {
+        type: 'HERO_BENEFIT',
+        tag: 'CUSTO',
+        title: 'Operação 10x mais enxuta',
+        description:
+          'Automação real de fluxos repetitivos — back-office, atendimento, triagem — sem substituir o julgamento humano nas decisões críticas.',
+        bullets: [],
+        colorClass: 'b',
+        iconName: 'scissors',
+        order: 2,
+      },
+      {
+        type: 'HERO_BENEFIT',
+        tag: 'EFICIÊNCIA',
+        title: 'Time focado no que importa',
+        description:
+          'Agentes de IA liberam analistas, devs e gestores do trabalho mecânico e devolvem horas para o que move o negócio.',
+        bullets: [],
+        colorClass: 'c',
+        iconName: 'zap',
+        order: 3,
+      },
+      {
+        type: 'HERO_BENEFIT',
+        tag: 'DECISÃO',
+        title: 'Insight na hora certa',
+        description:
+          'Modelos que leem sinais fracos e entregam recomendações onde a decisão acontece — não num relatório que ninguém abre.',
+        bullets: [],
+        colorClass: 'd',
+        iconName: 'brain',
+        order: 4,
+      },
+
+      // ─── STAGES (3 etapas) ───
+      {
+        type: 'STAGE',
+        tag: 'VALIDAR & PLANEJAR',
+        title: 'Discovery IA',
+        description:
+          'Diagnóstico técnico e de negócio para separar ideias vendidas em keynote do que realmente move o ponteiro na sua operação.',
+        bullets: [
+          'Mapeamento de casos de uso priorizados por ROI real',
+          'Auditoria de dados, qualidade e prontidão da base',
+          'Prova de conceito em 2 a 4 semanas',
+          'Roadmap faseado com entregas mensuráveis',
+        ],
+        colorClass: 'a',
+        number: '01',
+        order: 1,
+      },
+      {
+        type: 'STAGE',
+        tag: 'CONSTRUIR & INTEGRAR',
+        title: 'Desenvolvimento IA',
+        description:
+          'Engenharia de produto pesada: LLMs, RAG, fine-tuning, agentes autônomos e modelos sob medida — integrados aos seus sistemas existentes.',
+        bullets: [
+          'Integração com ERPs, CRMs e bancos legados',
+          'Pipelines de dados versionados e reproduzíveis',
+          'Guardrails, observabilidade e mitigação de alucinação',
+          'Deploy em nuvem privada ou infraestrutura própria',
+        ],
+        colorClass: 'b',
+        number: '02',
+        order: 2,
+      },
+      {
+        type: 'STAGE',
+        tag: 'EVOLUIR & ESCALAR',
+        title: 'Squads Especializados em IA',
+        description:
+          'Times sêniores dedicados que evoluem o produto mês a mês: MLOps, avaliação contínua, fine-tuning dirigido por feedback real de usuários.',
+        bullets: [
+          'Squad fixo (ML Eng, Data, Backend, Produto)',
+          'SLA de modelos com métricas de negócio',
+          'Ciclos mensais de retraining e avaliação',
+          'Transferência de conhecimento contínua ao seu time',
+        ],
+        colorClass: 'c',
+        number: '03',
+        order: 3,
+      },
+
+      // ─── EDU_HIGHLIGHT (2 destaques) ───
+      {
+        type: 'EDU_HIGHLIGHT',
+        tag: 'FUNDAÇÃO',
+        title: 'Dados são o fator mais importante — IA não cria informação que você não tem.',
+        description:
+          'Antes de qualquer modelo, a gente organiza a casa: integração de fontes, qualidade, rotulagem e governança. Sem isso, IA vira teatro caro.',
+        bullets: [
+          'Diagnóstico de maturidade de dados',
+          'Arquitetura de lakehouse ou data warehouse',
+          'Pipelines ETL/ELT confiáveis',
+          'Catálogo e linhagem versionados',
+        ],
+        colorClass: 'e',
+        iconName: 'database',
+        order: 1,
+      },
+      {
+        type: 'EDU_HIGHLIGHT',
+        tag: 'RESPONSABILIDADE',
+        title: 'Guardrails, ética e auditoria — IA que o seu compliance aprova.',
+        description:
+          'Modelos em produção precisam explicar decisões, respeitar LGPD e ter limites claros. A gente constrói isso como parte do produto, não como remendo.',
+        bullets: [
+          'Políticas de uso e limites do modelo',
+          'Logs auditáveis de prompts e respostas',
+          'Avaliação contínua contra casos adversariais',
+          'Conformidade com LGPD e setor regulado',
+        ],
+        colorClass: 'f',
+        iconName: 'shield',
+        order: 2,
+      },
     ],
   });
 

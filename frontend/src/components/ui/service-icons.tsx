@@ -108,6 +108,25 @@ export const SERVICE_ICONS: Record<string, { label: string; svg: JSX.Element }> 
       </svg>
     ),
   },
+  brain: {
+    label: 'IA / Cérebro',
+    svg: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <path d="M12 5a3 3 0 0 0-3-3 3 3 0 0 0-3 3v1a3 3 0 0 0-3 3 3 3 0 0 0 2 2.83V13a3 3 0 0 0 3 3 3 3 0 0 0 1 .17V19a3 3 0 1 0 6 0v-2.83a3 3 0 0 0 1-.17 3 3 0 0 0 3-3v-1.17A3 3 0 0 0 21 9a3 3 0 0 0-3-3V5a3 3 0 0 0-6 0z" />
+        <path d="M9 13v-2M15 13v-2" />
+      </svg>
+    ),
+  },
+  database: {
+    label: 'Dados',
+    svg: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+        <path d="M3 5v6c0 1.66 4.03 3 9 3s9-1.34 9-3V5" />
+        <path d="M3 11v6c0 1.66 4.03 3 9 3s9-1.34 9-3v-6" />
+      </svg>
+    ),
+  },
 }
 
 export const SERVICE_ICON_KEYS = Object.keys(SERVICE_ICONS)

@@ -197,6 +197,12 @@ export const servicesApi = {
     return response.data
   },
 
+  // Detalhe público por slug — inclui blocks ordenados e hero/CTA
+  getServiceBySlug: async (slug: string) => {
+    const response = await api.get(`/services/slug/${slug}`)
+    return response.data
+  },
+
   // Admin endpoints
   admin: {
     getServices: async () => {
@@ -231,6 +237,32 @@ export const servicesApi = {
 
     reorderServices: async (items: { id: string; order: number }[]) => {
       const response = await api.patch('/admin/services/reorder', { items })
+      return response.data
+    },
+
+    // ── Blocks de detalhe ──
+    getBlocks: async (serviceId: string) => {
+      const response = await api.get(`/admin/services/${serviceId}/blocks`)
+      return response.data
+    },
+    createBlock: async (serviceId: string, data: any) => {
+      const response = await api.post(`/admin/services/${serviceId}/blocks`, data)
+      return response.data
+    },
+    updateBlock: async (serviceId: string, blockId: string, data: any) => {
+      const response = await api.put(`/admin/services/${serviceId}/blocks/${blockId}`, data)
+      return response.data
+    },
+    deleteBlock: async (serviceId: string, blockId: string) => {
+      const response = await api.delete(`/admin/services/${serviceId}/blocks/${blockId}`)
+      return response.data
+    },
+    toggleBlock: async (serviceId: string, blockId: string) => {
+      const response = await api.patch(`/admin/services/${serviceId}/blocks/${blockId}/toggle`)
+      return response.data
+    },
+    reorderBlocks: async (serviceId: string, items: { id: string; order: number }[]) => {
+      const response = await api.patch(`/admin/services/${serviceId}/blocks/reorder`, { items })
       return response.data
     },
   },
@@ -694,6 +726,46 @@ export const analyticsApi = {
       const response = await api.delete('/admin/analytics/cleanup', {
         data: { daysToKeep },
       })
+      return response.data
+    },
+  },
+}
+
+// AI page API (blocos da página /inteligencia-artificial)
+export const aiApi = {
+  getBlocks: async () => {
+    const response = await api.get('/ai-blocks')
+    return response.data
+  },
+
+  admin: {
+    getBlocks: async () => {
+      const response = await api.get('/admin/ai-blocks')
+      return response.data
+    },
+
+    getBlock: async (id: string) => {
+      const response = await api.get(`/admin/ai-blocks/${id}`)
+      return response.data
+    },
+
+    createBlock: async (data: any) => {
+      const response = await api.post('/admin/ai-blocks', data)
+      return response.data
+    },
+
+    updateBlock: async (id: string, data: any) => {
+      const response = await api.put(`/admin/ai-blocks/${id}`, data)
+      return response.data
+    },
+
+    deleteBlock: async (id: string) => {
+      const response = await api.delete(`/admin/ai-blocks/${id}`)
+      return response.data
+    },
+
+    toggleBlock: async (id: string) => {
+      const response = await api.patch(`/admin/ai-blocks/${id}/toggle`)
       return response.data
     },
   },

@@ -153,6 +153,8 @@ export const CacheKeys = {
   // Services
   services: "services",
   service: (id: string) => `service:${id}`,
+  serviceBySlug: (slug: string) => `service:slug:${slug}`,
+  serviceBlocks: (serviceId: string) => `service:${serviceId}:blocks`,
   
   // Solutions
   solutions: "solutions",
@@ -209,4 +211,7 @@ export const CacheKeys = {
 
   // Client groups
   clientGroups: "client-groups",
+
+  // AI page blocks
+  aiBlocks: "ai-blocks",
 };

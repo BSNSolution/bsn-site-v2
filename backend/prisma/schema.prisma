@@ -137,6 +137,8 @@ model Service {
   iconName    String?
   // Anchor para a URL da página /servicos (ex: "sob-medida", "squads")
   anchor      String?
+  // Slug da página de detalhe /servicos/:slug (único). Geralmente igual ao anchor.
+  slug        String?  @unique
   // Número exibido (ex: "SVC · 01")
   numLabel    String?
   // Classe de cor da shard: v (violet), c (cyan), m (magenta), a (amber), e (emerald)
@@ -149,12 +151,43 @@ model Service {
   tileClass   String?
   homePill    String?  // ex: "Plug & play", "SLA 24/7"
   homePillTags String[] // para o tile 7 (Dev, DevOps, QA, Data, Produto)
+  // ---- Página de detalhe /servicos/:slug ----
+  heroEyebrow     String?  // eyebrow do hero (ex: "Serviço · sob medida")
+  heroDescription String?  // lede curto abaixo do h1
+  heroLongText    String?  // parágrafo extra (opcional) abaixo do lede
+  ctaTitle        String?  // título do CTA band
+  ctaText         String?  // parágrafo do CTA band
+  ctaButtonLabel  String?  // label do botão do CTA band
+  ctaButtonUrl    String?  // URL do botão (default /contato)
+  // -------------------------------------------
   isActive    Boolean  @default(true)
   order       Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Relacionamentos
+  detailBlocks ServiceDetailBlock[]
+
   @@map("services")
+}
+
+// Blocos de detalhe exibidos na página /servicos/:slug
+// (tipicamente 3 cards: "Por que começar", "Como trabalhamos", "O que entregamos")
+model ServiceDetailBlock {
+  id          String   @id @default(uuid())
+  serviceId   String
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  iconName    String?  // nome do ícone (mesma convenção dos cards AI: trending-up, scissors, zap, brain, database, shield, sparkles, cpu, workflow, file-search, gauge, clock, bot, line-chart)
+  colorClass  String?  @default("a") // a, b, c, d, e, f (mesma convenção de ai-case)
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([serviceId])
+  @@map("service_detail_blocks")
 }
 
 // Soluções/Portfólio
@@ -510,6 +543,41 @@ model Perk {
   updatedAt   DateTime @updatedAt
 
   @@map("perks")
+}
+
+// Blocos da página de Inteligência Artificial (/inteligencia-artificial)
+// Um único model cobre os três tipos de conteúdo da página, via enum AIBlockType.
+model AIBlock {
+  id          String      @id @default(uuid())
+  type        AIBlockType
+  // Rótulo curto tipo eyebrow (ex: "RECEITA", "DISCOVERY IA", "DADOS")
+  tag         String?
+  // Título principal do bloco
+  title       String
+  // Descrição / lede
+  description String
+  // Bullets opcionais (usado em STAGE e EDU_HIGHLIGHT)
+  bullets     String[]
+  // Classe de cor (a, b, c, d, e, f — mesma convenção de solutions/about)
+  colorClass  String?     @default("a")
+  // Número exibido (usado em STAGE — ex: "01", "02", "03")
+  number      String?
+  // Nome do ícone Lucide (usado em HERO_BENEFIT — ex: "trending-up", "scissors")
+  iconName    String?
+  // Imagem opcional (usado em EDU_HIGHLIGHT)
+  imageUrl    String?
+  isActive    Boolean     @default(true)
+  order       Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("ai_blocks")
+}
+
+enum AIBlockType {
+  HERO_BENEFIT    // Card pequeno de benefício no topo (Receita, Custos...)
+  STAGE           // Etapa numerada do escopo (Discovery, Desenvolvimento, Squads)
+  EDU_HIGHLIGHT   // Seção educacional ("Dados como fundação", etc.)
 }
 
 // Menu do footer

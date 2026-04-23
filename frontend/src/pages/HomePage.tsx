@@ -391,14 +391,16 @@ export default function HomePage() {
                 <div className="timeline-dot" aria-hidden="true">
                   <span className="timeline-dot-ring" />
                 </div>
-                <div className="timeline-card glass">
+                <div className="timeline-content">
                   <span className="timeline-watermark" aria-hidden="true">{s.number}</span>
                   <div className="timeline-head">
                     <span className="mono">etapa {s.number}</span>
                     {s.duration && <span className="timeline-duration">⏱ {s.duration}</span>}
                   </div>
                   <h3>{s.title}</h3>
-                  <p>{s.description}</p>
+                  <div className="timeline-desc glass">
+                    <p>{s.description}</p>
+                  </div>
                 </div>
               </article>
             ))}

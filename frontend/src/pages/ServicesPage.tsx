@@ -15,6 +15,7 @@ interface Service {
   subtitle?: string | null
   description: string
   anchor?: string | null
+  slug?: string | null
   numLabel?: string | null
   shardColor?: string | null
   ctaLabel?: string | null
@@ -61,17 +62,32 @@ export default function ServicesPage() {
           const mainTitle = svc.subtitle
             ? svc.title.replace(svc.subtitle, '').trim()
             : svc.title
+          const detailHref = svc.slug ? `/servicos/${svc.slug}` : null
           return (
             <article id={svc.anchor ?? undefined} key={svc.id} className={`svc glass ${shard}`}>
               <div className="shard" />
               <div className="side">
                 <div className="num">{svc.numLabel}</div>
                 <h2>
-                  {mainTitle}
-                  {svc.subtitle && (
+                  {detailHref ? (
+                    <Link to={detailHref} style={{ color: 'inherit', textDecoration: 'none' }}>
+                      {mainTitle}
+                      {svc.subtitle && (
+                        <>
+                          <br />
+                          {svc.subtitle}
+                        </>
+                      )}
+                    </Link>
+                  ) : (
                     <>
-                      <br />
-                      {svc.subtitle}
+                      {mainTitle}
+                      {svc.subtitle && (
+                        <>
+                          <br />
+                          {svc.subtitle}
+                        </>
+                      )}
                     </>
                   )}
                 </h2>
@@ -88,9 +104,16 @@ export default function ServicesPage() {
                     ))}
                   </div>
                 )}
-                <Link to="/contato" className="svc-cta">
-                  {svc.ctaLabel ?? 'Falar sobre um projeto ↗'}
-                </Link>
+                <div className="svc-cta-row">
+                  {detailHref && (
+                    <Link to={detailHref} className="svc-cta">
+                      Conhecer este serviço ↗
+                    </Link>
+                  )}
+                  <Link to="/contato" className="svc-cta svc-cta-ghost">
+                    {svc.ctaLabel ?? 'Falar sobre um projeto ↗'}
+                  </Link>
+                </div>
               </div>
             </article>
           )

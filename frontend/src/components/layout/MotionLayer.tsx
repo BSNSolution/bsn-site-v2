@@ -119,7 +119,7 @@ export default function MotionLayer() {
     // 4) Cursor spotlight nos cards (apenas cards-item, não containers/wrappers)
     // Evita: .nav-inner.glass, .card-live, .card-pill, .band-inner, .feat-card (é seção),
     // .mobile-sheet, e qualquer container que ocupe largura de seção
-    const spotTargets = '.tile, .node, .svc, .sol, .post, .person, .val, .job, .perk, .chan, .clients-card, .process-step, .timeline-card'
+    const spotTargets = '.tile, .node, .svc, .sol, .post, .person, .val, .job, .perk, .chan, .clients-card, .process-step, .timeline-desc, .ai-benefit-item, .ai-case, .ai-stage, .ai-edu-card, .ai-cta-card'
 
     if (pointerFine) {
       document.querySelectorAll(spotTargets).forEach((el) => {

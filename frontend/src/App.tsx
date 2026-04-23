@@ -5,7 +5,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 // Lazy load pages for performance
 const HomePage = lazy(() => import('@/pages/HomePage'))
 const ServicesPage = lazy(() => import('@/pages/ServicesPage'))
+const ServiceDetailPage = lazy(() => import('@/pages/ServiceDetailPage'))
 const SolutionsPage = lazy(() => import('@/pages/SolutionsPage'))
+const AIPage = lazy(() => import('@/pages/AIPage'))
 const AboutPage = lazy(() => import('@/pages/AboutPage'))
 const BlogPage = lazy(() => import('@/pages/BlogPage'))
 const BlogPostPage = lazy(() => import('@/pages/BlogPostPage'))
@@ -41,6 +43,7 @@ const AdminStackPage = lazy(() => import('@/pages/admin/AdminStackPage'))
 const AdminAboutCardsPage = lazy(() => import('@/pages/admin/AdminAboutCardsPage'))
 const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'))
 const AdminPermissionGroupsPage = lazy(() => import('@/pages/admin/AdminPermissionGroupsPage'))
+const AdminAIPage = lazy(() => import('@/pages/admin/AdminAIPage'))
 
 // Components
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -118,7 +121,8 @@ function App() {
       const titles = {
         '/': 'BSN Solution - Desenvolvimento e Tecnologia',
         '/servicos': 'Serviços - BSN Solution',
-        '/solucoes': 'Soluções - BSN Solution', 
+        '/solucoes': 'Soluções - BSN Solution',
+        '/inteligencia-artificial': 'Inteligência Artificial - BSN Solution',
         '/sobre': 'Sobre - BSN Solution',
         '/blog': 'Blog - BSN Solution',
         '/contato': 'Contato - BSN Solution',
@@ -176,7 +180,18 @@ function App() {
               </Suspense>
             }
           />
-          
+
+          <Route
+            path="/servicos/:slug"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <AnimatedPage>
+                  <ServiceDetailPage />
+                </AnimatedPage>
+              </Suspense>
+            }
+          />
+
           <Route
             path="/solucoes"
             element={
@@ -188,6 +203,17 @@ function App() {
             }
           />
           
+          <Route
+            path="/inteligencia-artificial"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <AnimatedPage>
+                  <AIPage />
+                </AnimatedPage>
+              </Suspense>
+            }
+          />
+
           <Route
             path="/sobre"
             element={
@@ -289,6 +315,7 @@ function App() {
             <Route path="home" element={<HomeSectionsPage />} />
             <Route path="services" element={<AdminServicesPage />} />
             <Route path="solutions" element={<AdminSolutionsPage />} />
+            <Route path="ai" element={<AdminAIPage />} />
             <Route path="testimonials" element={<AdminTestimonialsPage />} />
             <Route path="team" element={<AdminTeamPage />} />
             <Route path="clients" element={<AdminClientsPage />} />

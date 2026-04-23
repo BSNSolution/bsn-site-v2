@@ -11,9 +11,10 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'Home', num: '01' },
   { href: '/servicos', label: 'Serviços', num: '02' },
   { href: '/solucoes', label: 'Soluções', num: '03' },
-  { href: '/sobre', label: 'Sobre', num: '04' },
-  { href: '/blog', label: 'Blog', num: '05' },
-  { href: '/contato', label: 'Contato', num: '06' },
+  { href: '/inteligencia-artificial', label: 'IA', num: '04' },
+  { href: '/sobre', label: 'Sobre', num: '05' },
+  { href: '/blog', label: 'Blog', num: '06' },
+  { href: '/contato', label: 'Contato', num: '07' },
 ]
 
 export default function Header() {

@@ -23,6 +23,7 @@ import {
   MessageSquareQuote,
   Quote as QuoteIcon,
   Cpu,
+  Sparkles,
   Info,
   ExternalLink,
   LayoutGrid,
@@ -75,6 +76,12 @@ const SECTIONS: SidebarSection[] = [
     label: 'Página: Soluções',
     items: [
       { name: 'Soluções verticais', href: '/admin/solutions', icon: LayoutGrid },
+    ],
+  },
+  {
+    label: 'Página: IA',
+    items: [
+      { name: 'Blocos (Benefícios, Etapas, Destaques)', href: '/admin/ai', icon: Sparkles },
     ],
   },
   {
