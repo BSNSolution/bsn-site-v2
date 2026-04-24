@@ -40,6 +40,8 @@ import usersRoutes from "./routes/users";
 import processStepsRoutes from "./routes/process-steps";
 import aiRoutes from "./routes/ai";
 import pageSectionsRoutes from "./routes/page-sections";
+import apiTokenRoutes from "./routes/api-tokens";
+import publicApiBlogRoutes from "./routes/public-api-blog";
 
 dotenv.config();
 
@@ -110,6 +112,9 @@ fastify.register(usersRoutes, { prefix: "/api" });
 fastify.register(processStepsRoutes, { prefix: "/api" });
 fastify.register(aiRoutes, { prefix: "/api" });
 fastify.register(pageSectionsRoutes, { prefix: "/api" });
+fastify.register(apiTokenRoutes, { prefix: "/api" });
+// Rotas externas para automação (AI) — prefixo /api/v1
+fastify.register(publicApiBlogRoutes, { prefix: "/api/v1" });
 
 // Health check
 fastify.get("/health", async () => {

@@ -43,6 +43,7 @@ const AdminStackPage = lazy(() => import('@/pages/admin/AdminStackPage'))
 const AdminAboutCardsPage = lazy(() => import('@/pages/admin/AdminAboutCardsPage'))
 const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'))
 const AdminPermissionGroupsPage = lazy(() => import('@/pages/admin/AdminPermissionGroupsPage'))
+const AdminApiTokensPage = lazy(() => import('@/pages/admin/AdminApiTokensPage'))
 const AdminAIPage = lazy(() => import('@/pages/admin/AdminAIPage'))
 const AdminPagesPage = lazy(() => import('@/pages/admin/AdminPagesPage'))
 const AdminPageSectionsPage = lazy(() => import('@/pages/admin/AdminPageSectionsPage'))
@@ -337,6 +338,7 @@ function App() {
             <Route path="about-cards" element={<AdminAboutCardsPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="permission-groups" element={<AdminPermissionGroupsPage />} />
+            <Route path="api-tokens" element={<AdminApiTokensPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="pages" element={<AdminPagesPage />} />
             <Route path="pages/:page" element={<AdminPageSectionsPage />} />

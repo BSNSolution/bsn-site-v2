@@ -39,25 +39,38 @@
   position: absolute;
   border-radius: 50%;
   border: 1px dashed rgba(255, 255, 255, 0.08);
-  animation: ringRotate 60s linear infinite;
+  animation:
+    ringRotate 60s linear infinite,
+    ringPulse 4s ease-in-out infinite;
 }
-.orbit-ring.r1 { width: 520px; height: 520px; animation-duration: 80s; }
+.orbit-ring.r1 {
+  width: 520px;
+  height: 520px;
+  animation-duration: 80s, 4s;
+}
 .orbit-ring.r2 {
   width: 720px;
   height: 720px;
   border-style: solid;
   border-color: rgba(255, 255, 255, 0.06);
-  animation-duration: 120s;
-  animation-direction: reverse;
+  animation:
+    ringRotate 120s linear infinite reverse,
+    ringPulse 5s ease-in-out infinite;
+  animation-delay: 0s, -1.5s;
 }
 .orbit-ring.r3 {
   width: 920px;
   height: 920px;
-  animation-duration: 160s;
   border-color: rgba(255, 255, 255, 0.05);
+  animation-duration: 160s, 6s;
+  animation-delay: 0s, -3s;
 }
 @keyframes ringRotate {
   to { transform: rotate(360deg); }
+}
+@keyframes ringPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
 }
 
 .orbit-center {

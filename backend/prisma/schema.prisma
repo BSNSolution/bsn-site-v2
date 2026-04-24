@@ -24,6 +24,7 @@ model User {
   messageReplies MessageReply[]
   permissions    Permission[]        @relation("UserPermissions")
   groups         PermissionGroup[]   @relation("UserGroups")
+  apiTokens      ApiToken[]          @relation("ApiTokenCreatedBy")
 
   @@map("users")
 }
@@ -249,12 +250,55 @@ model BlogPost {
   publishedAt DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  
+
+  // Métricas agregadas (incrementadas quando o post é acessado)
+  viewCount   Int          @default(0)
+  uniqueViewCount Int      @default(0)
+  avgReadTimeSec Int       @default(0)  // segundos médios na página
+  lastViewedAt DateTime?
+
   // Relacionamentos
   authorId    String
   author      User         @relation(fields: [authorId], references: [id])
+  views       BlogPostView[]
 
   @@map("blog_posts")
+}
+
+// Registro detalhado de visualizações de posts (para análise fina)
+model BlogPostView {
+  id         String   @id @default(uuid())
+  postId     String
+  post       BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  ipHash     String?  // hash da IP p/ contar únicos sem armazenar IP bruta
+  userAgent  String?
+  referrer   String?
+  country    String?
+  readTimeSec Int?
+  createdAt  DateTime @default(now())
+
+  @@index([postId, createdAt])
+  @@map("blog_post_views")
+}
+
+// Tokens de API para automação externa (ex: AI gerando posts).
+// Scopes controlam o que cada token pode fazer.
+// O campo `token` guarda o HASH SHA256 do token real — o valor em claro
+// só é exibido UMA VEZ no momento da criação.
+model ApiToken {
+  id          String   @id @default(uuid())
+  name        String   // rótulo amigável (ex: "Claude — blog writer")
+  tokenHash   String   @unique // SHA256 do token em claro
+  tokenPrefix String   // 8 primeiros chars do token (exibição segura na UI)
+  scopes      String[] // ex: ["blog:read","blog:write","blog:delete","upload:write"]
+  isActive    Boolean  @default(true)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  createdById String?
+  createdBy   User?    @relation("ApiTokenCreatedBy", fields: [createdById], references: [id])
+
+  @@map("api_tokens")
 }
 
 // Equipe

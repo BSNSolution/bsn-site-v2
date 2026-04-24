@@ -126,6 +126,39 @@ export default async function blogRoutes(fastify: FastifyInstance) {
       return;
     }
 
+    // Fire-and-forget: registra view e incrementa contador.
+    // IP é hasheada pra contar únicos sem persistir dado bruto.
+    try {
+      const ip = request.ip || "anon"
+      const ipHash = await import("crypto").then((c) =>
+        c.createHash("sha256").update(ip).digest("hex").slice(0, 32)
+      )
+      const userAgent = request.headers["user-agent"]?.toString().slice(0, 300) ?? null
+      const referrer = request.headers.referer?.toString().slice(0, 300) ?? null
+
+      // Conta como único se não teve view com mesma ipHash nas últimas 24h
+      const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+      const existingToday = await prisma.blogPostView.findFirst({
+        where: { postId: result.id, ipHash, createdAt: { gte: dayAgo } },
+        select: { id: true },
+      })
+
+      await prisma.blogPostView.create({
+        data: { postId: result.id, ipHash, userAgent, referrer },
+      })
+
+      await prisma.blogPost.update({
+        where: { id: result.id },
+        data: {
+          viewCount: { increment: 1 },
+          uniqueViewCount: existingToday ? undefined : { increment: 1 },
+          lastViewedAt: new Date(),
+        },
+      })
+    } catch (err) {
+      request.log.warn({ err }, "failed to track blog view")
+    }
+
     return result;
   });
 

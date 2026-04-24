@@ -785,6 +785,44 @@ export interface PageSection {
   isVisible: boolean
 }
 
+export interface ApiToken {
+  id: string
+  name: string
+  tokenPrefix: string
+  scopes: string[]
+  isActive: boolean
+  lastUsedAt: string | null
+  expiresAt: string | null
+  createdAt: string
+  createdBy?: { id: string; name: string; email: string } | null
+}
+
+export interface ApiTokenScope {
+  slug: string
+  label: string
+}
+
+export const apiTokensApi = {
+  list: async (): Promise<{ tokens: ApiToken[] }> =>
+    (await api.get('/admin/api-tokens')).data,
+  scopes: async (): Promise<{ scopes: ApiTokenScope[] }> =>
+    (await api.get('/admin/api-tokens/scopes')).data,
+  create: async (data: {
+    name: string
+    scopes: string[]
+    expiresAt?: string | null
+  }): Promise<ApiToken & { token: string; warning: string }> =>
+    (await api.post('/admin/api-tokens', data)).data,
+  update: async (
+    id: string,
+    data: Partial<Pick<ApiToken, 'name' | 'scopes' | 'isActive'>> & { expiresAt?: string | null }
+  ): Promise<ApiToken> => (await api.put(`/admin/api-tokens/${id}`, data)).data,
+  revoke: async (id: string) =>
+    (await api.patch(`/admin/api-tokens/${id}/revoke`)).data,
+  remove: async (id: string) =>
+    (await api.delete(`/admin/api-tokens/${id}`)).data,
+}
+
 export const pageSectionsApi = {
   // público
   getSections: async (page: string): Promise<{ sections: PageSection[] }> =>
