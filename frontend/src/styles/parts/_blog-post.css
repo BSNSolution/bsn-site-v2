@@ -88,11 +88,44 @@
   margin: 2.5em 0;
 }
 .blog-content img {
-  max-width: 100%;
+  max-width: 680px;
+  width: 100%;
+  height: auto;
   border-radius: 12px;
   border: 1px solid var(--line);
-  margin: 1.5em 0;
+  margin: 2.2em auto;
+  display: block;
 }
+.blog-content figure {
+  margin: 2.5em auto;
+  max-width: 680px;
+}
+.blog-content figure img {
+  margin: 0 auto;
+}
+.blog-content figure figcaption,
+.blog-content p > img:only-child + em,
+.blog-content p:has(> img:only-child) em {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ink-faint);
+  text-align: center;
+  font-style: italic;
+  display: block;
+}
+/* Imagem solo num <p> (padrão do marked) — espaçamento coerente */
+.blog-content p > img:only-child {
+  margin: 2.2em auto 0.6em;
+}
+.blog-content p:has(> img:only-child) {
+  margin: 2.2em 0;
+  text-align: center;
+}
+/* Caption: usar o alt text como legenda via pseudo-elemento — fallback
+   se o markdown não tiver <figure>. Mais elegante deixar o alt com
+   descrição e mostrar via CSS, mas isso depende de attr() avançado.
+   Por ora, o alt já funciona como texto acessível; visualmente usamos
+   o alt como caption através de estilização condicional no marked. */
 .blog-content table {
   width: 100%;
   border-collapse: collapse;
@@ -109,6 +142,181 @@
   font-weight: 500;
 }
 .blog-content strong { color: var(--ink); font-weight: 600; }
+/* Layout completo: main (conteúdo) + TOC (sidebar affix/sticky) */
+.blog-post-shell,
+.blog-layout {
+  overflow: visible;
+}
+.blog-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 920px) 260px;
+  gap: 64px;
+  align-items: start;
+  justify-content: space-between;
+  position: relative;
+}
+.blog-main {
+  min-width: 0;
+  width: 100%;
+}
+.blog-toc-slot {
+  align-self: stretch;
+  position: relative;
+  min-height: 1px;
+}
+.blog-toc {
+  z-index: 5;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  transition: none;
+  width: 100%;
+}
+.blog-toc-static {
+  position: static;
+}
+/* affix / bottom são controlados via JS (position: fixed / absolute) */
+.blog-toc-inner {
+  padding: 20px 22px;
+  border-left: 1px solid var(--line);
+}
+.blog-toc-title {
+  color: var(--ink-faint);
+  margin-bottom: 14px;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+}
+.blog-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.blog-toc a {
+  color: var(--ink-dim);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+  transition: color 0.2s;
+  display: block;
+}
+.blog-toc a:hover {
+  color: var(--violet);
+}
+.blog-toc a.active {
+  color: var(--violet);
+}
+
+@media (max-width: 1100px) {
+  .blog-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  .blog-toc-slot {
+    order: -1;
+  }
+  .blog-toc {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-height: none;
+  }
+  .blog-toc-inner {
+    border-left: none;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+/* Posts relacionados (fim do artigo) */
+.blog-related {
+  margin-top: 80px;
+  padding-top: 48px;
+  border-top: 1px solid var(--line);
+}
+.blog-related-eyebrow {
+  color: var(--ink-faint);
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+.blog-related-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: -0.025em;
+  margin-bottom: 28px;
+}
+.blog-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.blog-related-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: transform 0.25s, border-color 0.25s;
+}
+.blog-related-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(122, 91, 255, 0.35);
+}
+.blog-related-thumb {
+  height: 140px;
+  background-color: rgba(255, 255, 255, 0.03);
+  background-size: cover;
+  background-position: center;
+  border-bottom: 1px solid var(--line);
+}
+.blog-related-body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.blog-related-tag {
+  color: var(--ink-faint);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+}
+.blog-related-card h3 {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  margin: 0;
+  color: var(--ink);
+}
+.blog-related-card p {
+  font-size: 13px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.blog-related-date {
+  margin-top: auto;
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@media (max-width: 900px) {
+  .blog-related-grid { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 760px) {
   article.shell { padding: 48px 20px 32px !important; }
   .blog-content { font-size: 16px; }

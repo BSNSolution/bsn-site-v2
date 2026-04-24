@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
@@ -48,6 +48,15 @@ export default function BlogPostPage() {
   const [post, setPost] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
+  const [activeId, setActiveId] = useState<string>('')
+  const [allPosts, setAllPosts] = useState<BlogPost[]>([])
+  const [tocState, setTocState] = useState<'static' | 'affix' | 'bottom'>('static')
+  const [tocLeft, setTocLeft] = useState<number>(0)
+  const [tocTop, setTocTop] = useState<number>(110)
+  const [tocWidth, setTocWidth] = useState<number>(260)
+  const layoutRef = useRef<HTMLDivElement>(null)
+  const tocRef = useRef<HTMLElement>(null)
+  const tocSlotRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!slug) return
@@ -56,7 +65,10 @@ export default function BlogPostPage() {
         setLoading(true)
         setError('')
         // Backend retorna o post achatado (sem wrapper { post })
-        const data = await blogApi.getPost(slug)
+        const [data, listData] = await Promise.all([
+          blogApi.getPost(slug),
+          blogApi.getPosts({ limit: 100 }),
+        ])
         const p: BlogPost | null = data?.post ?? data
         if (p && p.id && p.title) {
           setPost(p)
@@ -64,21 +76,175 @@ export default function BlogPostPage() {
         } else {
           setError('Post não encontrado')
         }
+        if (Array.isArray(listData?.posts)) setAllPosts(listData.posts)
       } catch (err: any) {
         setError(err?.response?.status === 404 ? 'Post não encontrado' : 'Erro ao carregar post')
       } finally {
         setLoading(false)
       }
     })()
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [slug])
+
+  const related = useMemo(() => {
+    if (!post || allPosts.length === 0) return []
+    const postTags = new Set(post.tags ?? [])
+    return allPosts
+      .filter((p) => p.id !== post.id)
+      .map((p) => {
+        const common = (p.tags ?? []).filter((t) => postTags.has(t)).length
+        return { post: p, score: common }
+      })
+      .sort((a, b) => b.score - a.score || Math.random() - 0.5)
+      .slice(0, 3)
+      .map((r) => r.post)
+  }, [post, allPosts])
 
   const html = useMemo(() => {
     if (!post) return ''
     try {
-      return DOMPurify.sanitize(marked.parse(post.content || '') as string)
+      // Gera HTML e injeta id nos h2 pra funcionar como âncora do sumário
+      const rawHtml = marked.parse(post.content || '') as string
+      let clean = DOMPurify.sanitize(rawHtml)
+
+      // Transforma <p><img alt="x" src="y"></p> em <figure><img/><figcaption>x</figcaption></figure>
+      // para imagens terem legenda visual. Só quando o alt não é vazio.
+      clean = clean.replace(
+        /<p>\s*<img([^>]*?)alt="([^"]+)"([^>]*?)>\s*<\/p>/g,
+        (_match, pre, alt, post) => {
+          return `<figure><img${pre}alt="${alt}"${post} loading="lazy"><figcaption>${alt}</figcaption></figure>`
+        }
+      )
+
+      // Injeta id nos h2 pra funcionar como âncora do sumário
+      clean = clean.replace(/<h2>([^<]+)<\/h2>/g, (_, text) => {
+        const id = String(text)
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[̀-ͯ]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '')
+        return `<h2 id="${id}">${text}</h2>`
+      })
+      return clean
     } catch {
       return ''
     }
+  }, [post])
+
+  // Affix do TOC: quando o layout passa do topo, fixa o TOC à direita;
+  // quando o layout termina, ancora no final (para não sair por baixo).
+  // Só ativa em desktop (>= 1100px) — mobile mantém estático no topo.
+  useEffect(() => {
+    if (!post) return
+    const TOP_OFFSET = 110
+    const DESKTOP_BREAKPOINT = 1100
+    const TOC_WIDTH = 260
+
+    let raf = 0
+
+    const update = () => {
+      raf = 0
+      const layout = layoutRef.current
+      const toc = tocRef.current
+      if (!layout || !toc) return
+
+      if (window.innerWidth < DESKTOP_BREAKPOINT) {
+        setTocState('static')
+        return
+      }
+
+      const layoutRect = layout.getBoundingClientRect()
+      const tocHeight = toc.offsetHeight
+
+      // IMPORTANTE: `position: fixed` em CSS posiciona relativo ao viewport
+      // — EXCETO quando algum ancestral tem `transform` (ou filter/perspective/
+      // will-change: transform). Nesse caso o fixed vira relativo ao
+      // ancestral transformed. O `article.shell` tem `animation: pageIn` com
+      // transform, então criamos um containing block. Compensamos subtraindo
+      // o offset do containing block do top/left.
+      let cbLeft = 0
+      let cbTop = 0
+      let el: HTMLElement | null = toc.parentElement
+      while (el) {
+        const s = getComputedStyle(el)
+        if (
+          s.transform !== 'none' ||
+          s.filter !== 'none' ||
+          s.perspective !== 'none' ||
+          s.willChange.includes('transform')
+        ) {
+          const r = el.getBoundingClientRect()
+          cbLeft = r.left
+          cbTop = r.top
+          break
+        }
+        el = el.parentElement
+      }
+
+      // Posição horizontal: borda direita do layout - 260px, compensando
+      // o offset do containing block (se houver).
+      setTocLeft(layoutRect.right - TOC_WIDTH - cbLeft)
+      setTocTop(TOP_OFFSET - cbTop)
+      setTocWidth(TOC_WIDTH)
+
+      if (layoutRect.top > TOP_OFFSET) {
+        setTocState('static')
+      } else if (layoutRect.bottom - tocHeight - TOP_OFFSET < 0) {
+        setTocState('bottom')
+      } else {
+        setTocState('affix')
+      }
+    }
+
+    const onScroll = () => {
+      if (raf) return
+      raf = requestAnimationFrame(update)
+    }
+    const onResize = () => update()
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onResize)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [post])
+
+  useEffect(() => {
+    if (!post) return
+    const headings = Array.from(document.querySelectorAll<HTMLHeadingElement>('.blog-content h2[id]'))
+    if (headings.length === 0) return
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => (a.target as HTMLElement).offsetTop - (b.target as HTMLElement).offsetTop)
+        if (visible[0]) setActiveId(visible[0].target.id)
+      },
+      { rootMargin: '-100px 0px -70% 0px' }
+    )
+    headings.forEach((h) => obs.observe(h))
+    return () => obs.disconnect()
+  }, [post])
+
+  const toc = useMemo(() => {
+    if (!post) return [] as { id: string; title: string }[]
+    const matches = Array.from(
+      (post.content || '').matchAll(/^##\s+(.+)$/gm)
+    )
+    return matches.map((m) => {
+      const title = m[1].trim()
+      const id = title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+      return { id, title }
+    })
   }, [post])
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
@@ -127,7 +293,7 @@ export default function BlogPostPage() {
       )}
       <Header />
 
-      <article className="shell" style={{ padding: '80px 32px 40px', maxWidth: 820 }}>
+      <article className="shell blog-post-shell" style={{ padding: '80px 32px 40px' }}>
         <Link to="/blog" className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none', marginBottom: 32 }}>
           <ArrowLeft className="h-3 w-3" /> Voltar ao blog
         </Link>
@@ -152,95 +318,151 @@ export default function BlogPostPage() {
         )}
 
         {post && !loading && !error && (
-          <>
-            {post.tags?.length > 0 && (
-              <div className="mono" style={{ marginBottom: 18 }}>
-                {post.tags[0].toUpperCase()}
-                {post.tags.length > 1 && ` · +${post.tags.length - 1}`}
+          <div className="blog-layout" ref={layoutRef}>
+            <div className="blog-main">
+              {post.tags?.length > 0 && (
+                <div className="mono" style={{ marginBottom: 18 }}>
+                  {post.tags[0].toUpperCase()}
+                  {post.tags.length > 1 && ` · +${post.tags.length - 1}`}
+                </div>
+              )}
+
+              <h1 style={{
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 500,
+                fontSize: 'clamp(36px, 5vw, 56px)',
+                letterSpacing: '-0.035em',
+                lineHeight: 1.05,
+                marginBottom: 24,
+              }}>
+                {post.title}
+              </h1>
+
+              {post.excerpt && (
+                <p style={{ fontSize: 19, color: 'var(--ink-dim)', lineHeight: 1.55, marginBottom: 32 }}>
+                  {post.excerpt}
+                </p>
+              )}
+
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 20,
+                padding: '20px 0',
+                borderTop: '1px solid var(--line)',
+                borderBottom: '1px solid var(--line)',
+                marginBottom: 40,
+                flexWrap: 'wrap',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: 'var(--ink-dim)' }}>
+                  {post.author?.name && <span><b style={{ color: 'var(--ink)', fontWeight: 500 }}>{post.author.name}</b></span>}
+                  {post.publishedAt && <span>· {formatDate(post.publishedAt)}</span>}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    · <Clock className="h-3 w-3" /> {calcReadTime(post.content)} min
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button onClick={shareTwitter} className="share-btn" title="Compartilhar no Twitter"><Twitter className="h-4 w-4" /></button>
+                  <button onClick={shareLinkedIn} className="share-btn" title="Compartilhar no LinkedIn"><Linkedin className="h-4 w-4" /></button>
+                  <button onClick={copyLink} className="share-btn" title="Copiar link"><LinkIcon className="h-4 w-4" /></button>
+                </div>
               </div>
-            )}
 
-            <h1 style={{
-              fontFamily: 'Inter, sans-serif',
-              fontWeight: 500,
-              fontSize: 'clamp(36px, 5vw, 56px)',
-              letterSpacing: '-0.035em',
-              lineHeight: 1.05,
-              marginBottom: 24,
-            }}>
-              {post.title}
-            </h1>
+              {post.coverImage && (
+                <img
+                  src={post.coverImage}
+                  alt={post.title}
+                  loading="eager"
+                  fetchPriority="high"
+                  style={{
+                    width: '100%',
+                    borderRadius: 18,
+                    border: '1px solid var(--line)',
+                    marginBottom: 40,
+                    display: 'block',
+                  }}
+                />
+              )}
 
-            {post.excerpt && (
-              <p style={{ fontSize: 19, color: 'var(--ink-dim)', lineHeight: 1.55, marginBottom: 32 }}>
-                {post.excerpt}
-              </p>
-            )}
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 20,
-              padding: '20px 0',
-              borderTop: '1px solid var(--line)',
-              borderBottom: '1px solid var(--line)',
-              marginBottom: 40,
-              flexWrap: 'wrap',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: 'var(--ink-dim)' }}>
-                {post.author?.name && <span><b style={{ color: 'var(--ink)', fontWeight: 500 }}>{post.author.name}</b></span>}
-                {post.publishedAt && <span>· {formatDate(post.publishedAt)}</span>}
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  · <Clock className="h-3 w-3" /> {calcReadTime(post.content)} min
-                </span>
-              </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <button onClick={shareTwitter} className="share-btn" title="Compartilhar no Twitter"><Twitter className="h-4 w-4" /></button>
-                <button onClick={shareLinkedIn} className="share-btn" title="Compartilhar no LinkedIn"><Linkedin className="h-4 w-4" /></button>
-                <button onClick={copyLink} className="share-btn" title="Copiar link"><LinkIcon className="h-4 w-4" /></button>
-              </div>
-            </div>
-
-            {post.coverImage && (
-              <img
-                src={post.coverImage}
-                alt={post.title}
-                loading="eager"
-                fetchPriority="high"
-                style={{
-                  width: '100%',
-                  borderRadius: 18,
-                  border: '1px solid var(--line)',
-                  marginBottom: 40,
-                  display: 'block',
-                }}
+              <div
+                className="blog-content"
+                dangerouslySetInnerHTML={{ __html: html }}
               />
-            )}
 
-            <div
-              className="blog-content"
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
+              {post.tags?.length > 0 && (
+                <div style={{ marginTop: 60, paddingTop: 24, borderTop: '1px solid var(--line)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <span className="mono" style={{ marginRight: 8 }}>Tags:</span>
+                  {post.tags.map((t) => (
+                    <span key={t} className="pill" style={{ background: 'rgba(255,255,255,0.06)' }}>{t}</span>
+                  ))}
+                </div>
+              )}
 
-            {post.tags?.length > 0 && (
-              <div style={{ marginTop: 60, paddingTop: 24, borderTop: '1px solid var(--line)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <span className="mono" style={{ marginRight: 8 }}>Tags:</span>
-                {post.tags.map((t) => (
-                  <span key={t} className="pill" style={{ background: 'rgba(255,255,255,0.06)' }}>{t}</span>
-                ))}
+              {related.length > 0 && (
+                <section className="blog-related">
+                  <div className="mono blog-related-eyebrow">POSTS RELACIONADOS</div>
+                  <h2 className="blog-related-title">Continue lendo</h2>
+                  <div className="blog-related-grid">
+                    {related.map((r) => (
+                      <Link key={r.id} to={`/blog/${r.slug}`} className="blog-related-card glass">
+                        <div
+                          className="blog-related-thumb"
+                          style={r.coverImage ? { backgroundImage: `url(${r.coverImage})` } : undefined}
+                        />
+                        <div className="blog-related-body">
+                          <div className="mono blog-related-tag">
+                            {r.tags?.[0]?.toUpperCase() ?? 'ARTIGO'}
+                          </div>
+                          <h3>{r.title}</h3>
+                          {r.excerpt && <p>{r.excerpt}</p>}
+                          <div className="blog-related-date">{formatDate(r.publishedAt)}</div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              <div style={{ marginTop: 48, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+                <Link to="/blog" className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
+                  <ArrowLeft className="h-3 w-3" /> Todos os posts
+                </Link>
+                <Link to="/contato" className="btn btn-primary" style={{ width: 'auto' }}>
+                  <Share2 className="h-4 w-4" /> Conversar com um especialista
+                </Link>
+              </div>
+            </div>
+
+            {toc.length > 1 && (
+              <div className="blog-toc-slot" ref={tocSlotRef}>
+              <aside
+                className={`blog-toc blog-toc-${tocState}`}
+                ref={tocRef}
+                style={
+                  tocState === 'affix'
+                    ? { position: 'fixed', top: tocTop, left: tocLeft, width: tocWidth }
+                    : tocState === 'bottom'
+                    ? { position: 'absolute', bottom: 0, left: 0, right: 0, top: 'auto' }
+                    : undefined
+                }
+              >
+                <div className="blog-toc-inner">
+                  <div className="mono blog-toc-title">Neste artigo</div>
+                  <ul>
+                    {toc.map((item) => (
+                      <li key={item.id}>
+                        <a href={`#${item.id}`} className={activeId === item.id ? 'active' : ''}>
+                          {item.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </aside>
               </div>
             )}
-
-            <div style={{ marginTop: 48, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-              <Link to="/blog" className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
-                <ArrowLeft className="h-3 w-3" /> Todos os posts
-              </Link>
-              <Link to="/contato" className="btn btn-primary" style={{ width: 'auto' }}>
-                <Share2 className="h-4 w-4" /> Conversar com um especialista
-              </Link>
-            </div>
-          </>
+          </div>
         )}
       </article>
 
