@@ -2,6 +2,8 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { api } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import DragList from '@/components/admin/DragList'
+import { toast } from 'sonner'
 
 interface Perk {
   id: string
@@ -79,6 +81,19 @@ export default function AdminPerksPage() {
     load()
   }
 
+  async function handleReorder(next: Perk[]) {
+    setItems(next)
+    try {
+      await api.patch('/admin/perks/reorder', {
+        items: next.map((p, idx) => ({ id: p.id, order: idx + 1 })),
+      })
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -94,9 +109,10 @@ export default function AdminPerksPage() {
       {loading ? (
         <div className="p-8 text-center text-muted-foreground">Carregando...</div>
       ) : (
-        <div className="grid gap-3">
-          {items.map((p) => (
-            <div key={p.id} className="bg-card border border-border rounded-lg p-4 flex items-start justify-between gap-4">
+        <DragList items={items} getKey={(p) => p.id} onReorder={handleReorder} className="grid gap-3">
+          {(p, handle) => (
+            <div className="bg-card border border-border rounded-lg p-4 flex items-start justify-between gap-4">
+              {handle}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-medium">{p.title}</h3>
@@ -116,9 +132,11 @@ export default function AdminPerksPage() {
                 </button>
               </div>
             </div>
-          ))}
-          {items.length === 0 && <div className="p-8 text-center text-muted-foreground">Nenhum benefício cadastrado.</div>}
-        </div>
+          )}
+        </DragList>
+      )}
+      {!loading && items.length === 0 && (
+        <div className="p-8 text-center text-muted-foreground">Nenhum benefício cadastrado.</div>
       )}
 
       {showForm && (

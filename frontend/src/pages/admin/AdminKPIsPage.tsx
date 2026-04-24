@@ -2,6 +2,8 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { api } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import DragList from '@/components/admin/DragList'
+import { toast } from 'sonner'
 
 interface KPI {
   id: string
@@ -97,6 +99,19 @@ export default function AdminKPIsPage() {
     load()
   }
 
+  async function handleReorder(next: KPI[]) {
+    setItems(next)
+    try {
+      await api.patch('/admin/kpis/reorder', {
+        items: next.map((k, idx) => ({ id: k.id, order: idx + 1 })),
+      })
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -112,10 +127,11 @@ export default function AdminKPIsPage() {
       {loading ? (
         <div className="p-8 text-center text-muted-foreground">Carregando...</div>
       ) : (
-        <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
-          {items.map((k) => (
-            <div key={k.id} className="bg-card border border-border rounded-lg p-4">
+        <DragList items={items} getKey={(k) => k.id} onReorder={handleReorder} className="grid gap-3">
+          {(k, handle) => (
+            <div className="bg-card border border-border rounded-lg p-4">
               <div className="flex items-start justify-between gap-4">
+                {handle}
                 <div className="flex-1">
                   <div className="text-xs font-mono text-muted-foreground">{k.label}</div>
                   <div className="text-3xl font-medium mt-1">
@@ -138,9 +154,11 @@ export default function AdminKPIsPage() {
                 </div>
               </div>
             </div>
-          ))}
-          {items.length === 0 && <div className="p-8 text-center text-muted-foreground col-span-2">Nenhum KPI cadastrado.</div>}
-        </div>
+          )}
+        </DragList>
+      )}
+      {!loading && items.length === 0 && (
+        <div className="p-8 text-center text-muted-foreground">Nenhum KPI cadastrado.</div>
       )}
 
       {showForm && (

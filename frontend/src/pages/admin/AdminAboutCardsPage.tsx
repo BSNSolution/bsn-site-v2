@@ -2,6 +2,17 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { aboutCardsApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import DragList from '@/components/admin/DragList'
+import ColorSelect from '@/components/admin/ColorSelect'
+import { toast } from 'sonner'
+
+// Paleta específica dos about-cards (c1..c4)
+const ABOUT_CARD_PALETTE = [
+  { slug: 'c1', label: 'Violeta', hex: '#a78bfa' },
+  { slug: 'c2', label: 'Ciano', hex: '#22d3ee' },
+  { slug: 'c3', label: 'Magenta', hex: '#ec4899' },
+  { slug: 'c4', label: 'Âmbar', hex: '#f59e0b' },
+]
 
 interface Card {
   id: string
@@ -22,7 +33,6 @@ interface FormData {
   order?: number
 }
 
-const COLOR_OPTIONS = ['c1', 'c2', 'c3', 'c4']
 const EMPTY_FORM: FormData = { tag: '', title: '', description: '', colorClass: 'c1', isActive: true }
 
 export default function AdminAboutCardsPage() {
@@ -61,6 +71,17 @@ export default function AdminAboutCardsPage() {
   }
   async function toggle(id: string) { await aboutCardsApi.admin.toggle(id); load() }
 
+  async function handleReorder(next: Card[]) {
+    setItems(next)
+    try {
+      await aboutCardsApi.admin.reorder(next.map((c, idx) => ({ id: c.id, order: idx + 1 })))
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -76,9 +97,10 @@ export default function AdminAboutCardsPage() {
       {loading ? (
         <div className="p-8 text-center text-muted-foreground">Carregando...</div>
       ) : (
-        <div className="grid gap-3">
-          {items.map((c) => (
-            <div key={c.id} className="glass p-4 flex items-start justify-between gap-4">
+        <DragList items={items} getKey={(c) => c.id} onReorder={handleReorder} className="grid gap-3">
+          {(c, handle) => (
+            <div className="glass p-4 flex items-start justify-between gap-4">
+              {handle}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-mono text-muted-foreground">{c.tag}</span>
@@ -96,9 +118,11 @@ export default function AdminAboutCardsPage() {
                 <button onClick={() => remove(c.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
-          ))}
-          {items.length === 0 && <div className="p-8 text-center text-muted-foreground">Nenhum card.</div>}
-        </div>
+          )}
+        </DragList>
+      )}
+      {!loading && items.length === 0 && (
+        <div className="p-8 text-center text-muted-foreground">Nenhum card.</div>
       )}
 
       {showForm && (
@@ -114,12 +138,12 @@ export default function AdminAboutCardsPage() {
                   <label className="text-xs text-muted-foreground">Tag (ex: MISSÃO)</label>
                   <input type="text" value={form.tag} onChange={(e) => setForm({ ...form, tag: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
                 </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">Cor (c1..c4)</label>
-                  <select value={form.colorClass} onChange={(e) => setForm({ ...form, colorClass: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
-                    {COLOR_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
+                <ColorSelect
+                  label="Cor"
+                  options={ABOUT_CARD_PALETTE}
+                  value={form.colorClass}
+                  onChange={(v) => setForm({ ...form, colorClass: v })}
+                />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Título</label>

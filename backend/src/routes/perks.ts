@@ -94,4 +94,19 @@ export default async function perksRoutes(fastify: FastifyInstance) {
     await invalidateCache(CacheKeys.perks);
     return updated;
   });
+
+  fastify.patch("/admin/perks/reorder", {
+    preHandler: [fastify.authenticate, fastify.requireAdmin],
+  }, async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
+    try {
+      const { items } = request.body;
+      for (const item of items) {
+        await prisma.perk.update({ where: { id: item.id }, data: { order: item.order } });
+      }
+      await invalidateCache(CacheKeys.perks);
+      return { message: "Ordem atualizada" };
+    } catch {
+      reply.code(500).send({ error: "Erro ao reordenar" });
+    }
+  });
 }

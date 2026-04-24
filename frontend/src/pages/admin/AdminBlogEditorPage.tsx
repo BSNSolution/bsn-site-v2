@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo, useRef, FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import ImageInput from '@/components/admin/ImageInput'
 import {
   Save,
   ArrowLeft,
   Eye,
   Code2,
-  Upload as UploadIcon,
   Star,
   Bold,
   Italic,
@@ -69,11 +69,9 @@ export default function AdminBlogEditorPage() {
   const [loading, setLoading] = useState(isEditing)
   const [saving, setSaving] = useState(false)
   const [view, setView] = useState<'edit' | 'preview' | 'split'>('split')
-  const [uploadingCover, setUploadingCover] = useState(false)
   const [uploadingInline, setUploadingInline] = useState(false)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const coverInputRef = useRef<HTMLInputElement>(null)
   const inlineInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -131,21 +129,6 @@ export default function AdminBlogEditorPage() {
       const pos = start + before.length
       ta.setSelectionRange(pos, pos + selected.length)
     }, 0)
-  }
-
-  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploadingCover(true)
-    try {
-      const res = await uploadApi.uploadFile(file)
-      setField('coverImage', res.url || res.data?.url || '')
-    } catch (err: any) {
-      alert(err?.response?.data?.error || 'Erro no upload')
-    } finally {
-      setUploadingCover(false)
-      if (coverInputRef.current) coverInputRef.current.value = ''
-    }
   }
 
   async function handleInlineUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -356,29 +339,13 @@ export default function AdminBlogEditorPage() {
             />
           </div>
 
-          <div className="glass p-4 space-y-3">
-            <h3 className="text-sm font-medium mb-1">Imagem de capa</h3>
-            {form.coverImage && (
-              <img src={form.coverImage} alt="capa" className="w-full aspect-video object-cover rounded-lg border border-white/10" />
-            )}
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={form.coverImage}
-                onChange={(e) => setField('coverImage', e.target.value)}
-                placeholder="URL da imagem..."
-                className="flex-1 px-3 py-2 bg-black/40 border border-white/10 rounded text-xs font-mono"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => coverInputRef.current?.click()}
-              disabled={uploadingCover}
-              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm"
-            >
-              <UploadIcon className="h-4 w-4" /> {uploadingCover ? 'Enviando...' : 'Enviar imagem'}
-            </button>
-            <input ref={coverInputRef} type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
+          <div className="glass p-4 space-y-2">
+            <ImageInput
+              label="Imagem de capa"
+              value={form.coverImage}
+              onChange={(url) => setField('coverImage', url ?? '')}
+              previewHeight={180}
+            />
           </div>
 
           <div className="glass p-4 space-y-3">

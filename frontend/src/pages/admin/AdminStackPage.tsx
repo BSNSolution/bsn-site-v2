@@ -2,6 +2,8 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { stackApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import DragList from '@/components/admin/DragList'
+import { toast } from 'sonner'
 
 interface Item {
   id: string
@@ -52,6 +54,17 @@ export default function AdminStackPage() {
   }
   async function toggle(id: string) { await stackApi.admin.toggle(id); load() }
 
+  async function handleReorder(next: Item[]) {
+    setItems(next)
+    try {
+      await stackApi.admin.reorder(next.map((i, idx) => ({ id: i.id, order: idx + 1 })))
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -67,10 +80,11 @@ export default function AdminStackPage() {
       {loading ? (
         <div className="p-8 text-center text-muted-foreground">Carregando...</div>
       ) : (
-        <div className="grid gap-2 grid-cols-2 md:grid-cols-3">
-          {items.map((i) => (
-            <div key={i.id} className="glass p-3 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
+        <DragList items={items} getKey={(i) => i.id} onReorder={handleReorder} className="grid gap-2">
+          {(i, handle) => (
+            <div className="glass p-3 flex items-center justify-between gap-2">
+              {handle}
+              <div className="flex items-center gap-2 flex-1">
                 <span className="font-medium">{i.name}</span>
                 {!i.isActive && <span className="text-xs px-2 py-0.5 rounded bg-white/10">Inativo</span>}
               </div>
@@ -82,8 +96,8 @@ export default function AdminStackPage() {
                 <button onClick={() => remove(i.id)} className="p-1.5 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </DragList>
       )}
 
       {showForm && (

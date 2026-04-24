@@ -146,4 +146,21 @@ export default async function aiRoutes(fastify: FastifyInstance) {
       return updated;
     }
   );
+
+  fastify.patch(
+    "/admin/ai-blocks/reorder",
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
+      try {
+        const { items } = request.body;
+        for (const item of items) {
+          await prisma.aIBlock.update({ where: { id: item.id }, data: { order: item.order } });
+        }
+        await invalidateCache(CacheKeys.aiBlocks);
+        return { message: "Ordem atualizada" };
+      } catch {
+        reply.code(500).send({ error: "Erro ao reordenar" });
+      }
+    }
+  );
 }

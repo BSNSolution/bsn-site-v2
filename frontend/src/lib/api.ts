@@ -103,6 +103,8 @@ export const stackApi = {
     update: async (id: string, data: any) => (await api.put(`/admin/stack/${id}`, data)).data,
     remove: async (id: string) => (await api.delete(`/admin/stack/${id}`)).data,
     toggle: async (id: string) => (await api.patch(`/admin/stack/${id}/toggle`)).data,
+    reorder: async (items: { id: string; order: number }[]) =>
+      (await api.patch('/admin/stack/reorder', { items })).data,
   },
 }
 
@@ -114,6 +116,8 @@ export const aboutCardsApi = {
     update: async (id: string, data: any) => (await api.put(`/admin/about-cards/${id}`, data)).data,
     remove: async (id: string) => (await api.delete(`/admin/about-cards/${id}`)).data,
     toggle: async (id: string) => (await api.patch(`/admin/about-cards/${id}/toggle`)).data,
+    reorder: async (items: { id: string; order: number }[]) =>
+      (await api.patch('/admin/about-cards/reorder', { items })).data,
   },
 }
 
@@ -357,6 +361,11 @@ export const testimonialsApi = {
       const response = await api.patch(`/admin/testimonials/${id}/toggle`)
       return response.data
     },
+
+    reorder: async (items: { id: string; order: number }[]) => {
+      const response = await api.patch('/admin/testimonials/reorder', { items })
+      return response.data
+    },
   },
 }
 
@@ -468,6 +477,11 @@ export const teamApi = {
       const response = await api.patch(`/admin/team/${id}/toggle`)
       return response.data
     },
+
+    reorder: async (items: { id: string; order: number }[]) => {
+      const response = await api.patch('/admin/team/reorder', { items })
+      return response.data
+    },
   },
 }
 
@@ -502,6 +516,11 @@ export const clientsApi = {
 
     toggleClient: async (id: string) => {
       const response = await api.patch(`/admin/clients/${id}/toggle`)
+      return response.data
+    },
+
+    reorder: async (items: { id: string; order: number }[]) => {
+      const response = await api.patch('/admin/clients/reorder', { items })
       return response.data
     },
   },

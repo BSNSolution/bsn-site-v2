@@ -2,6 +2,8 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { api } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import DragList from '@/components/admin/DragList'
+import { toast } from 'sonner'
 
 interface Value {
   id: string
@@ -88,6 +90,19 @@ export default function AdminValuesPage() {
     load()
   }
 
+  async function handleReorder(next: Value[]) {
+    setValues(next)
+    try {
+      await api.patch('/admin/values/reorder', {
+        items: next.map((v, idx) => ({ id: v.id, order: idx + 1 })),
+      })
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -103,9 +118,10 @@ export default function AdminValuesPage() {
       {loading ? (
         <div className="p-8 text-center text-muted-foreground">Carregando...</div>
       ) : (
-        <div className="grid gap-3">
-          {values.map((v) => (
-            <div key={v.id} className="bg-card border border-border rounded-lg p-4 flex items-start justify-between gap-4">
+        <DragList items={values} getKey={(v) => v.id} onReorder={handleReorder} className="grid gap-3">
+          {(v, handle) => (
+            <div className="bg-card border border-border rounded-lg p-4 flex items-start justify-between gap-4">
+              {handle}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-mono text-muted-foreground">{v.number}</span>
@@ -126,9 +142,11 @@ export default function AdminValuesPage() {
                 </button>
               </div>
             </div>
-          ))}
-          {values.length === 0 && <div className="p-8 text-center text-muted-foreground">Nenhum valor cadastrado.</div>}
-        </div>
+          )}
+        </DragList>
+      )}
+      {!loading && values.length === 0 && (
+        <div className="p-8 text-center text-muted-foreground">Nenhum valor cadastrado.</div>
       )}
 
       {showForm && (

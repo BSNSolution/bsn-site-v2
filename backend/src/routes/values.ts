@@ -95,4 +95,19 @@ export default async function valuesRoutes(fastify: FastifyInstance) {
     await invalidateCache(CacheKeys.values);
     return updated;
   });
+
+  fastify.patch("/admin/values/reorder", {
+    preHandler: [fastify.authenticate, fastify.requireAdmin],
+  }, async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
+    try {
+      const { items } = request.body;
+      for (const item of items) {
+        await prisma.value.update({ where: { id: item.id }, data: { order: item.order } });
+      }
+      await invalidateCache(CacheKeys.values);
+      return { message: "Ordem atualizada" };
+    } catch {
+      reply.code(500).send({ error: "Erro ao reordenar" });
+    }
+  });
 }

@@ -3,6 +3,9 @@ import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { testimonialsApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Rating } from '@/components/ui/rating'
+import DragList from '@/components/admin/DragList'
+import ImageInput from '@/components/admin/ImageInput'
+import { toast } from 'sonner'
 
 interface Testimonial {
   id: string
@@ -98,6 +101,17 @@ export default function AdminTestimonialsPage() {
     await testimonialsApi.admin.toggleTestimonial(id); load()
   }
 
+  async function handleReorder(next: Testimonial[]) {
+    setItems(next)
+    try {
+      await testimonialsApi.admin.reorder(next.map((t, idx) => ({ id: t.id, order: idx + 1 })))
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -115,9 +129,10 @@ export default function AdminTestimonialsPage() {
       ) : items.length === 0 ? (
         <div className="glass p-12 text-center text-muted-foreground">Nenhum depoimento.</div>
       ) : (
-        <div className="grid gap-3">
-          {items.map((t) => (
-            <div key={t.id} className="glass p-4 flex items-start justify-between gap-4">
+        <DragList items={items} getKey={(t) => t.id} onReorder={handleReorder} className="grid gap-3">
+          {(t, handle) => (
+            <div className="glass p-4 flex items-start justify-between gap-4">
+              {handle}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-medium">{t.clientName}</h3>
@@ -136,8 +151,8 @@ export default function AdminTestimonialsPage() {
                 <button onClick={() => remove(t.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </DragList>
       )}
 
       {showForm && (
@@ -178,10 +193,12 @@ export default function AdminTestimonialsPage() {
                   <input type="number" value={form.order ?? ''} onChange={(e) => setForm({ ...form, order: e.target.value ? Number(e.target.value) : undefined })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
                 </div>
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground">Avatar URL (opcional)</label>
-                <input type="url" value={form.avatarUrl} onChange={(e) => setForm({ ...form, avatarUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
-              </div>
+              <ImageInput
+                label="Avatar (opcional)"
+                value={form.avatarUrl}
+                onChange={(url) => setForm({ ...form, avatarUrl: url ?? '' })}
+                previewHeight={64}
+              />
               <Checkbox label="Ativo" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 hover:bg-white/10 rounded">Cancelar</button>

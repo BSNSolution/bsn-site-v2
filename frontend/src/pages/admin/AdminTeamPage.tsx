@@ -2,6 +2,9 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { teamApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import DragList from '@/components/admin/DragList'
+import ImageInput from '@/components/admin/ImageInput'
+import { toast } from 'sonner'
 
 interface TeamMember {
   id: string
@@ -104,6 +107,17 @@ export default function AdminTeamPage() {
     await teamApi.admin.toggleMember(id); load()
   }
 
+  async function handleReorder(next: TeamMember[]) {
+    setItems(next)
+    try {
+      await teamApi.admin.reorder(next.map((m, idx) => ({ id: m.id, order: idx + 1 })))
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -119,9 +133,10 @@ export default function AdminTeamPage() {
       {loading ? (
         <div className="p-8 text-center text-muted-foreground">Carregando...</div>
       ) : (
-        <div className="grid gap-3">
-          {items.map((m) => (
-            <div key={m.id} className="glass p-4 flex items-center justify-between gap-4">
+        <DragList items={items} getKey={(m) => m.id} onReorder={handleReorder} className="grid gap-3">
+          {(m, handle) => (
+            <div className="glass p-4 flex items-center justify-between gap-4">
+              {handle}
               <div className="flex items-center gap-4 flex-1">
                 <div
                   className="w-12 h-12 rounded-full shrink-0"
@@ -155,9 +170,11 @@ export default function AdminTeamPage() {
                 <button onClick={() => remove(m.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
-          ))}
-          {items.length === 0 && <div className="p-8 text-center text-muted-foreground">Nenhum membro.</div>}
-        </div>
+          )}
+        </DragList>
+      )}
+      {!loading && items.length === 0 && (
+        <div className="p-8 text-center text-muted-foreground">Nenhum membro.</div>
       )}
 
       {showForm && (
@@ -180,10 +197,12 @@ export default function AdminTeamPage() {
                 <label className="text-xs text-muted-foreground">Bio</label>
                 <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={3} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground">URL da foto (opcional)</label>
-                <input type="url" value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} placeholder="https://..." className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
-              </div>
+              <ImageInput
+                label="Foto (opcional)"
+                value={form.imageUrl}
+                onChange={(url) => setForm({ ...form, imageUrl: url ?? '' })}
+                previewHeight={120}
+              />
               <div>
                 <label className="text-xs text-muted-foreground">Variante do avatar (se sem foto)</label>
                 <select value={form.avatarVariant} onChange={(e) => setForm({ ...form, avatarVariant: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">

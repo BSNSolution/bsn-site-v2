@@ -93,4 +93,19 @@ export default async function stackItemsRoutes(fastify: FastifyInstance) {
     await invalidateCache(CacheKeys.stack);
     return updated;
   });
+
+  fastify.patch("/admin/stack/reorder", {
+    preHandler: [fastify.authenticate, fastify.requireAdmin],
+  }, async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
+    try {
+      const { items } = request.body;
+      for (const item of items) {
+        await prisma.stackItem.update({ where: { id: item.id }, data: { order: item.order } });
+      }
+      await invalidateCache(CacheKeys.stack);
+      return { message: "Ordem atualizada" };
+    } catch {
+      reply.code(500).send({ error: "Erro ao reordenar" });
+    }
+  });
 }

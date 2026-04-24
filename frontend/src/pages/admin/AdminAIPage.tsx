@@ -1,7 +1,11 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
-import { aiApi } from '@/lib/api'
+import { aiApi, api } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import ColorSelect from '@/components/admin/ColorSelect'
+import ImageInput from '@/components/admin/ImageInput'
+import DragList from '@/components/admin/DragList'
+import { toast } from 'sonner'
 
 type AIBlockType = 'HERO_BENEFIT' | 'STAGE' | 'EDU_HIGHLIGHT'
 
@@ -40,7 +44,6 @@ const TYPE_OPTIONS: { value: AIBlockType; label: string }[] = [
   { value: 'EDU_HIGHLIGHT', label: 'Destaque educacional' },
 ]
 
-const COLOR_OPTIONS = ['a', 'b', 'c', 'd', 'e', 'f']
 const ICON_OPTIONS = [
   'trending-up',
   'scissors',
@@ -157,6 +160,21 @@ export default function AdminAIPage() {
     load()
   }
 
+  async function handleReorder(type: AIBlockType, next: AIBlock[]) {
+    // Atualiza otimisticamente + persiste
+    const others = items.filter((b) => b.type !== type)
+    setItems([...others, ...next])
+    try {
+      await api.patch('/admin/ai-blocks/reorder', {
+        items: next.map((b, idx) => ({ id: b.id, order: idx + 1 })),
+      })
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   // agrupa por tipo
   const grouped: Record<AIBlockType, AIBlock[]> = {
     HERO_BENEFIT: [],
@@ -197,12 +215,15 @@ export default function AdminAIPage() {
                 <Plus className="h-3 w-3" /> Adicionar
               </button>
             </div>
-            <div className="grid gap-3">
-              {grouped[type].length === 0 && (
-                <div className="p-6 text-center text-muted-foreground glass text-sm">Nenhum bloco ainda.</div>
-              )}
-              {grouped[type].map((block) => (
-                <div key={block.id} className="glass p-4 flex items-start justify-between gap-4">
+            <DragList
+              items={grouped[type]}
+              getKey={(b) => b.id}
+              onReorder={(next) => handleReorder(type, next)}
+              className="grid gap-3"
+            >
+              {(block, handle) => (
+                <div className="glass p-4 flex items-start justify-between gap-4">
+                  {handle}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       {block.number && (
@@ -243,8 +264,11 @@ export default function AdminAIPage() {
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
+            </DragList>
+            {grouped[type].length === 0 && (
+              <div className="p-6 text-center text-muted-foreground glass text-sm">Nenhum bloco ainda.</div>
+            )}
           </section>
         ))
       )}
@@ -326,20 +350,12 @@ export default function AdminAIPage() {
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="text-xs text-muted-foreground">Cor (a-f)</label>
-                  <select
-                    value={form.colorClass}
-                    onChange={(e) => setForm({ ...form, colorClass: e.target.value })}
-                    className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded"
-                  >
-                    {COLOR_OPTIONS.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <ColorSelect
+                  label="Cor"
+                  variant="color-class"
+                  value={form.colorClass}
+                  onChange={(v) => setForm({ ...form, colorClass: v })}
+                />
                 <div>
                   <label className="text-xs text-muted-foreground">Número (STAGE)</label>
                   <input
@@ -366,16 +382,12 @@ export default function AdminAIPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="text-xs text-muted-foreground">Imagem opcional (URL)</label>
-                <input
-                  type="text"
-                  value={form.imageUrl}
-                  onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded"
-                />
-              </div>
+              <ImageInput
+                label="Imagem (opcional)"
+                value={form.imageUrl}
+                onChange={(url) => setForm({ ...form, imageUrl: url ?? '' })}
+                previewHeight={100}
+              />
 
               <div className="flex items-center gap-4 flex-wrap">
                 <Checkbox

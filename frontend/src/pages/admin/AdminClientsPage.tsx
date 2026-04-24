@@ -2,6 +2,9 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, ExternalLink } from 'lucide-react'
 import { clientsApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import DragList from '@/components/admin/DragList'
+import ImageInput from '@/components/admin/ImageInput'
+import { toast } from 'sonner'
 
 interface Client {
   id: string
@@ -74,6 +77,17 @@ export default function AdminClientsPage() {
   }
   async function toggle(id: string) { await clientsApi.admin.toggleClient(id); load() }
 
+  async function handleReorder(next: Client[]) {
+    setItems(next)
+    try {
+      await clientsApi.admin.reorder(next.map((c, idx) => ({ id: c.id, order: idx + 1 })))
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -91,9 +105,10 @@ export default function AdminClientsPage() {
       ) : items.length === 0 ? (
         <div className="glass p-12 text-center text-muted-foreground">Nenhum cliente cadastrado.</div>
       ) : (
-        <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
-          {items.map((c) => (
-            <div key={c.id} className="glass p-4 flex items-center justify-between gap-4">
+        <DragList items={items} getKey={(c) => c.id} onReorder={handleReorder} className="grid gap-3">
+          {(c, handle) => (
+            <div className="glass p-4 flex items-center justify-between gap-4">
+              {handle}
               <div className="flex items-center gap-3 flex-1">
                 {c.logoUrl && <img src={c.logoUrl} alt={c.name} loading="lazy" className="h-10 w-10 object-contain" />}
                 <div>
@@ -116,8 +131,8 @@ export default function AdminClientsPage() {
                 <button onClick={() => remove(c.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </DragList>
       )}
 
       {showForm && (
@@ -132,10 +147,12 @@ export default function AdminClientsPage() {
                 <label className="text-xs text-muted-foreground">Nome</label>
                 <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground">URL do logo (opcional — se vazio, mostra o nome)</label>
-                <input type="url" value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
-              </div>
+              <ImageInput
+                label="Logo (opcional — se vazio, mostra o nome)"
+                value={form.logoUrl}
+                onChange={(url) => setForm({ ...form, logoUrl: url ?? '' })}
+                previewHeight={64}
+              />
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground">Website (opcional)</label>

@@ -96,4 +96,19 @@ export default async function kpisRoutes(fastify: FastifyInstance) {
     await invalidateCache(CacheKeys.kpis);
     return updated;
   });
+
+  fastify.patch("/admin/kpis/reorder", {
+    preHandler: [fastify.authenticate, fastify.requireAdmin],
+  }, async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
+    try {
+      const { items } = request.body;
+      for (const item of items) {
+        await prisma.homeKPI.update({ where: { id: item.id }, data: { order: item.order } });
+      }
+      await invalidateCache(CacheKeys.kpis);
+      return { message: "Ordem atualizada" };
+    } catch {
+      reply.code(500).send({ error: "Erro ao reordenar KPIs" });
+    }
+  });
 }
