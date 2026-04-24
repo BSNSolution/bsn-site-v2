@@ -2,6 +2,7 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Sparkles, Star, StarOff, CheckCircle2, XCircle } from 'lucide-react'
 import { aiConfigsApi, AiConfig } from '@/lib/api'
 import { toast } from 'sonner'
+import Select from '@/components/admin/Select'
 
 const PROVIDER_MODELS: Record<string, { label: string; models: string[] }> = {
   openai: {
@@ -288,39 +289,34 @@ export default function AdminAiConfigsPage() {
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Provedor</label>
-                  <select
+                  <Select
                     value={form.provider}
-                    onChange={(e) => {
-                      const prov = e.target.value as FormState['provider']
+                    onChange={(v) => {
+                      const prov = v as FormState['provider']
                       setForm({
                         ...form,
                         provider: prov,
                         model: PROVIDER_MODELS[prov].models[0],
                       })
                     }}
-                    className="w-full h-10 bg-black/30 border border-white/10 rounded-lg px-3 text-sm outline-none"
-                  >
-                    {Object.entries(PROVIDER_MODELS).map(([k, v]) => (
-                      <option key={k} value={k}>
-                        {v.label}
-                      </option>
-                    ))}
-                  </select>
+                    options={Object.entries(PROVIDER_MODELS).map(([k, v]) => ({
+                      value: k,
+                      label: v.label,
+                      hint: k,
+                    }))}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Modelo</label>
-                  <select
+                  <Select
                     value={form.model}
-                    onChange={(e) => setForm({ ...form, model: e.target.value })}
-                    className="w-full h-10 bg-black/30 border border-white/10 rounded-lg px-3 text-sm outline-none"
-                  >
-                    {PROVIDER_MODELS[form.provider].models.map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                    <option value="__custom__">Outro (digitar)</option>
-                  </select>
+                    onChange={(v) => setForm({ ...form, model: v })}
+                    searchable
+                    options={[
+                      ...PROVIDER_MODELS[form.provider].models.map((m) => ({ value: m, label: m })),
+                      { value: '__custom__', label: 'Outro (digitar)' },
+                    ]}
+                  />
                   {form.model === '__custom__' && (
                     <input
                       type="text"

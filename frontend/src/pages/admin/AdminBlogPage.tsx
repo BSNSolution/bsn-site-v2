@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { useAiEnabled } from '@/hooks/use-ai-enabled'
 import { useAuth } from '@/contexts/AuthContext'
 import PermissionGate from '@/components/PermissionGate'
+import Select from '@/components/admin/Select'
 
 const ADMIN_PAGE_SIZE = 10
 
@@ -200,18 +201,20 @@ export default function AdminBlogPage() {
                 </button>
               ))}
             </div>
-            <select
-              value={datePreset}
-              onChange={(e) => setDatePreset(e.target.value as typeof datePreset)}
-              className="h-10 bg-black/30 border border-white/10 rounded-lg px-3 text-sm outline-none focus:border-white/25"
-            >
-              <option value="all">Qualquer período</option>
-              <option value="7d">Últimos 7 dias</option>
-              <option value="30d">Últimos 30 dias</option>
-              <option value="90d">Últimos 3 meses</option>
-              <option value="1y">Último ano</option>
-              <option value="custom">Período personalizado</option>
-            </select>
+            <div className="min-w-[200px]">
+              <Select
+                value={datePreset}
+                onChange={(v) => setDatePreset(v as typeof datePreset)}
+                options={[
+                  { value: 'all', label: 'Qualquer período' },
+                  { value: '7d', label: 'Últimos 7 dias' },
+                  { value: '30d', label: 'Últimos 30 dias' },
+                  { value: '90d', label: 'Últimos 3 meses' },
+                  { value: '1y', label: 'Último ano' },
+                  { value: 'custom', label: 'Período personalizado' },
+                ]}
+              />
+            </div>
             <div className="text-xs font-mono text-muted-foreground">
               {filtered.length} {filtered.length === 1 ? 'post' : 'posts'}
             </div>

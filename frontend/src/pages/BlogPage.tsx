@@ -8,6 +8,7 @@ import PublicPageHero from '@/components/layout/PublicPageHero'
 import Seo from '@/components/Seo'
 import { blogApi } from '@/lib/api'
 import { usePageSections } from '@/hooks/use-page-sections'
+import Select from '@/components/admin/Select'
 
 const BLOG_SECTION_KEYS = ['hero', 'featured', 'posts'] as const
 
@@ -182,18 +183,20 @@ export default function BlogPage() {
               )}
             </div>
 
-            <select
-              className="blog-filter-select"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value as DateFilter)}
-            >
-              <option value="all">Qualquer período</option>
-              <option value="7d">Últimos 7 dias</option>
-              <option value="30d">Últimos 30 dias</option>
-              <option value="90d">Últimos 3 meses</option>
-              <option value="1y">Último ano</option>
-              <option value="custom">Período personalizado</option>
-            </select>
+            <div className="min-w-[200px]">
+              <Select
+                value={dateFilter}
+                onChange={(v) => setDateFilter(v as DateFilter)}
+                options={[
+                  { value: 'all', label: 'Qualquer período' },
+                  { value: '7d', label: 'Últimos 7 dias' },
+                  { value: '30d', label: 'Últimos 30 dias' },
+                  { value: '90d', label: 'Últimos 3 meses' },
+                  { value: '1y', label: 'Último ano' },
+                  { value: 'custom', label: 'Período personalizado' },
+                ]}
+              />
+            </div>
 
             {dateFilter === 'custom' && (
               <div className="blog-filter-daterange">

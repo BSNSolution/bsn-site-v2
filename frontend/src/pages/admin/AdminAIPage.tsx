@@ -5,6 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import ColorSelect from '@/components/admin/ColorSelect'
 import ImageInput from '@/components/admin/ImageInput'
 import DragList from '@/components/admin/DragList'
+import Select from '@/components/admin/Select'
 import { toast } from 'sonner'
 
 type AIBlockType = 'HERO_BENEFIT' | 'STAGE' | 'EDU_HIGHLIGHT'
@@ -289,18 +290,13 @@ export default function AdminAIPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground">Tipo</label>
-                  <select
-                    value={form.type}
-                    onChange={(e) => setForm({ ...form, type: e.target.value as AIBlockType })}
-                    className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded"
-                    required
-                  >
-                    {TYPE_OPTIONS.map((t) => (
-                      <option key={t.value} value={t.value}>
-                        {t.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="mt-1">
+                    <Select
+                      value={form.type}
+                      onChange={(v) => setForm({ ...form, type: v as AIBlockType })}
+                      options={TYPE_OPTIONS.map((t) => ({ value: t.value, label: t.label }))}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">Tag / eyebrow</label>
@@ -368,17 +364,14 @@ export default function AdminAIPage() {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">Ícone (Lucide)</label>
-                  <select
-                    value={form.iconName}
-                    onChange={(e) => setForm({ ...form, iconName: e.target.value })}
-                    className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded"
-                  >
-                    {ICON_OPTIONS.map((i) => (
-                      <option key={i} value={i}>
-                        {i}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="mt-1">
+                    <Select
+                      value={form.iconName}
+                      onChange={(v) => setForm({ ...form, iconName: v })}
+                      searchable
+                      options={ICON_OPTIONS.map((i) => ({ value: i, label: i }))}
+                    />
+                  </div>
                 </div>
               </div>
 

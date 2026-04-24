@@ -1,8 +1,9 @@
 import { Checkbox } from '@/components/ui/checkbox'
 import { IconPicker } from '@/components/ui/icon-picker'
+import ColorSelect from '@/components/admin/ColorSelect'
+import Select from '@/components/admin/Select'
 import {
   isValidSlug,
-  SHARD_OPTIONS,
   TILE_OPTIONS,
   type ServiceFormData,
 } from './types'
@@ -48,15 +49,23 @@ export default function TabMain({ form, setForm }: Props) {
         </div>
         <div>
           <label className="text-xs text-muted-foreground">Shard color</label>
-          <select value={form.shardColor} onChange={(e) => setForm({ ...form, shardColor: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
-            {SHARD_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <div className="mt-1">
+            <ColorSelect
+              variant="shard"
+              value={form.shardColor}
+              onChange={(slug) => setForm({ ...form, shardColor: slug })}
+            />
+          </div>
         </div>
         <div>
           <label className="text-xs text-muted-foreground">Tile class</label>
-          <select value={form.tileClass} onChange={(e) => setForm({ ...form, tileClass: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
-            {TILE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
+          <div className="mt-1">
+            <Select
+              value={form.tileClass}
+              onChange={(v) => setForm({ ...form, tileClass: v })}
+              options={TILE_OPTIONS.map((t) => ({ value: t, label: t }))}
+            />
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-3">

@@ -2,6 +2,7 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { jobsApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import Select from '@/components/admin/Select'
 
 interface Job {
   id: string
@@ -184,9 +185,13 @@ export default function AdminJobsPage() {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">Tipo</label>
-                  <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
-                    {TYPE_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
+                  <div className="mt-1">
+                    <Select
+                      value={form.type}
+                      onChange={(v) => setForm({ ...form, type: v })}
+                      options={TYPE_OPTIONS.map((t) => ({ value: t.value, label: t.label, hint: t.value }))}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">Salário</label>

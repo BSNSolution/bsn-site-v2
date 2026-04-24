@@ -4,6 +4,7 @@ import { homeApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
 import DragList from '@/components/admin/DragList'
 import ImageInput from '@/components/admin/ImageInput'
+import Select from '@/components/admin/Select'
 import { toast } from 'sonner'
 
 interface Section {
@@ -167,9 +168,13 @@ export default function HomeSectionsPage() {
             <form onSubmit={submit} className="space-y-3">
               <div>
                 <label className="text-xs text-muted-foreground">Tipo</label>
-                <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
-                  {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
+                <div className="mt-1">
+                  <Select
+                    value={form.type}
+                    onChange={(v) => setForm({ ...form, type: v })}
+                    options={TYPES.map((t) => ({ value: t, label: t }))}
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Título</label>

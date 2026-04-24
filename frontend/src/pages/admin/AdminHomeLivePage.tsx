@@ -2,6 +2,7 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Save, Plus, Trash2 } from 'lucide-react'
 import { homeExtrasApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import Select from '@/components/admin/Select'
 
 interface Row {
   label: string
@@ -104,10 +105,17 @@ export default function AdminHomeLivePage() {
               <div key={idx} className="flex gap-2 items-center">
                 <input type="text" value={row.label} onChange={(e) => updateRow(idx, 'label', e.target.value)} placeholder="Label" className="flex-1 px-3 py-2 bg-black/40 border border-white/10 rounded text-sm" />
                 <input type="text" value={row.value} onChange={(e) => updateRow(idx, 'value', e.target.value)} placeholder="Valor" className="w-32 px-3 py-2 bg-black/40 border border-white/10 rounded text-sm" />
-                <select value={row.highlight ?? ''} onChange={(e) => updateRow(idx, 'highlight', e.target.value || null as any)} className="w-24 px-2 py-2 bg-black/40 border border-white/10 rounded text-sm">
-                  <option value="">—</option>
-                  <option value="up">up (verde)</option>
-                </select>
+                <div className="w-32">
+                  <Select
+                    size="sm"
+                    value={row.highlight ?? ''}
+                    onChange={(v) => updateRow(idx, 'highlight', (v || null) as any)}
+                    options={[
+                      { value: '', label: '—' },
+                      { value: 'up', label: 'up', color: '#10b981' },
+                    ]}
+                  />
+                </div>
                 <button type="button" onClick={() => removeRow(idx)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
               </div>
             ))}

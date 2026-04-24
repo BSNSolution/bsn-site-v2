@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, UserPlus, Shield } from 'lucide-react'
 import { usersAdminApi } from '@/lib/api'
+import Select from '@/components/admin/Select'
 
 interface Permission {
   id: string
@@ -254,9 +255,17 @@ export default function AdminUsersPage() {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">Role base</label>
-                  <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
-                    {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
-                  </select>
+                  <div className="mt-1">
+                    <Select
+                      value={form.role}
+                      onChange={(v) => setForm({ ...form, role: v })}
+                      options={ROLES.map((r) => ({
+                        value: r,
+                        label: r,
+                        hint: r === 'ADMIN' ? 'tudo' : r === 'DEVELOPER' ? 'quase tudo' : r === 'EDITOR' ? 'conteúdo' : 'leitura',
+                      }))}
+                    />
+                  </div>
                 </div>
               </div>
 

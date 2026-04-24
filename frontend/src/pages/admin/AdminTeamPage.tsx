@@ -4,6 +4,7 @@ import { teamApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
 import DragList from '@/components/admin/DragList'
 import ImageInput from '@/components/admin/ImageInput'
+import Select from '@/components/admin/Select'
 import { toast } from 'sonner'
 
 interface TeamMember {
@@ -30,9 +31,9 @@ interface FormData {
 }
 
 const AVATAR_VARIANTS = [
-  { value: 'default', label: 'Violet → Magenta (padrão)' },
-  { value: 'b', label: 'Cyan → Emerald' },
-  { value: 'c', label: 'Amber → Magenta' },
+  { value: 'default', label: 'Violet → Magenta (padrão)', color: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
+  { value: 'b', label: 'Cyan → Emerald', color: 'linear-gradient(135deg, #06b6d4, #10b981)' },
+  { value: 'c', label: 'Amber → Magenta', color: 'linear-gradient(135deg, #f59e0b, #ec4899)' },
 ]
 
 const EMPTY_FORM: FormData = {
@@ -205,9 +206,17 @@ export default function AdminTeamPage() {
               />
               <div>
                 <label className="text-xs text-muted-foreground">Variante do avatar (se sem foto)</label>
-                <select value={form.avatarVariant} onChange={(e) => setForm({ ...form, avatarVariant: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
-                  {AVATAR_VARIANTS.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
-                </select>
+                <div className="mt-1">
+                  <Select
+                    value={form.avatarVariant}
+                    onChange={(v) => setForm({ ...form, avatarVariant: v })}
+                    options={AVATAR_VARIANTS.map((v) => ({
+                      value: v.value,
+                      label: v.label,
+                      color: v.color,
+                    }))}
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">LinkedIn</label>
