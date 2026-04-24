@@ -201,13 +201,15 @@
 }
 
 /* ============================================================
-   MOBILE — hero-orbit
-   Em telas < 1024px:
-   - Nodes saem do posicionamento flutuante absolute e viram grid
-   - Os rings de fundo e o "sol" são escondidos (confusão visual)
-   - Orbit-nodes passa a ser um grid 2 colunas (< 480px vira 1 coluna)
+   HERO-ORBIT — fallback de layout para telas em que os cards
+   flutuantes começariam a ser cortados pelas bordas.
+   O breakpoint é maior que o do mobile-nav (1024px) porque os
+   nodes absolute precisam de 1500px+ pra caber com folga.
+
+   - <=1500px: rings/sol escondidos, nodes em grid 2 colunas
+   - <=480px:  grid vira 1 coluna (mobile pequeno)
    ============================================================ */
-@media (max-width: 1024px) {
+@media (max-width: 1500px) {
   .hero-orbit {
     padding-top: 24px;
     padding-bottom: 40px;
