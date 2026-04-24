@@ -181,27 +181,14 @@ export default function AdminServicesPage() {
     }
   }
 
-  async function moveBlock(blockId: string, direction: 'up' | 'down') {
+  async function reorderBlocks(next: ServiceDetailBlock[]) {
     if (!editing) return
-    const sorted = [...blocks].sort((a, b) => a.order - b.order)
-    const idx = sorted.findIndex((b) => b.id === blockId)
-    if (idx < 0) return
-    const swapIdx = direction === 'up' ? idx - 1 : idx + 1
-    if (swapIdx < 0 || swapIdx >= sorted.length) return
-    const a = sorted[idx]
-    const b = sorted[swapIdx]
-    const items = [
-      { id: a.id, order: b.order },
-      { id: b.id, order: a.order },
-    ]
+    // Atualiza otimisticamente
+    setBlocks(next.map((b, idx) => ({ ...b, order: idx + 1 })))
     try {
-      await servicesApi.admin.reorderBlocks(editing.id, items)
-      setBlocks((prev) =>
-        prev.map((blk) => {
-          if (blk.id === a.id) return { ...blk, order: b.order }
-          if (blk.id === b.id) return { ...blk, order: a.order }
-          return blk
-        })
+      await servicesApi.admin.reorderBlocks(
+        editing.id,
+        next.map((b, idx) => ({ id: b.id, order: idx + 1 }))
       )
     } catch (err: any) {
       alert(err?.response?.data?.error || 'Erro ao reordenar')
@@ -354,7 +341,7 @@ export default function AdminServicesPage() {
                   onUpdateBlock={updateBlock}
                   onRemoveBlock={removeBlock}
                   onToggleBlock={toggleBlock}
-                  onMoveBlock={moveBlock}
+                  onReorderBlocks={reorderBlocks}
                 />
               )}
 
