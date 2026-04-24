@@ -136,13 +136,19 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--violet), var(--magenta));
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-image: linear-gradient(135deg, var(--violet), var(--magenta));
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
 }
-.person .av.b { background: linear-gradient(135deg, var(--cyan), var(--emerald)); }
-.person .av.c { background: linear-gradient(135deg, var(--amber), var(--magenta)); }
+.person .av.b { background-image: linear-gradient(135deg, var(--cyan), var(--emerald)); }
+.person .av.c { background-image: linear-gradient(135deg, var(--amber), var(--magenta)); }
+/* Quando tem foto (style inline define backgroundImage), faz virar um círculo proporcional */
+.person .av.has-photo {
+  background-image: none; /* será sobrescrito pelo style inline com a foto */
+}
 .person .n {
   font-family: 'Inter', sans-serif;
   font-weight: 500;

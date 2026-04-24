@@ -57,8 +57,8 @@ fastify.decorate("requireAnyPermission", requireAnyPermission);
 
 // Register plugins
 fastify.register(cors, {
-  origin: process.env.NODE_ENV === "production" 
-    ? ["https://bsnsolution.com.br", "https://www.bsnsolution.com.br"] 
+  origin: process.env.NODE_ENV === "production"
+    ? ["https://bsnsolution.com.br", "https://www.bsnsolution.com.br"]
     : true,
 });
 

@@ -121,8 +121,18 @@ export default function AboutPage() {
               return (
                 <div key={p.id} className="person glass">
                   <div
-                    className={`av ${avClass}`}
-                    style={p.imageUrl ? { backgroundImage: `url(${p.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+                    className={`av ${avClass} ${p.imageUrl ? 'has-photo' : ''}`}
+                    style={
+                      p.imageUrl
+                        ? {
+                            backgroundImage: `url(${p.imageUrl})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            background: `url(${p.imageUrl}) center/cover no-repeat`,
+                          }
+                        : undefined
+                    }
                   />
                   <div>
                     <div className="n">{p.name}</div>
