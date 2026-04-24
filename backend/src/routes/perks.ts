@@ -26,14 +26,14 @@ export default async function perksRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/perks", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("jobs.read")],
   }, async () => {
     const perks = await prisma.perk.findMany({ orderBy: { order: "asc" } });
     return { perks };
   });
 
   fastify.post("/admin/perks", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("perks.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = perkSchema.parse(request.body);
@@ -53,7 +53,7 @@ export default async function perksRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/perks/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("perks.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = perkSchema.partial().parse(request.body);
@@ -69,7 +69,7 @@ export default async function perksRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/perks/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("perks.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.perk.delete({ where: { id: request.params.id } });
@@ -81,7 +81,7 @@ export default async function perksRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/perks/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("perks.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const existing = await prisma.perk.findUnique({ where: { id: request.params.id } });
     if (!existing) {
@@ -96,7 +96,7 @@ export default async function perksRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/perks/reorder", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("perks.write")],
   }, async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
     try {
       const { items } = request.body;

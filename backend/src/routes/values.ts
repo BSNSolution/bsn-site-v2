@@ -27,14 +27,14 @@ export default async function valuesRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/values", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.read")],
   }, async () => {
     const values = await prisma.value.findMany({ orderBy: { order: "asc" } });
     return { values };
   });
 
   fastify.post("/admin/values", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = valueSchema.parse(request.body);
@@ -54,7 +54,7 @@ export default async function valuesRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/values/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = valueSchema.partial().parse(request.body);
@@ -70,7 +70,7 @@ export default async function valuesRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/values/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.value.delete({ where: { id: request.params.id } });
@@ -82,7 +82,7 @@ export default async function valuesRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/values/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const existing = await prisma.value.findUnique({ where: { id: request.params.id } });
     if (!existing) {
@@ -97,7 +97,7 @@ export default async function valuesRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/values/reorder", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
     try {
       const { items } = request.body;

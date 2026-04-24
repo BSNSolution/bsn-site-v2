@@ -28,14 +28,14 @@ export default async function processStepsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/process-steps", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.read")],
   }, async () => {
     const steps = await prisma.processStep.findMany({ orderBy: { order: "asc" } });
     return { steps };
   });
 
   fastify.post("/admin/process-steps", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("process-steps.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = schema.parse(request.body);
@@ -55,7 +55,7 @@ export default async function processStepsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/process-steps/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("process-steps.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = schema.partial().parse(request.body);
@@ -71,7 +71,7 @@ export default async function processStepsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/process-steps/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("process-steps.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.processStep.delete({ where: { id: request.params.id } });
@@ -83,7 +83,7 @@ export default async function processStepsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/process-steps/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("process-steps.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const existing = await prisma.processStep.findUnique({ where: { id: request.params.id } });
     if (!existing) return reply.code(404).send({ error: "Etapa não encontrada" });

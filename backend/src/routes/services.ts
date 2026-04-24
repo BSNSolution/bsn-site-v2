@@ -153,7 +153,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
   // Admin routes — Serviços
   // ─────────────────────────────────────────────────────────────
   fastify.get("/admin/services", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.read")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const services = await prisma.service.findMany({
       orderBy: { order: "asc" },
@@ -168,7 +168,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/services/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.read")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const service = await prisma.service.findUnique({
       where: { id: request.params.id },
@@ -188,7 +188,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/admin/services", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const parsed = serviceSchema.parse(request.body);
@@ -224,7 +224,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/services/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const parsed = serviceSchema.partial().parse(request.body);
@@ -264,7 +264,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/services/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const existing = await prisma.service.findUnique({
@@ -289,7 +289,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/services/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const service = await prisma.service.findUnique({
       where: { id: request.params.id },
@@ -316,7 +316,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
 
   // Reordenar serviços
   fastify.patch("/admin/services/reorder", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.write")],
   }, async (request: FastifyRequest<{ Body: { items: { id: string, order: number }[] } }>, reply: FastifyReply) => {
     try {
       const { items } = request.body;
@@ -341,7 +341,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
   // ─────────────────────────────────────────────────────────────
   fastify.get(
     "/admin/services/:id/blocks",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.read")] },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       const blocks = await prisma.serviceDetailBlock.findMany({
         where: { serviceId: request.params.id },
@@ -353,7 +353,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
 
   fastify.post(
     "/admin/services/:id/blocks",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.write")] },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       try {
         const data = blockSchema.parse(request.body);
@@ -399,7 +399,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
 
   fastify.put(
     "/admin/services/:id/blocks/:blockId",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.write")] },
     async (request: FastifyRequest<{ Params: { id: string; blockId: string } }>, reply: FastifyReply) => {
       try {
         const data = blockSchema.partial().parse(request.body);
@@ -433,7 +433,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
 
   fastify.delete(
     "/admin/services/:id/blocks/:blockId",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.write")] },
     async (request: FastifyRequest<{ Params: { id: string; blockId: string } }>, reply: FastifyReply) => {
       try {
         const service = await prisma.service.findUnique({
@@ -460,7 +460,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
 
   fastify.patch(
     "/admin/services/:id/blocks/:blockId/toggle",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.write")] },
     async (request: FastifyRequest<{ Params: { id: string; blockId: string } }>, reply: FastifyReply) => {
       const existing = await prisma.serviceDetailBlock.findUnique({
         where: { id: request.params.blockId },
@@ -488,7 +488,7 @@ export default async function servicesRoutes(fastify: FastifyInstance) {
 
   fastify.patch(
     "/admin/services/:id/blocks/reorder",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("services.write")] },
     async (request: FastifyRequest<{ Params: { id: string }; Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
       try {
         const { items } = request.body;

@@ -28,14 +28,14 @@ export default async function kpisRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/kpis", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.read")],
   }, async () => {
     const kpis = await prisma.homeKPI.findMany({ orderBy: { order: "asc" } });
     return { kpis };
   });
 
   fastify.post("/admin/kpis", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.kpis.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = kpiSchema.parse(request.body);
@@ -55,7 +55,7 @@ export default async function kpisRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/kpis/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.kpis.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = kpiSchema.partial().parse(request.body);
@@ -71,7 +71,7 @@ export default async function kpisRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/kpis/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.kpis.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.homeKPI.delete({ where: { id: request.params.id } });
@@ -83,7 +83,7 @@ export default async function kpisRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/kpis/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.kpis.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const existing = await prisma.homeKPI.findUnique({ where: { id: request.params.id } });
     if (!existing) {
@@ -98,7 +98,7 @@ export default async function kpisRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/kpis/reorder", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.kpis.write")],
   }, async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
     try {
       const { items } = request.body;

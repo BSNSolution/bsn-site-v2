@@ -50,14 +50,14 @@ export default async function homeExtrasRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/home/live-card", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.read")],
   }, async () => {
     const card = await prisma.homeLiveCard.findFirst({ orderBy: { updatedAt: "desc" } });
     return { card };
   });
 
   fastify.put("/admin/home/live-card", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = liveCardSchema.parse(request.body);
@@ -91,14 +91,14 @@ export default async function homeExtrasRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/home/brand-pill", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.read")],
   }, async () => {
     const pill = await prisma.homeBrandPill.findFirst({ orderBy: { updatedAt: "desc" } });
     return { pill };
   });
 
   fastify.put("/admin/home/brand-pill", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = brandPillSchema.parse(request.body);
@@ -132,14 +132,14 @@ export default async function homeExtrasRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/home/band", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.read")],
   }, async () => {
     const band = await prisma.homeBand.findFirst({ orderBy: { updatedAt: "desc" } });
     return { band };
   });
 
   fastify.put("/admin/home/band", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = homeBandSchema.parse(request.body);

@@ -198,7 +198,7 @@ export default async function jobsRoutes(fastify: FastifyInstance) {
 
   // Admin routes
   fastify.get("/admin/jobs", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("jobs.read")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const jobs = await prisma.job.findMany({
       orderBy: { createdAt: "desc" },
@@ -213,7 +213,7 @@ export default async function jobsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/jobs/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("jobs.read")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const job = await prisma.job.findUnique({
       where: { id: request.params.id },
@@ -233,7 +233,7 @@ export default async function jobsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/admin/jobs", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("jobs.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = jobSchema.parse(request.body);
@@ -255,7 +255,7 @@ export default async function jobsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/jobs/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("jobs.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = jobSchema.partial().parse(request.body);
@@ -279,7 +279,7 @@ export default async function jobsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/jobs/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("jobs.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.job.delete({
@@ -296,7 +296,7 @@ export default async function jobsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/jobs/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("jobs.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const job = await prisma.job.findUnique({
       where: { id: request.params.id },
@@ -320,7 +320,7 @@ export default async function jobsRoutes(fastify: FastifyInstance) {
 
   // Gerenciar candidaturas
   fastify.get("/admin/jobs/:id/applications", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("jobs.read")],
   }, async (request: FastifyRequest<{ Params: { id: string }; Querystring: any }>, reply: FastifyReply) => {
     try {
       const { page, limit } = querySchema.parse(request.query);
@@ -361,7 +361,7 @@ export default async function jobsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/applications/:id/status", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("jobs.write")],
   }, async (request: FastifyRequest<{ Params: { id: string }; Body: { status: 'PENDING' | 'REVIEWING' | 'APPROVED' | 'REJECTED' } }>, reply: FastifyReply) => {
     try {
       const { status } = request.body;

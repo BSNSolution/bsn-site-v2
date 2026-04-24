@@ -93,7 +93,7 @@ export default async function solutionsRoutes(fastify: FastifyInstance) {
 
   // Admin routes
   fastify.get("/admin/solutions", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("solutions.read")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const solutions = await prisma.solution.findMany({
       orderBy: { order: "asc" },
@@ -103,7 +103,7 @@ export default async function solutionsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/solutions/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("solutions.read")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const solution = await prisma.solution.findUnique({
       where: { id: request.params.id },
@@ -118,7 +118,7 @@ export default async function solutionsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/admin/solutions", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("solutions.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = solutionSchema.parse(request.body);
@@ -151,7 +151,7 @@ export default async function solutionsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/solutions/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("solutions.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = solutionSchema.partial().parse(request.body);
@@ -177,7 +177,7 @@ export default async function solutionsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/solutions/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("solutions.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.solution.delete({
@@ -196,7 +196,7 @@ export default async function solutionsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/solutions/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("solutions.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const solution = await prisma.solution.findUnique({
       where: { id: request.params.id },
@@ -221,7 +221,7 @@ export default async function solutionsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/solutions/:id/toggle-featured", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("solutions.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const solution = await prisma.solution.findUnique({
       where: { id: request.params.id },
@@ -247,7 +247,7 @@ export default async function solutionsRoutes(fastify: FastifyInstance) {
 
   // Reordenar soluções
   fastify.patch("/admin/solutions/reorder", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("solutions.write")],
   }, async (request: FastifyRequest<{ Body: { items: { id: string, order: number }[] } }>, reply: FastifyReply) => {
     try {
       const { items } = request.body;

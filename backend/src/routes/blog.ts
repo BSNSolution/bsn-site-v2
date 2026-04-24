@@ -185,7 +185,7 @@ export default async function blogRoutes(fastify: FastifyInstance) {
 
   // Admin routes
   fastify.get("/admin/blog", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("blog.read")],
   }, async (request: FastifyRequest<{ Querystring: any }>, reply: FastifyReply) => {
     try {
       const { page, limit } = querySchema.parse(request.query);
@@ -226,7 +226,7 @@ export default async function blogRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/blog/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("blog.read")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const post = await prisma.blogPost.findUnique({
       where: { id: request.params.id },
@@ -249,7 +249,7 @@ export default async function blogRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/admin/blog", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("blog.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = blogPostSchema.parse(request.body);
@@ -304,7 +304,7 @@ export default async function blogRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/blog/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("blog.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = blogPostSchema.partial().parse(request.body);
@@ -358,7 +358,7 @@ export default async function blogRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/blog/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("blog.delete")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const post = await prisma.blogPost.findUnique({
@@ -387,7 +387,7 @@ export default async function blogRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/blog/:id/toggle-published", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("blog.publish")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const post = await prisma.blogPost.findUnique({
       where: { id: request.params.id },
@@ -414,7 +414,7 @@ export default async function blogRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/blog/:id/toggle-featured", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("blog.publish")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const post = await prisma.blogPost.findUnique({
       where: { id: request.params.id },

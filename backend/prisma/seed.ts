@@ -69,6 +69,23 @@ async function main() {
     { category: 'Inbox', slug: 'inbox.read', label: 'Ver mensagens de contato' },
     { category: 'Inbox', slug: 'inbox.reply', label: 'Responder mensagens' },
     { category: 'Inbox', slug: 'inbox.delete', label: 'Excluir mensagens' },
+    // Equipe (separado de about pra granularidade)
+    { category: 'Sobre', slug: 'team.write', label: 'Editar equipe' },
+    // Página de IA (blocos de conteúdo — benefícios, etapas, destaques)
+    { category: 'Página IA', slug: 'ai-blocks.read', label: 'Ver blocos da página IA' },
+    { category: 'Página IA', slug: 'ai-blocks.write', label: 'Editar blocos da página IA' },
+    // Configurações de IA (OpenAI, Anthropic, Google — usado por gerar/melhorar post)
+    { category: 'IA / LLM', slug: 'ai-configs.read', label: 'Ver configurações de IA' },
+    { category: 'IA / LLM', slug: 'ai-configs.write', label: 'Criar/editar configurações de IA' },
+    { category: 'IA / LLM', slug: 'ai-configs.delete', label: 'Excluir configurações de IA' },
+    { category: 'IA / LLM', slug: 'ai.use', label: 'Usar IA (gerar/melhorar texto, gerar post via URL)' },
+    // Tokens de API (integração externa com /api/v1)
+    { category: 'Sistema', slug: 'api-tokens.read', label: 'Ver tokens de API' },
+    { category: 'Sistema', slug: 'api-tokens.write', label: 'Criar/revogar tokens de API' },
+    // Seções de página (visibilidade/ordem das sections por rota pública)
+    { category: 'Sistema', slug: 'page-sections.write', label: 'Editar visibilidade/ordem de seções das páginas' },
+    // Infra de conteúdo extra
+    { category: 'Serviços', slug: 'process-steps.write', label: 'Editar etapas do processo' },
   ];
 
   await prisma.permission.createMany({
@@ -90,7 +107,7 @@ async function main() {
   });
 
   const developerPerms = allPermissions
-    .filter((p) => !['users.delete', 'groups.delete'].includes(p.slug))
+    .filter((p) => !['users.delete', 'groups.delete', 'ai-configs.delete'].includes(p.slug))
     .map((p) => ({ id: p.id }));
   const developerGroup = await prisma.permissionGroup.create({
     data: {
@@ -112,12 +129,15 @@ async function main() {
           'home.read', 'home.write', 'home.kpis.write',
           'services.read', 'services.write',
           'solutions.read', 'solutions.write',
-          'about.read', 'about.write',
+          'about.read', 'about.write', 'team.write',
+          'process-steps.write',
           'blog.read', 'blog.write', 'blog.publish',
           'jobs.read', 'jobs.write', 'perks.write',
           'testimonials.write', 'clients.write',
           'inbox.read', 'inbox.reply',
           'uploads.read', 'uploads.write',
+          'ai-blocks.read', 'ai-blocks.write',
+          'ai.use',
         ]),
       },
     },
@@ -136,6 +156,8 @@ async function main() {
           'about.read', 'blog.read', 'jobs.read',
           'uploads.read', 'settings.read',
           'inbox.read',
+          'ai-blocks.read', 'ai-configs.read',
+          'groups.read', 'users.read',
         ]),
       },
     },

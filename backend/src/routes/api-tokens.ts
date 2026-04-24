@@ -28,7 +28,7 @@ export default async function apiTokenRoutes(fastify: FastifyInstance) {
   // LIST
   fastify.get(
     "/admin/api-tokens",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("api-tokens.read")] },
     async () => {
       const tokens = await prisma.apiToken.findMany({
         orderBy: { createdAt: "desc" },
@@ -56,7 +56,7 @@ export default async function apiTokenRoutes(fastify: FastifyInstance) {
   // CREATE — retorna o token em claro apenas nesta resposta
   fastify.post(
     "/admin/api-tokens",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("api-tokens.write")] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const body = createSchema.parse(request.body)
@@ -96,7 +96,7 @@ export default async function apiTokenRoutes(fastify: FastifyInstance) {
   // UPDATE (metadata: nome, scopes, isActive, expiração) — NUNCA regenera o token
   fastify.put(
     "/admin/api-tokens/:id",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("api-tokens.write")] },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       try {
         const body = updateSchema.parse(request.body)
@@ -132,7 +132,7 @@ export default async function apiTokenRoutes(fastify: FastifyInstance) {
   // REVOGAR (soft delete)
   fastify.patch(
     "/admin/api-tokens/:id/revoke",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("api-tokens.write")] },
     async (request: FastifyRequest<{ Params: { id: string } }>) => {
       await prisma.apiToken.update({
         where: { id: request.params.id },
@@ -145,7 +145,7 @@ export default async function apiTokenRoutes(fastify: FastifyInstance) {
   // DELETE (hard)
   fastify.delete(
     "/admin/api-tokens/:id",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("api-tokens.write")] },
     async (request: FastifyRequest<{ Params: { id: string } }>) => {
       await prisma.apiToken.delete({ where: { id: request.params.id } })
       return { message: "Token removido" }
@@ -155,7 +155,7 @@ export default async function apiTokenRoutes(fastify: FastifyInstance) {
   // Listar scopes disponíveis (para UI)
   fastify.get(
     "/admin/api-tokens/scopes",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("api-tokens.read")] },
     async () => {
       return {
         scopes: [

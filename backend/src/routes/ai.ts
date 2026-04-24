@@ -41,7 +41,7 @@ export default async function aiRoutes(fastify: FastifyInstance) {
   // ADMIN — listar tudo
   fastify.get(
     "/admin/ai-blocks",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-blocks.read")] },
     async () => {
       const blocks = await prisma.aIBlock.findMany({
         orderBy: [{ type: "asc" }, { order: "asc" }],
@@ -52,7 +52,7 @@ export default async function aiRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     "/admin/ai-blocks/:id",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-blocks.read")] },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       const block = await prisma.aIBlock.findUnique({
         where: { id: request.params.id },
@@ -67,7 +67,7 @@ export default async function aiRoutes(fastify: FastifyInstance) {
 
   fastify.post(
     "/admin/ai-blocks",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-blocks.write")] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const data = aiBlockSchema.parse(request.body);
@@ -95,7 +95,7 @@ export default async function aiRoutes(fastify: FastifyInstance) {
 
   fastify.put(
     "/admin/ai-blocks/:id",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-blocks.write")] },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       try {
         const data = aiBlockSchema.partial().parse(request.body);
@@ -116,7 +116,7 @@ export default async function aiRoutes(fastify: FastifyInstance) {
 
   fastify.delete(
     "/admin/ai-blocks/:id",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-blocks.write")] },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       try {
         await prisma.aIBlock.delete({ where: { id: request.params.id } });
@@ -130,7 +130,7 @@ export default async function aiRoutes(fastify: FastifyInstance) {
 
   fastify.patch(
     "/admin/ai-blocks/:id/toggle",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-blocks.write")] },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       const existing = await prisma.aIBlock.findUnique({
         where: { id: request.params.id },
@@ -149,7 +149,7 @@ export default async function aiRoutes(fastify: FastifyInstance) {
 
   fastify.patch(
     "/admin/ai-blocks/reorder",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-blocks.write")] },
     async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
       try {
         const { items } = request.body;

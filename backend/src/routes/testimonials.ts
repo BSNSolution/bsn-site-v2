@@ -49,7 +49,7 @@ export default async function testimonialsRoutes(fastify: FastifyInstance) {
 
   // Admin routes
   fastify.get("/admin/testimonials", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("testimonials.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const testimonials = await prisma.testimonial.findMany({
       orderBy: { order: "asc" },
@@ -59,7 +59,7 @@ export default async function testimonialsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/testimonials/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("testimonials.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const testimonial = await prisma.testimonial.findUnique({
       where: { id: request.params.id },
@@ -74,7 +74,7 @@ export default async function testimonialsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/admin/testimonials", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("testimonials.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = testimonialSchema.parse(request.body);
@@ -105,7 +105,7 @@ export default async function testimonialsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/testimonials/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("testimonials.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = testimonialSchema.partial().parse(request.body);
@@ -128,7 +128,7 @@ export default async function testimonialsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/testimonials/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("testimonials.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.testimonial.delete({
@@ -144,7 +144,7 @@ export default async function testimonialsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/testimonials/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("testimonials.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const testimonial = await prisma.testimonial.findUnique({
       where: { id: request.params.id },
@@ -167,7 +167,7 @@ export default async function testimonialsRoutes(fastify: FastifyInstance) {
 
   // Reordenar depoimentos
   fastify.patch("/admin/testimonials/reorder", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("testimonials.write")],
   }, async (request: FastifyRequest<{ Body: { items: { id: string, order: number }[] } }>, reply: FastifyReply) => {
     try {
       const { items } = request.body;

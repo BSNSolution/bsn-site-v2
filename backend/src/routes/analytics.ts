@@ -56,7 +56,7 @@ export default async function analyticsRoutes(fastify: FastifyInstance) {
 
   // Admin routes
   fastify.get("/admin/analytics/events", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("analytics.view")],
   }, async (request: FastifyRequest<{ Querystring: any }>, reply: FastifyReply) => {
     try {
       const { startDate, endDate, event, page, limit } = querySchema.parse(request.query);
@@ -90,7 +90,7 @@ export default async function analyticsRoutes(fastify: FastifyInstance) {
 
   // Estatísticas gerais
   fastify.get("/admin/analytics/stats", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("analytics.view")],
   }, async (request: FastifyRequest<{ Querystring: any }>, reply: FastifyReply) => {
     try {
       const { startDate, endDate } = querySchema.parse(request.query);
@@ -169,7 +169,7 @@ export default async function analyticsRoutes(fastify: FastifyInstance) {
 
   // Dashboard - eventos recentes
   fastify.get("/admin/analytics/recent", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("analytics.view")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const recentEvents = await prisma.analyticsEvent.findMany({
       orderBy: { createdAt: "desc" },
@@ -187,7 +187,7 @@ export default async function analyticsRoutes(fastify: FastifyInstance) {
 
   // Limpar eventos antigos (admin)
   fastify.delete("/admin/analytics/cleanup", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("analytics.view")],
   }, async (request: FastifyRequest<{ Body: { daysToKeep?: number } }>, reply: FastifyReply) => {
     try {
       const daysToKeep = request.body.daysToKeep || 90; // Padrão: 90 dias

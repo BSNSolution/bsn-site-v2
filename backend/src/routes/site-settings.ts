@@ -82,7 +82,7 @@ export default async function siteSettingsRoutes(fastify: FastifyInstance) {
 
   // Admin routes
   fastify.get("/admin/settings", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("settings.read")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     let settings = await prisma.siteSettings.findFirst();
 
@@ -107,7 +107,7 @@ export default async function siteSettingsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/settings", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("settings.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = siteSettingsSchema.parse(request.body);
@@ -143,7 +143,7 @@ export default async function siteSettingsRoutes(fastify: FastifyInstance) {
 
   // Ativar/desativar modo de manutenção rapidamente
   fastify.patch("/admin/settings/maintenance", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("settings.write")],
   }, async (request: FastifyRequest<{ Body: { enabled: boolean } }>, reply: FastifyReply) => {
     try {
       const { enabled } = request.body;
@@ -179,7 +179,7 @@ export default async function siteSettingsRoutes(fastify: FastifyInstance) {
 
   // Ativar/desativar formulário de contato
   fastify.patch("/admin/settings/contact-form", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("settings.write")],
   }, async (request: FastifyRequest<{ Body: { enabled: boolean } }>, reply: FastifyReply) => {
     try {
       const { enabled } = request.body;
@@ -215,7 +215,7 @@ export default async function siteSettingsRoutes(fastify: FastifyInstance) {
 
   // Backup das configurações
   fastify.get("/admin/settings/backup", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("settings.read")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const settings = await prisma.siteSettings.findFirst();
 
@@ -235,7 +235,7 @@ export default async function siteSettingsRoutes(fastify: FastifyInstance) {
 
   // Restaurar configurações do backup
   fastify.post("/admin/settings/restore", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("settings.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = siteSettingsSchema.parse(request.body);

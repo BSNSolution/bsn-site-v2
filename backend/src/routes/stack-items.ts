@@ -25,14 +25,14 @@ export default async function stackItemsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/stack", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.read")],
   }, async () => {
     const items = await prisma.stackItem.findMany({ orderBy: { order: "asc" } });
     return { items };
   });
 
   fastify.post("/admin/stack", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = itemSchema.parse(request.body);
@@ -52,7 +52,7 @@ export default async function stackItemsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/stack/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = itemSchema.partial().parse(request.body);
@@ -68,7 +68,7 @@ export default async function stackItemsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/stack/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.stackItem.delete({ where: { id: request.params.id } });
@@ -80,7 +80,7 @@ export default async function stackItemsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/stack/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const existing = await prisma.stackItem.findUnique({ where: { id: request.params.id } });
     if (!existing) {
@@ -95,7 +95,7 @@ export default async function stackItemsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/stack/reorder", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
     try {
       const { items } = request.body;

@@ -77,9 +77,10 @@ async function getConfigFromRequest(configId?: string) {
 
 export default async function aiConfigsRoutes(fastify: FastifyInstance) {
   // Checa se há ao menos 1 config ativa (usado pra mostrar/esconder UI)
+  // Endpoint leve de "há IA disponível?" — aceito por quem pode ler configs OU usar IA
   fastify.get(
     "/admin/ai-configs/active",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requireAnyPermission("ai-configs.read", "ai.use")] },
     async () => {
       const count = await db.aiConfig.count({ where: { isActive: true } });
       return { hasActive: count > 0, count };
@@ -88,7 +89,7 @@ export default async function aiConfigsRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     "/admin/ai-configs",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-configs.read")] },
     async () => {
       const configs = await db.aiConfig.findMany({
         orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
@@ -99,7 +100,7 @@ export default async function aiConfigsRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     "/admin/ai-configs/:id",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-configs.read")] },
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
       const c = await db.aiConfig.findUnique({ where: { id: req.params.id } });
       if (!c) return reply.code(404).send({ error: "Config não encontrada" });
@@ -109,7 +110,7 @@ export default async function aiConfigsRoutes(fastify: FastifyInstance) {
 
   fastify.post(
     "/admin/ai-configs",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-configs.write")] },
     async (req: FastifyRequest, reply: FastifyReply) => {
       try {
         const data = aiConfigSchema.parse(req.body);
@@ -130,7 +131,7 @@ export default async function aiConfigsRoutes(fastify: FastifyInstance) {
 
   fastify.put(
     "/admin/ai-configs/:id",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-configs.write")] },
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
       try {
         const data = aiConfigSchema.partial().parse(req.body);
@@ -160,7 +161,7 @@ export default async function aiConfigsRoutes(fastify: FastifyInstance) {
 
   fastify.patch(
     "/admin/ai-configs/:id/default",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-configs.write")] },
     async (req: FastifyRequest<{ Params: { id: string } }>) => {
       await db.aiConfig.updateMany({ data: { isDefault: false } });
       const updated = await db.aiConfig.update({
@@ -173,7 +174,7 @@ export default async function aiConfigsRoutes(fastify: FastifyInstance) {
 
   fastify.patch(
     "/admin/ai-configs/:id/toggle",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-configs.write")] },
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
       const c = await db.aiConfig.findUnique({ where: { id: req.params.id } });
       if (!c) return reply.code(404).send({ error: "Config não encontrada" });
@@ -187,7 +188,7 @@ export default async function aiConfigsRoutes(fastify: FastifyInstance) {
 
   fastify.delete(
     "/admin/ai-configs/:id",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai-configs.delete")] },
     async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
       try {
         await db.aiConfig.delete({ where: { id: req.params.id } });
@@ -201,7 +202,7 @@ export default async function aiConfigsRoutes(fastify: FastifyInstance) {
   // ── GERAÇÃO DE POST A PARTIR DE URL ─────────────────────────────────────
   fastify.post(
     "/admin/ai/generate-post",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai.use")] },
     async (req: FastifyRequest, reply: FastifyReply) => {
       try {
         const { url, configId } = generatePostSchema.parse(req.body);
@@ -292,7 +293,7 @@ Requisitos:
   // ── MELHORAR / GERAR TEXTO (inline no editor) ───────────────────────────
   fastify.post(
     "/admin/ai/enhance-text",
-    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("ai.use")] },
     async (req: FastifyRequest, reply: FastifyReply) => {
       try {
         const { text, mode, instruction, configId } = enhanceTextSchema.parse(req.body);

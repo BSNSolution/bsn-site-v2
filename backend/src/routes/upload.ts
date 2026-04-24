@@ -18,7 +18,7 @@ const maxFileSize = 10 * 1024 * 1024; // 10MB
 export default async function uploadRoutes(fastify: FastifyInstance) {
   // Upload de arquivo
   fastify.post("/admin/upload", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("uploads.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = await request.file();
@@ -144,7 +144,7 @@ export default async function uploadRoutes(fastify: FastifyInstance) {
 
   // Listar arquivos (admin)
   fastify.get("/admin/uploads", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("uploads.read")],
   }, async (request: FastifyRequest<{ Querystring: any }>, reply: FastifyReply) => {
     try {
       const page = parseInt(request.query.page || "1");
@@ -192,7 +192,7 @@ export default async function uploadRoutes(fastify: FastifyInstance) {
 
   // Deletar arquivo (admin)
   fastify.delete("/admin/uploads/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("uploads.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const file = await prisma.uploadedImage.findUnique({
@@ -229,7 +229,7 @@ export default async function uploadRoutes(fastify: FastifyInstance) {
 
   // Obter informações do arquivo
   fastify.get("/admin/uploads/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("uploads.read")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const file = await prisma.uploadedImage.findUnique({
       where: { id: request.params.id },
@@ -245,7 +245,7 @@ export default async function uploadRoutes(fastify: FastifyInstance) {
 
   // Estatísticas de uploads (admin)
   fastify.get("/admin/uploads/stats", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("uploads.read")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const result = await withCache(
       "uploads:stats",

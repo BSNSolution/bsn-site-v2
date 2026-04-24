@@ -20,7 +20,7 @@ const statusUpdateSchema = z.object({
 export default async function inboxRoutes(fastify: FastifyInstance) {
   // Listar mensagens (admin)
   fastify.get("/admin/inbox", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("inbox.read")],
   }, async (request: FastifyRequest<{ Querystring: any }>, reply: FastifyReply) => {
     try {
       const { page, limit, status } = querySchema.parse(request.query);
@@ -70,7 +70,7 @@ export default async function inboxRoutes(fastify: FastifyInstance) {
 
   // Obter uma mensagem específica (admin)
   fastify.get("/admin/inbox/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("inbox.read")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const message = await prisma.contactMessage.findUnique({
       where: { id: request.params.id },
@@ -104,7 +104,7 @@ export default async function inboxRoutes(fastify: FastifyInstance) {
 
   // Responder mensagem
   fastify.post("/admin/inbox/:id/reply", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("inbox.reply")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { content } = replySchema.parse(request.body);
@@ -183,7 +183,7 @@ export default async function inboxRoutes(fastify: FastifyInstance) {
 
   // Atualizar status da mensagem
   fastify.patch("/admin/inbox/:id/status", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("inbox.read")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const { status } = statusUpdateSchema.parse(request.body);
@@ -205,7 +205,7 @@ export default async function inboxRoutes(fastify: FastifyInstance) {
 
   // Deletar mensagem
   fastify.delete("/admin/inbox/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("inbox.delete")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.contactMessage.delete({
@@ -220,7 +220,7 @@ export default async function inboxRoutes(fastify: FastifyInstance) {
 
   // Estatísticas do inbox
   fastify.get("/admin/inbox/stats", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("inbox.read")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const [total, unread, read, replied, archived] = await Promise.all([
       prisma.contactMessage.count(),
@@ -241,7 +241,7 @@ export default async function inboxRoutes(fastify: FastifyInstance) {
 
   // Marcar múltiplas mensagens como lidas
   fastify.patch("/admin/inbox/bulk/mark-read", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("inbox.read")],
   }, async (request: FastifyRequest<{ Body: { messageIds: string[] } }>, reply: FastifyReply) => {
     try {
       const { messageIds } = request.body;
@@ -262,7 +262,7 @@ export default async function inboxRoutes(fastify: FastifyInstance) {
 
   // Arquivar múltiplas mensagens
   fastify.patch("/admin/inbox/bulk/archive", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("inbox.read")],
   }, async (request: FastifyRequest<{ Body: { messageIds: string[] } }>, reply: FastifyReply) => {
     try {
       const { messageIds } = request.body;

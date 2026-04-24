@@ -81,7 +81,7 @@ export default async function teamRoutes(fastify: FastifyInstance) {
 
   // Admin routes
   fastify.get("/admin/team", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.read")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const team = await prisma.teamMember.findMany({
       orderBy: { order: "asc" },
@@ -91,7 +91,7 @@ export default async function teamRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/team/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.read")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const member = await prisma.teamMember.findUnique({
       where: { id: request.params.id },
@@ -106,7 +106,7 @@ export default async function teamRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/admin/team", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("team.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = teamMemberSchema.parse(request.body);
@@ -137,7 +137,7 @@ export default async function teamRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/team/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("team.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = teamMemberSchema.partial().parse(request.body);
@@ -161,7 +161,7 @@ export default async function teamRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/team/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("team.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.teamMember.delete({
@@ -178,7 +178,7 @@ export default async function teamRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/team/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("team.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const member = await prisma.teamMember.findUnique({
       where: { id: request.params.id },
@@ -202,7 +202,7 @@ export default async function teamRoutes(fastify: FastifyInstance) {
 
   // Reordenar membros da equipe
   fastify.patch("/admin/team/reorder", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("team.write")],
   }, async (request: FastifyRequest<{ Body: { items: { id: string, order: number }[] } }>, reply: FastifyReply) => {
     try {
       const { items } = request.body;

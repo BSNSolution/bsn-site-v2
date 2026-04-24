@@ -60,7 +60,7 @@ export default async function pageSectionsRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/pages/:page/sections",
     {
-      preHandler: [fastify.authenticate, fastify.requireAdmin],
+      preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("page-sections.write")],
     },
     async (
       request: FastifyRequest<{ Params: { page: string } }>,
@@ -82,7 +82,7 @@ export default async function pageSectionsRoutes(fastify: FastifyInstance) {
   fastify.put(
     "/admin/pages/:page/sections/:id",
     {
-      preHandler: [fastify.authenticate, fastify.requireAdmin],
+      preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("page-sections.write")],
     },
     async (
       request: FastifyRequest<{ Params: { page: string; id: string } }>,
@@ -119,7 +119,7 @@ export default async function pageSectionsRoutes(fastify: FastifyInstance) {
   fastify.put(
     "/admin/pages/:page/sections/reorder",
     {
-      preHandler: [fastify.authenticate, fastify.requireAdmin],
+      preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("page-sections.write")],
     },
     async (
       request: FastifyRequest<{ Params: { page: string } }>,

@@ -46,7 +46,7 @@ export default async function homeRoutes(fastify: FastifyInstance) {
 
   // Admin routes
   fastify.get("/admin/home", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.read")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const sections = await prisma.homeSection.findMany({
       orderBy: { order: "asc" },
@@ -56,7 +56,7 @@ export default async function homeRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/home/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.read")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const section = await prisma.homeSection.findUnique({
       where: { id: request.params.id },
@@ -71,7 +71,7 @@ export default async function homeRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/admin/home", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = homeSectionSchema.parse(request.body);
@@ -102,7 +102,7 @@ export default async function homeRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/home/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = homeSectionSchema.partial().parse(request.body);
@@ -126,7 +126,7 @@ export default async function homeRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/home/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.homeSection.delete({
@@ -143,7 +143,7 @@ export default async function homeRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/home/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const section = await prisma.homeSection.findUnique({
       where: { id: request.params.id },
@@ -167,7 +167,7 @@ export default async function homeRoutes(fastify: FastifyInstance) {
 
   // Reordenar seções
   fastify.patch("/admin/home/reorder", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.write")],
   }, async (request: FastifyRequest<{ Body: { items: { id: string, order: number }[] } }>, reply: FastifyReply) => {
     try {
       const { items } = request.body;

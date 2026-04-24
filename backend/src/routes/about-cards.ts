@@ -28,14 +28,14 @@ export default async function aboutCardsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.get("/admin/about-cards", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.read")],
   }, async () => {
     const cards = await prisma.aboutCard.findMany({ orderBy: { order: "asc" } });
     return { cards };
   });
 
   fastify.post("/admin/about-cards", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = cardSchema.parse(request.body);
@@ -55,7 +55,7 @@ export default async function aboutCardsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.put("/admin/about-cards/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       const data = cardSchema.partial().parse(request.body);
@@ -71,7 +71,7 @@ export default async function aboutCardsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.delete("/admin/about-cards/:id", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
       await prisma.aboutCard.delete({ where: { id: request.params.id } });
@@ -83,7 +83,7 @@ export default async function aboutCardsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/about-cards/:id/toggle", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const existing = await prisma.aboutCard.findUnique({ where: { id: request.params.id } });
     if (!existing) {
@@ -98,7 +98,7 @@ export default async function aboutCardsRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/admin/about-cards/reorder", {
-    preHandler: [fastify.authenticate, fastify.requireAdmin],
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("about.write")],
   }, async (request: FastifyRequest<{ Body: { items: { id: string; order: number }[] } }>, reply: FastifyReply) => {
     try {
       const { items } = request.body;
