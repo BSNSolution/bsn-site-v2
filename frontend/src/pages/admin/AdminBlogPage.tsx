@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Edit, Trash2, Star, StarOff, Send, Archive } from 'lucide-react'
+import { Plus, Edit, Trash2, Star, StarOff, Send, Archive, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { blogApi } from '@/lib/api'
 import { toast } from 'sonner'
+
+const ADMIN_PAGE_SIZE = 10
 
 interface Post {
   id: string
@@ -21,20 +23,56 @@ interface Post {
 export default function AdminBlogPage() {
   const [items, setItems] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all')
+  const [datePreset, setDatePreset] = useState<'all' | '7d' | '30d' | '90d' | '1y' | 'custom'>('all')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [page, setPage] = useState(1)
   const navigate = useNavigate()
 
   useEffect(() => { load() }, [])
+  useEffect(() => { setPage(1) }, [search, statusFilter, datePreset, dateFrom, dateTo])
 
   async function load() {
     try {
       setLoading(true)
-      const res = await blogApi.admin.getPosts({ limit: 100 })
+      const res = await blogApi.admin.getPosts({ limit: 500 })
       setItems(Array.isArray(res?.posts) ? res.posts : [])
     } catch (err) {
       console.error(err)
       setItems([])
     } finally { setLoading(false) }
   }
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    const now = Date.now()
+    const presetDays: Record<string, number> = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 }
+    const cutoff = datePreset in presetDays ? new Date(now - presetDays[datePreset] * 86400000) : null
+    const from = datePreset === 'custom' && dateFrom ? new Date(dateFrom + 'T00:00:00') : null
+    const to = datePreset === 'custom' && dateTo ? new Date(dateTo + 'T23:59:59') : null
+
+    return items.filter((p) => {
+      if (statusFilter === 'published' && !p.isPublished) return false
+      if (statusFilter === 'draft' && p.isPublished) return false
+      const pubOrCreated = p.publishedAt || p.createdAt
+      if (pubOrCreated) {
+        const d = new Date(pubOrCreated)
+        if (cutoff && d < cutoff) return false
+        if (from && d < from) return false
+        if (to && d > to) return false
+      }
+      if (q) {
+        const hay = `${p.title} ${p.slug} ${p.tags?.join(' ') ?? ''}`.toLowerCase()
+        if (!hay.includes(q)) return false
+      }
+      return true
+    })
+  }, [items, search, statusFilter, datePreset, dateFrom, dateTo])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ADMIN_PAGE_SIZE))
+  const paginated = filtered.slice((page - 1) * ADMIN_PAGE_SIZE, page * ADMIN_PAGE_SIZE)
 
   async function remove(id: string) {
     if (!confirm('Remover este post?')) return
@@ -72,15 +110,90 @@ export default function AdminBlogPage() {
         </button>
       </div>
 
+      {!loading && items.length > 0 && (
+        <div className="glass p-3 flex flex-col gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="relative flex-1 min-w-[240px]">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Buscar por título, slug ou tag..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full h-10 bg-black/30 border border-white/10 rounded-lg pl-10 pr-3 text-sm outline-none focus:border-white/25 transition-colors"
+              />
+            </div>
+            <div className="flex gap-1 rounded-lg border border-white/10 bg-black/30 p-1">
+              {[
+                { key: 'all', label: 'Todos' },
+                { key: 'published', label: 'Publicados' },
+                { key: 'draft', label: 'Rascunhos' },
+              ].map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setStatusFilter(t.key as typeof statusFilter)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    statusFilter === t.key
+                      ? 'bg-white/10 text-white'
+                      : 'text-muted-foreground hover:text-white'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <select
+              value={datePreset}
+              onChange={(e) => setDatePreset(e.target.value as typeof datePreset)}
+              className="h-10 bg-black/30 border border-white/10 rounded-lg px-3 text-sm outline-none focus:border-white/25"
+            >
+              <option value="all">Qualquer período</option>
+              <option value="7d">Últimos 7 dias</option>
+              <option value="30d">Últimos 30 dias</option>
+              <option value="90d">Últimos 3 meses</option>
+              <option value="1y">Último ano</option>
+              <option value="custom">Período personalizado</option>
+            </select>
+            <div className="text-xs font-mono text-muted-foreground">
+              {filtered.length} {filtered.length === 1 ? 'post' : 'posts'}
+            </div>
+          </div>
+
+          {datePreset === 'custom' && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="h-10 bg-black/30 border border-white/10 rounded-lg px-3 text-sm outline-none focus:border-white/25"
+                style={{ colorScheme: 'dark' }}
+              />
+              <span className="text-xs font-mono text-muted-foreground">até</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="h-10 bg-black/30 border border-white/10 rounded-lg px-3 text-sm outline-none focus:border-white/25"
+                style={{ colorScheme: 'dark' }}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       {loading ? (
         <div className="p-8 text-center text-muted-foreground">Carregando...</div>
       ) : items.length === 0 ? (
         <div className="glass p-12 text-center text-muted-foreground">
           Nenhum post cadastrado. Clique em "Novo post" para criar o primeiro.
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="glass p-12 text-center text-muted-foreground">
+          Nenhum post encontrado com esses filtros.
+        </div>
       ) : (
         <div className="grid gap-3">
-          {items.map((p) => (
+          {paginated.map((p) => (
             <div key={p.id} className="glass p-4 flex items-start justify-between gap-4">
               <div className="flex items-start gap-4 flex-1 min-w-0">
                 {p.coverImage && (
@@ -133,6 +246,40 @@ export default function AdminBlogPage() {
               </div>
             </div>
           ))}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-4 flex-wrap">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-4 h-4" /> Anterior
+              </button>
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setPage(n)}
+                    className={`min-w-[36px] h-9 px-2 rounded-md text-xs font-mono transition-colors ${
+                      n === page
+                        ? 'bg-primary/20 border border-primary/40 text-primary'
+                        : 'border border-white/10 bg-white/5 hover:bg-white/10'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Próxima <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

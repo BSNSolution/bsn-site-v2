@@ -72,7 +72,9 @@ export default function AdminBlogEditorPage() {
   const [uploadingInline, setUploadingInline] = useState(false)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
   const inlineInputRef = useRef<HTMLInputElement>(null)
+  const scrollSyncLock = useRef<'editor' | 'preview' | null>(null)
 
   useEffect(() => {
     if (!isEditing) {
@@ -114,6 +116,40 @@ export default function AdminBlogEditorPage() {
 
   function setField<K extends keyof Post>(key: K, value: Post[K]) {
     setForm((f) => ({ ...f, [key]: value }))
+  }
+
+  // Sincroniza scroll entre textarea (editor) e preview pane no modo split.
+  // Calcula proporção (0..1) da posição atual e espelha no outro pane.
+  function handleEditorScroll(e: React.UIEvent<HTMLTextAreaElement>) {
+    if (view !== 'split') return
+    if (scrollSyncLock.current === 'preview') {
+      scrollSyncLock.current = null
+      return
+    }
+    const ta = e.currentTarget
+    const preview = previewRef.current
+    if (!preview) return
+    const taMax = ta.scrollHeight - ta.clientHeight
+    const prMax = preview.scrollHeight - preview.clientHeight
+    if (taMax <= 0 || prMax <= 0) return
+    scrollSyncLock.current = 'editor'
+    preview.scrollTop = (ta.scrollTop / taMax) * prMax
+  }
+
+  function handlePreviewScroll(e: React.UIEvent<HTMLDivElement>) {
+    if (view !== 'split') return
+    if (scrollSyncLock.current === 'editor') {
+      scrollSyncLock.current = null
+      return
+    }
+    const preview = e.currentTarget
+    const ta = textareaRef.current
+    if (!ta) return
+    const prMax = preview.scrollHeight - preview.clientHeight
+    const taMax = ta.scrollHeight - ta.clientHeight
+    if (taMax <= 0 || prMax <= 0) return
+    scrollSyncLock.current = 'preview'
+    ta.scrollTop = (preview.scrollTop / prMax) * taMax
   }
 
   function insertAtCursor(before: string, after = '', placeholder = '') {
@@ -275,16 +311,19 @@ export default function AdminBlogEditorPage() {
           </div>
 
           {/* Editor / Preview */}
-          <div className={`grid gap-3 ${view === 'split' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
+          <div
+            className={`grid gap-3 ${view === 'split' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} ${view === 'split' ? 'editor-split-panes' : ''}`}
+          >
             {(view === 'edit' || view === 'split') && (
-              <div className="glass p-0 overflow-hidden">
+              <div className="glass p-0 overflow-hidden editor-pane">
                 <textarea
                   ref={textareaRef}
                   value={form.content}
                   onChange={(e) => setField('content', e.target.value)}
+                  onScroll={handleEditorScroll}
                   placeholder="Escreva o conteúdo em markdown..."
-                  className="w-full min-h-[500px] bg-transparent border-0 outline-none p-5 font-mono text-sm leading-relaxed resize-y placeholder:text-white/30"
-                  style={{ tabSize: 2 }}
+                  className="w-full h-full bg-transparent border-0 outline-none p-5 font-mono text-sm leading-relaxed placeholder:text-white/30 editor-textarea"
+                  style={{ tabSize: 2, resize: view === 'split' ? 'none' : 'vertical' }}
                   onKeyDown={(e) => {
                     if (e.key === 'Tab') {
                       e.preventDefault()
@@ -299,7 +338,11 @@ export default function AdminBlogEditorPage() {
               </div>
             )}
             {(view === 'preview' || view === 'split') && (
-              <div className="glass p-5 min-h-[500px] overflow-auto">
+              <div
+                ref={previewRef}
+                onScroll={handlePreviewScroll}
+                className="glass p-5 overflow-auto preview-pane"
+              >
                 <article
                   className="post-preview"
                   dangerouslySetInnerHTML={{ __html: previewHtml }}
@@ -378,6 +421,28 @@ export default function AdminBlogEditorPage() {
         /* garante que a toolbar não se confunda com o card de título/slug acima */
         .editor-toolbar + .grid {
           margin-top: 0;
+        }
+        /* Modo lado-a-lado: dois panes de altura fixa que rolam independentemente */
+        .editor-split-panes .editor-pane,
+        .editor-split-panes .preview-pane {
+          height: calc(100vh - 220px);
+          min-height: 500px;
+          max-height: calc(100vh - 160px);
+        }
+        .editor-split-panes .editor-pane {
+          display: flex;
+        }
+        .editor-split-panes .editor-textarea {
+          flex: 1;
+          height: 100%;
+          overflow-y: auto;
+        }
+        .editor-split-panes .preview-pane {
+          overflow-y: auto;
+        }
+        /* Fora do modo split, permitir que cresça com o conteúdo */
+        .editor-pane:not(.editor-split-panes .editor-pane) .editor-textarea {
+          min-height: 500px;
         }
         .post-preview { color: var(--ink); line-height: 1.7; }
         .post-preview h1, .post-preview h2, .post-preview h3 {
