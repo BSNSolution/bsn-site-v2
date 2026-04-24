@@ -200,3 +200,57 @@
   50% { transform: translateY(calc(-50% - 8px)); }
 }
 
+/* ============================================================
+   MOBILE — hero-orbit
+   Em telas < 1024px:
+   - Nodes saem do posicionamento flutuante absolute e viram grid
+   - Os rings de fundo e o "sol" são escondidos (confusão visual)
+   - Orbit-nodes passa a ser um grid 2 colunas (< 480px vira 1 coluna)
+   ============================================================ */
+@media (max-width: 1024px) {
+  .hero-orbit {
+    padding-top: 24px;
+    padding-bottom: 40px;
+    min-height: 0;
+    display: block;
+  }
+  .hero-orbit .orbit-sun,
+  .hero-orbit .orbit-rings {
+    display: none;
+  }
+  .orbit-center {
+    max-width: 100%;
+  }
+  .orbit-nodes {
+    position: static;
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    pointer-events: auto;
+  }
+  .node {
+    position: static !important;
+    min-width: 0;
+    max-width: none;
+    width: 100% !important;
+    inset: auto !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  /* Reset das posições absolute específicas dos 6 nodes */
+  .node.n1, .node.n2, .node.n3, .node.n4, .node.n5, .node.n6 {
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    animation: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .orbit-nodes {
+    grid-template-columns: 1fr;
+  }
+}
+
