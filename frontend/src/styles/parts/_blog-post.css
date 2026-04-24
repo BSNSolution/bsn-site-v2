@@ -88,24 +88,23 @@
   margin: 2.5em 0;
 }
 .blog-content img {
-  max-width: 680px;
   width: 100%;
-  height: auto;
+  height: 320px;
+  object-fit: cover;
+  object-position: center;
   border-radius: 12px;
   border: 1px solid var(--line);
-  margin: 2.2em auto;
+  margin: 2.2em 0;
   display: block;
 }
 .blog-content figure {
-  margin: 2.5em auto;
-  max-width: 680px;
+  margin: 2.5em 0;
+  width: 100%;
 }
 .blog-content figure img {
-  margin: 0 auto;
+  margin: 0;
 }
-.blog-content figure figcaption,
-.blog-content p > img:only-child + em,
-.blog-content p:has(> img:only-child) em {
+.blog-content figure figcaption {
   margin-top: 10px;
   font-size: 13px;
   color: var(--ink-faint);
@@ -115,17 +114,12 @@
 }
 /* Imagem solo num <p> (padrão do marked) — espaçamento coerente */
 .blog-content p > img:only-child {
-  margin: 2.2em auto 0.6em;
+  margin: 2.2em 0 0.6em;
 }
 .blog-content p:has(> img:only-child) {
   margin: 2.2em 0;
   text-align: center;
 }
-/* Caption: usar o alt text como legenda via pseudo-elemento — fallback
-   se o markdown não tiver <figure>. Mais elegante deixar o alt com
-   descrição e mostrar via CSS, mas isso depende de attr() avançado.
-   Por ora, o alt já funciona como texto acessível; visualmente usamos
-   o alt como caption através de estilização condicional no marked. */
 .blog-content table {
   width: 100%;
   border-collapse: collapse;
