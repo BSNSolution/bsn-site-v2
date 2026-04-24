@@ -19,9 +19,7 @@ import {
   Award,
   TrendingUp,
   Gift,
-  Radio,
   MessageSquareQuote,
-  Quote as QuoteIcon,
   Cpu,
   Sparkles,
   Info,
@@ -61,12 +59,10 @@ const SECTIONS: SidebarSection[] = [
   {
     label: 'Página: Home',
     items: [
-      { name: 'Hero & seções', href: '/admin/home', icon: Home },
-      { name: 'KPIs (faixa inferior)', href: '/admin/kpis', icon: TrendingUp },
-      { name: 'Card ao vivo', href: '/admin/home-live', icon: Radio },
-      { name: 'Depoimento pill', href: '/admin/home-pill', icon: QuoteIcon },
-      { name: 'Banda "Filosofia"', href: '/admin/home-band', icon: MessageSquareQuote },
-      { name: 'Stack (marquee)', href: '/admin/stack', icon: Cpu },
+      { name: '1. Hero & seções', href: '/admin/home', icon: Home },
+      { name: '2. KPIs', href: '/admin/kpis', icon: TrendingUp },
+      { name: '3. Stack (marquee)', href: '/admin/stack', icon: Cpu },
+      { name: '7. Banda "Filosofia"', href: '/admin/home-band', icon: MessageSquareQuote },
     ],
   },
   {

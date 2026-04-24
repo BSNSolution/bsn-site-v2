@@ -1,7 +1,8 @@
 import { ArrowDown, ArrowUp, Eye, EyeOff, Plus, Trash2 } from 'lucide-react'
 import type { Dispatch, SetStateAction } from 'react'
 import { IconPicker } from '@/components/ui/icon-picker'
-import { BLOCK_COLOR_OPTIONS, type Service, type ServiceDetailBlock } from './types'
+import ColorSelect from '@/components/admin/ColorSelect'
+import { type Service, type ServiceDetailBlock } from './types'
 
 interface Props {
   editing: Service | null
@@ -140,18 +141,15 @@ export default function TabBlocks({
               />
             </div>
             <div>
-              <label className="text-[10px] text-muted-foreground uppercase">Cor do shard</label>
-              <select
+              <ColorSelect
+                variant="color-class"
+                label="Cor do shard"
                 value={block.colorClass ?? 'a'}
-                onChange={(e) => {
-                  const val = e.target.value
+                onChange={(val) => {
                   setBlocks((prev) => prev.map((b) => (b.id === block.id ? { ...b, colorClass: val } : b)))
                   onUpdateBlock(block.id, { colorClass: val })
                 }}
-                className="w-full mt-0.5 px-2 py-1.5 bg-black/40 border border-white/10 rounded text-sm"
-              >
-                {BLOCK_COLOR_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
+              />
             </div>
           </div>
         </div>

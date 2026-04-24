@@ -1,4 +1,6 @@
 import type { ServiceFormData } from './types'
+import ServiceIconSelect from '@/components/admin/ServiceIconSelect'
+import ColorSelect from '@/components/admin/ColorSelect'
 
 interface Props {
   form: ServiceFormData
@@ -14,6 +16,25 @@ export default function TabDetail({ form, setForm }: Props) {
     <>
       <div className="text-xs text-muted-foreground mb-2">
         Conteúdo exibido em <code>/servicos/{form.slug || '<slug>'}</code> — hero e CTA band.
+      </div>
+
+      <div className="glass p-3 rounded-lg space-y-3">
+        <div className="text-xs text-muted-foreground font-medium">
+          Ícone e cor do hero (animado acima do eyebrow)
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <ServiceIconSelect
+            label="Ícone"
+            value={form.iconName}
+            onChange={(slug) => setForm({ ...form, iconName: slug })}
+          />
+          <ColorSelect
+            variant="shard"
+            label="Cor do brilho"
+            value={form.shardColor}
+            onChange={(slug) => setForm({ ...form, shardColor: slug })}
+          />
+        </div>
       </div>
 
       <div>

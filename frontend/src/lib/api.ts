@@ -316,6 +316,11 @@ export const solutionsApi = {
       const response = await api.patch(`/admin/solutions/${id}/toggle-featured`)
       return response.data
     },
+
+    reorder: async (items: { id: string; order: number }[]) => {
+      const response = await api.patch('/admin/solutions/reorder', { items })
+      return response.data
+    },
   },
 }
 

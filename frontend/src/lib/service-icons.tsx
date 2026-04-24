@@ -56,3 +56,6 @@ export function renderServiceIcon(
   const Icon = (name && SERVICE_ICONS[name]) || fallback
   return <Icon className={className} />
 }
+
+/** Lista ordenada dos slugs disponíveis — pra popular selects no admin. */
+export const SERVICE_ICON_SLUGS: string[] = Object.keys(SERVICE_ICONS).sort()

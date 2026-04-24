@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Save } from 'lucide-react'
 import { settingsApi } from '@/lib/api'
+import ImageInput from '@/components/admin/ImageInput'
 
 interface Settings {
   siteName: string
@@ -100,55 +101,64 @@ export default function AdminSettingsPage() {
   if (loading) return <div className="p-8 text-center text-muted-foreground">Carregando...</div>
 
   return (
-    <form onSubmit={submit} className="space-y-6 max-w-3xl">
+    <form onSubmit={submit} className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Configurações do site</h1>
         <p className="text-sm text-muted-foreground">Informações gerais, contato, redes e SEO.</p>
       </div>
 
-      <Section title="Identidade">
-        <Field label="Nome do site"><input type="text" value={form.siteName} onChange={(e) => setField('siteName', e.target.value)} required className="input" /></Field>
-        <Field label="Descrição"><textarea rows={2} value={form.siteDescription} onChange={(e) => setField('siteDescription', e.target.value)} className="input" /></Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Logo URL"><input type="url" value={form.logoUrl} onChange={(e) => setField('logoUrl', e.target.value)} className="input" /></Field>
-          <Field label="Favicon URL"><input type="url" value={form.faviconUrl} onChange={(e) => setField('faviconUrl', e.target.value)} className="input" /></Field>
-        </div>
-      </Section>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <Section title="Identidade">
+          <Field label="Nome do site"><input type="text" value={form.siteName} onChange={(e) => setField('siteName', e.target.value)} required className="input" /></Field>
+          <Field label="Descrição"><textarea rows={2} value={form.siteDescription} onChange={(e) => setField('siteDescription', e.target.value)} className="input" /></Field>
+          <ImageInput
+            label="Logo"
+            value={form.logoUrl}
+            onChange={(url) => setField('logoUrl', url ?? '')}
+          />
+          <ImageInput
+            label="Favicon"
+            value={form.faviconUrl}
+            onChange={(url) => setField('faviconUrl', url ?? '')}
+            previewHeight={48}
+          />
+        </Section>
 
-      <Section title="Contato">
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="E-mail"><input type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} className="input" /></Field>
-          <Field label="Telefone"><input type="text" value={form.phone} onChange={(e) => setField('phone', e.target.value)} className="input" /></Field>
-        </div>
-        <Field label="Endereço"><input type="text" value={form.address} onChange={(e) => setField('address', e.target.value)} className="input" /></Field>
-      </Section>
+        <Section title="Contato">
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="E-mail"><input type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} className="input" /></Field>
+            <Field label="Telefone"><input type="text" value={form.phone} onChange={(e) => setField('phone', e.target.value)} className="input" /></Field>
+          </div>
+          <Field label="Endereço"><input type="text" value={form.address} onChange={(e) => setField('address', e.target.value)} className="input" /></Field>
+        </Section>
 
-      <Section title="Redes sociais">
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="LinkedIn"><input type="url" value={form.linkedinUrl} onChange={(e) => setField('linkedinUrl', e.target.value)} className="input" /></Field>
-          <Field label="Instagram"><input type="url" value={form.instagramUrl} onChange={(e) => setField('instagramUrl', e.target.value)} className="input" /></Field>
-          <Field label="Facebook"><input type="url" value={form.facebookUrl} onChange={(e) => setField('facebookUrl', e.target.value)} className="input" /></Field>
-          <Field label="Twitter / X"><input type="url" value={form.twitterUrl} onChange={(e) => setField('twitterUrl', e.target.value)} className="input" /></Field>
-          <Field label="YouTube"><input type="url" value={form.youtubeUrl} onChange={(e) => setField('youtubeUrl', e.target.value)} className="input" /></Field>
-        </div>
-      </Section>
+        <Section title="Redes sociais">
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="LinkedIn"><input type="url" value={form.linkedinUrl} onChange={(e) => setField('linkedinUrl', e.target.value)} className="input" /></Field>
+            <Field label="Instagram"><input type="url" value={form.instagramUrl} onChange={(e) => setField('instagramUrl', e.target.value)} className="input" /></Field>
+            <Field label="Facebook"><input type="url" value={form.facebookUrl} onChange={(e) => setField('facebookUrl', e.target.value)} className="input" /></Field>
+            <Field label="Twitter / X"><input type="url" value={form.twitterUrl} onChange={(e) => setField('twitterUrl', e.target.value)} className="input" /></Field>
+            <Field label="YouTube"><input type="url" value={form.youtubeUrl} onChange={(e) => setField('youtubeUrl', e.target.value)} className="input" /></Field>
+          </div>
+        </Section>
 
-      <Section title="SEO">
-        <Field label="Meta title"><input type="text" value={form.metaTitle} onChange={(e) => setField('metaTitle', e.target.value)} className="input" /></Field>
-        <Field label="Meta description"><textarea rows={2} value={form.metaDescription} onChange={(e) => setField('metaDescription', e.target.value)} className="input" /></Field>
-        <Field label="Meta keywords"><input type="text" value={form.metaKeywords} onChange={(e) => setField('metaKeywords', e.target.value)} className="input" /></Field>
-      </Section>
+        <Section title="SEO">
+          <Field label="Meta title"><input type="text" value={form.metaTitle} onChange={(e) => setField('metaTitle', e.target.value)} className="input" /></Field>
+          <Field label="Meta description"><textarea rows={2} value={form.metaDescription} onChange={(e) => setField('metaDescription', e.target.value)} className="input" /></Field>
+          <Field label="Meta keywords"><input type="text" value={form.metaKeywords} onChange={(e) => setField('metaKeywords', e.target.value)} className="input" /></Field>
+        </Section>
 
-      <Section title="Flags">
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={form.maintenanceMode} onChange={(e) => setField('maintenanceMode', e.target.checked)} />
-          Modo manutenção (esconde o site público)
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={form.allowContactForm} onChange={(e) => setField('allowContactForm', e.target.checked)} />
-          Formulário de contato habilitado
-        </label>
-      </Section>
+        <Section title="Flags">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={form.maintenanceMode} onChange={(e) => setField('maintenanceMode', e.target.checked)} />
+            Modo manutenção (esconde o site público)
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={form.allowContactForm} onChange={(e) => setField('allowContactForm', e.target.checked)} />
+            Formulário de contato habilitado
+          </label>
+        </Section>
+      </div>
 
       <div className="flex justify-end gap-2 sticky bottom-4">
         <button type="submit" disabled={saving} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded hover:opacity-90">

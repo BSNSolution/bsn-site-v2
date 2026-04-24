@@ -2,6 +2,10 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { solutionsApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import ColorSelect from '@/components/admin/ColorSelect'
+import ImageInput from '@/components/admin/ImageInput'
+import DragList from '@/components/admin/DragList'
+import { toast } from 'sonner'
 
 interface Solution {
   id: string
@@ -9,6 +13,7 @@ interface Solution {
   tag?: string | null
   description: string
   bullets: string[]
+  imageUrl?: string | null
   colorClass?: string | null
   ctaLabel?: string | null
   isActive: boolean
@@ -21,6 +26,7 @@ interface FormData {
   tag: string
   description: string
   bullets: string
+  imageUrl: string | null
   colorClass: string
   ctaLabel: string
   isActive: boolean
@@ -28,13 +34,12 @@ interface FormData {
   order?: number
 }
 
-const COLOR_OPTIONS = ['a', 'b', 'c', 'd', 'e', 'f']
-
 const EMPTY_FORM: FormData = {
   title: '',
   tag: '',
   description: '',
   bullets: '',
+  imageUrl: null,
   colorClass: 'a',
   ctaLabel: 'Ver demo →',
   isActive: true,
@@ -48,9 +53,7 @@ export default function AdminSolutionsPage() {
   const [editing, setEditing] = useState<Solution | null>(null)
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
 
-  useEffect(() => {
-    load()
-  }, [])
+  useEffect(() => { load() }, [])
 
   async function load() {
     try {
@@ -62,11 +65,7 @@ export default function AdminSolutionsPage() {
     }
   }
 
-  function openCreate() {
-    setEditing(null)
-    setForm(EMPTY_FORM)
-    setShowForm(true)
-  }
+  function openCreate() { setEditing(null); setForm(EMPTY_FORM); setShowForm(true) }
 
   function openEdit(sol: Solution) {
     setEditing(sol)
@@ -75,6 +74,7 @@ export default function AdminSolutionsPage() {
       tag: sol.tag ?? '',
       description: sol.description,
       bullets: (sol.bullets ?? []).join('\n'),
+      imageUrl: sol.imageUrl ?? null,
       colorClass: sol.colorClass ?? 'a',
       ctaLabel: sol.ctaLabel ?? 'Ver demo →',
       isActive: sol.isActive,
@@ -115,12 +115,26 @@ export default function AdminSolutionsPage() {
     load()
   }
 
+  async function handleReorder(next: Solution[]) {
+    // Update otimista + persiste
+    setItems(next)
+    try {
+      await solutionsApi.admin.reorder(
+        next.map((sol, idx) => ({ id: sol.id, order: idx + 1 }))
+      )
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Soluções verticais</h1>
-          <p className="text-sm text-muted-foreground">Plataformas por setor exibidas em /solucoes.</p>
+          <p className="text-sm text-muted-foreground">Arraste pela alça para reordenar.</p>
         </div>
         <button onClick={openCreate} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90">
           <Plus className="h-4 w-4" /> Nova solução
@@ -130,11 +144,25 @@ export default function AdminSolutionsPage() {
       {loading ? (
         <div className="p-8 text-center text-muted-foreground">Carregando...</div>
       ) : (
-        <div className="grid gap-3">
-          {items.map((sol) => (
-            <div key={sol.id} className="glass p-4 flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
+        <DragList
+          items={items}
+          getKey={(sol) => sol.id}
+          onReorder={handleReorder}
+          className="grid gap-3"
+        >
+          {(sol, handle) => (
+            <div className="glass p-4 flex items-start justify-between gap-4">
+              {handle}
+              {sol.imageUrl && (
+                <img
+                  src={sol.imageUrl}
+                  alt={sol.title}
+                  loading="lazy"
+                  className="w-20 h-14 rounded object-cover border border-white/10 flex-shrink-0"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   {sol.tag && <span className="text-xs font-mono text-muted-foreground">{sol.tag}</span>}
                   <h3 className="font-medium">{sol.title}</h3>
                   {!sol.isActive && <span className="text-xs px-2 py-0.5 rounded bg-white/10">Inativo</span>}
@@ -155,9 +183,11 @@ export default function AdminSolutionsPage() {
                 <button onClick={() => remove(sol.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
-          ))}
-          {items.length === 0 && <div className="p-8 text-center text-muted-foreground">Nenhuma solução.</div>}
-        </div>
+          )}
+        </DragList>
+      )}
+      {!loading && items.length === 0 && (
+        <div className="p-8 text-center text-muted-foreground">Nenhuma solução.</div>
       )}
 
       {showForm && (
@@ -173,17 +203,22 @@ export default function AdminSolutionsPage() {
                   <label className="text-xs text-muted-foreground">Tag (ex: COOPERATIVISMO)</label>
                   <input type="text" value={form.tag} onChange={(e) => setForm({ ...form, tag: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" />
                 </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">Cor (a–f)</label>
-                  <select value={form.colorClass} onChange={(e) => setForm({ ...form, colorClass: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded">
-                    {COLOR_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
+                <ColorSelect
+                  variant="color-class"
+                  label="Cor"
+                  value={form.colorClass}
+                  onChange={(v) => setForm({ ...form, colorClass: v })}
+                />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Título</label>
                 <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
               </div>
+              <ImageInput
+                label="Imagem de capa"
+                value={form.imageUrl}
+                onChange={(url) => setForm({ ...form, imageUrl: url })}
+              />
               <div>
                 <label className="text-xs text-muted-foreground">Descrição</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full mt-1 px-3 py-2 bg-black/40 border border-white/10 rounded" required />
