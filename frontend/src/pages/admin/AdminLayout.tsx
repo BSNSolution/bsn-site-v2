@@ -124,6 +124,7 @@ const SECTIONS: SidebarSection[] = [
       { name: 'Usuários', href: '/admin/users', icon: UserCog },
       { name: 'Grupos de permissões', href: '/admin/permission-groups', icon: Shield },
       { name: 'Tokens de API', href: '/admin/api-tokens', icon: KeyRound },
+      { name: 'Configurações de IA', href: '/admin/ai-configs', icon: Sparkles },
     ],
   },
 ]

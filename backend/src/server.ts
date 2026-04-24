@@ -39,6 +39,7 @@ import aboutCardsRoutes from "./routes/about-cards";
 import usersRoutes from "./routes/users";
 import processStepsRoutes from "./routes/process-steps";
 import aiRoutes from "./routes/ai";
+import aiConfigsRoutes from "./routes/ai-configs";
 import pageSectionsRoutes from "./routes/page-sections";
 import apiTokenRoutes from "./routes/api-tokens";
 import publicApiBlogRoutes from "./routes/public-api-blog";
@@ -111,6 +112,7 @@ fastify.register(aboutCardsRoutes, { prefix: "/api" });
 fastify.register(usersRoutes, { prefix: "/api" });
 fastify.register(processStepsRoutes, { prefix: "/api" });
 fastify.register(aiRoutes, { prefix: "/api" });
+fastify.register(aiConfigsRoutes, { prefix: "/api" });
 fastify.register(pageSectionsRoutes, { prefix: "/api" });
 fastify.register(apiTokenRoutes, { prefix: "/api" });
 // Rotas externas para automação (AI) — prefixo /api/v1

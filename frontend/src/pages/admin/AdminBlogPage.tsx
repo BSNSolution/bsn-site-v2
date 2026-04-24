@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Edit, Trash2, Star, StarOff, Send, Archive, Search, ChevronLeft, ChevronRight } from 'lucide-react'
-import { blogApi } from '@/lib/api'
+import { Plus, Edit, Trash2, Star, StarOff, Send, Archive, Search, ChevronLeft, ChevronRight, Sparkles, X, Loader2 } from 'lucide-react'
+import { blogApi, aiConfigsApi } from '@/lib/api'
 import { toast } from 'sonner'
+import { useAiEnabled } from '@/hooks/use-ai-enabled'
 
 const ADMIN_PAGE_SIZE = 10
 
@@ -29,7 +30,11 @@ export default function AdminBlogPage() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [page, setPage] = useState(1)
+  const [showAiModal, setShowAiModal] = useState(false)
+  const [aiUrl, setAiUrl] = useState('')
+  const [aiGenerating, setAiGenerating] = useState(false)
   const navigate = useNavigate()
+  const { enabled: aiEnabled } = useAiEnabled()
 
   useEffect(() => { load() }, [])
   useEffect(() => { setPage(1) }, [search, statusFilter, datePreset, dateFrom, dateTo])
@@ -95,6 +100,40 @@ export default function AdminBlogPage() {
     await blogApi.admin.toggleFeatured(id); load()
   }
 
+  async function generateWithAi() {
+    if (!aiUrl) {
+      toast.error('Informe a URL de referência')
+      return
+    }
+    try {
+      setAiGenerating(true)
+      const { post } = await aiConfigsApi.generatePost(aiUrl)
+      // Cria o post como rascunho usando os dados retornados
+      const created: any = await blogApi.admin.createPost({
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        content: post.content,
+        tags: post.tags ?? [],
+        isPublished: false,
+        isFeatured: false,
+      })
+      toast.success('Post gerado! Abrindo editor para revisão.')
+      setShowAiModal(false)
+      setAiUrl('')
+      const newId = created?.post?.id ?? created?.id
+      if (newId) {
+        navigate(`/admin/blog/${newId}/edit`)
+      } else {
+        load()
+      }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || 'Falha ao gerar com IA')
+    } finally {
+      setAiGenerating(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -102,12 +141,22 @@ export default function AdminBlogPage() {
           <h1 className="text-2xl font-semibold">Blog</h1>
           <p className="text-sm text-muted-foreground">Posts exibidos em /blog. Marque um como "Destaque" para aparecer como long-read.</p>
         </div>
-        <button
-          onClick={() => navigate('/admin/blog/new')}
-          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" /> Novo post
-        </button>
+        <div className="flex gap-2 flex-wrap">
+          {aiEnabled && (
+            <button
+              onClick={() => setShowAiModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-violet-500/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20 text-sm"
+            >
+              <Sparkles className="h-4 w-4" /> Criar novo post com IA
+            </button>
+          )}
+          <button
+            onClick={() => navigate('/admin/blog/new')}
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" /> Novo post
+          </button>
+        </div>
       </div>
 
       {!loading && items.length > 0 && (
@@ -280,6 +329,76 @@ export default function AdminBlogPage() {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {showAiModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-6"
+          onClick={() => !aiGenerating && setShowAiModal(false)}
+        >
+          <div
+            className="glass p-6 w-full max-w-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-violet-300" />
+                  Criar post com IA
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Cole a URL de um artigo de referência. A IA vai reescrever o conteúdo como
+                  se fosse um post original da BSN Solution — com voz própria, exemplos BSN e
+                  sem menção ao site original.
+                </p>
+              </div>
+              <button
+                onClick={() => !aiGenerating && setShowAiModal(false)}
+                className="text-muted-foreground hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <label className="block text-sm mb-1">URL do artigo de referência</label>
+            <input
+              type="url"
+              value={aiUrl}
+              onChange={(e) => setAiUrl(e.target.value)}
+              placeholder="https://exemplo.com/artigo-interessante"
+              disabled={aiGenerating}
+              className="w-full h-10 bg-black/30 border border-white/10 rounded-lg px-3 text-sm outline-none focus:border-white/25 disabled:opacity-60"
+            />
+            <p className="text-[11px] text-muted-foreground mt-2 font-mono">
+              Levará 30–60s para gerar. O post será criado como rascunho e você vai direto para o editor.
+            </p>
+
+            <div className="flex gap-2 justify-end mt-6">
+              <button
+                onClick={() => setShowAiModal(false)}
+                disabled={aiGenerating}
+                className="px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-sm disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={generateWithAi}
+                disabled={aiGenerating || !aiUrl}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-500/20 border border-violet-500/40 text-violet-200 hover:bg-violet-500/30 text-sm disabled:opacity-60"
+              >
+                {aiGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> Gerando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" /> Gerar post
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

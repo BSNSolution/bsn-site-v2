@@ -871,4 +871,60 @@ export const pageSectionsApi = {
 }
 
 
+// ── Configurações de IA (OpenAI/Anthropic/Google) ────────────────
+export interface AiConfig {
+  id: string
+  name: string
+  provider: 'openai' | 'anthropic' | 'google'
+  model: string
+  apiKey: string
+  systemPrompt?: string | null
+  temperature: number
+  maxTokens: number
+  isActive: boolean
+  isDefault: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export const aiConfigsApi = {
+  checkActive: async (): Promise<{ hasActive: boolean; count: number }> =>
+    (await api.get('/admin/ai-configs/active')).data,
+
+  list: async (): Promise<{ configs: AiConfig[] }> =>
+    (await api.get('/admin/ai-configs')).data,
+
+  get: async (id: string): Promise<AiConfig> =>
+    (await api.get(`/admin/ai-configs/${id}`)).data,
+
+  create: async (data: Partial<AiConfig>): Promise<AiConfig> =>
+    (await api.post('/admin/ai-configs', data)).data,
+
+  update: async (id: string, data: Partial<AiConfig>): Promise<AiConfig> =>
+    (await api.put(`/admin/ai-configs/${id}`, data)).data,
+
+  setDefault: async (id: string): Promise<AiConfig> =>
+    (await api.patch(`/admin/ai-configs/${id}/default`)).data,
+
+  toggle: async (id: string): Promise<AiConfig> =>
+    (await api.patch(`/admin/ai-configs/${id}/toggle`)).data,
+
+  remove: async (id: string): Promise<{ message: string }> =>
+    (await api.delete(`/admin/ai-configs/${id}`)).data,
+
+  generatePost: async (url: string, configId?: string): Promise<{
+    post: { title: string; slug: string; excerpt: string; tags: string[]; content: string }
+    sourceUrl: string
+    sourceTitle: string
+  }> => (await api.post('/admin/ai/generate-post', { url, configId })).data,
+
+  enhanceText: async (
+    text: string,
+    mode: 'improve' | 'generate' | 'expand' | 'shorten' = 'improve',
+    instruction?: string,
+    configId?: string
+  ): Promise<{ result: string }> =>
+    (await api.post('/admin/ai/enhance-text', { text, mode, instruction, configId })).data,
+}
+
 export default api

@@ -17,10 +17,16 @@ import {
   Image as ImageIcon,
   Quote,
   Minus,
+  Sparkles,
+  Loader2,
+  Wand2,
+  X,
 } from 'lucide-react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
-import { blogApi, uploadApi } from '@/lib/api'
+import { blogApi, uploadApi, aiConfigsApi } from '@/lib/api'
+import { useAiEnabled } from '@/hooks/use-ai-enabled'
+import { toast } from 'sonner'
 
 interface Post {
   id?: string
@@ -76,6 +82,13 @@ export default function AdminBlogEditorPage() {
   const inlineInputRef = useRef<HTMLInputElement>(null)
   const scrollSyncLock = useRef<'editor' | 'preview' | null>(null)
 
+  const { enabled: aiEnabled } = useAiEnabled()
+  const [showAiPanel, setShowAiPanel] = useState(false)
+  const [aiMode, setAiMode] = useState<'improve' | 'generate' | 'expand' | 'shorten'>('improve')
+  const [aiInstruction, setAiInstruction] = useState('')
+  const [aiProcessing, setAiProcessing] = useState(false)
+  const [aiSelection, setAiSelection] = useState<{ start: number; end: number; text: string } | null>(null)
+
   useEffect(() => {
     if (!isEditing) {
       setLoading(false)
@@ -116,6 +129,55 @@ export default function AdminBlogEditorPage() {
 
   function setField<K extends keyof Post>(key: K, value: Post[K]) {
     setForm((f) => ({ ...f, [key]: value }))
+  }
+
+  // Abre painel de IA capturando a seleção atual (ou cursor) do textarea
+  function openAiPanel() {
+    const ta = textareaRef.current
+    if (!ta) return
+    const start = ta.selectionStart
+    const end = ta.selectionEnd
+    const selected = form.content.slice(start, end)
+    setAiSelection({ start, end, text: selected })
+    // Se nada selecionado, default para "gerar" — com seleção, default "melhorar"
+    setAiMode(selected ? 'improve' : 'generate')
+    setAiInstruction('')
+    setShowAiPanel(true)
+  }
+
+  async function runAi() {
+    if (!aiSelection) return
+    setAiProcessing(true)
+    try {
+      const textToSend = aiMode === 'generate' ? aiInstruction || 'Escreva um parágrafo sobre este tópico no contexto do post.' : aiSelection.text || aiInstruction
+      const { result } = await aiConfigsApi.enhanceText(
+        textToSend,
+        aiMode,
+        aiMode !== 'generate' ? aiInstruction || undefined : undefined
+      )
+      // Substitui a seleção pelo resultado — se não havia seleção, insere no cursor
+      const { start, end } = aiSelection
+      const before = form.content.slice(0, start)
+      const after = form.content.slice(end)
+      const newContent = before + result + after
+      setField('content', newContent)
+      toast.success('Texto atualizado com IA')
+      setShowAiPanel(false)
+      setAiInstruction('')
+      // Reposiciona cursor após o texto inserido
+      setTimeout(() => {
+        const ta = textareaRef.current
+        if (ta) {
+          ta.focus()
+          const pos = start + result.length
+          ta.setSelectionRange(pos, pos)
+        }
+      }, 10)
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || 'Falha ao processar com IA')
+    } finally {
+      setAiProcessing(false)
+    }
   }
 
   // Sincroniza scroll entre textarea (editor) e preview pane no modo split.
@@ -308,6 +370,19 @@ export default function AdminBlogEditorPage() {
             <ToolbarBtn onClick={() => insertAtCursor('\n\n---\n\n')} icon={<Minus className="h-4 w-4" />} title="Divisor" />
             <ToolbarBtn onClick={() => insertAtCursor('\n\n```\n', '\n```\n\n', 'código')} icon={<Code2 className="h-4 w-4" />} title="Bloco de código" />
             <input ref={inlineInputRef} type="file" accept="image/*" onChange={handleInlineUpload} className="hidden" />
+            {aiEnabled && (
+              <>
+                <span className="w-px h-5 bg-white/10 mx-1" />
+                <button
+                  type="button"
+                  onClick={openAiPanel}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-violet-500/15 border border-violet-500/30 text-violet-200 hover:bg-violet-500/25 text-xs font-medium"
+                  title="Melhorar ou gerar texto com IA"
+                >
+                  <Sparkles className="h-3.5 w-3.5" /> IA
+                </button>
+              </>
+            )}
           </div>
 
           {/* Editor / Preview */}
@@ -486,6 +561,113 @@ export default function AdminBlogEditorPage() {
         .post-preview th, .post-preview td { border: 1px solid var(--line); padding: 8px; text-align: left; }
         .post-preview th { background: rgba(255, 255, 255, 0.05); }
       `}</style>
+
+      {showAiPanel && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-6"
+          onClick={() => !aiProcessing && setShowAiPanel(false)}
+        >
+          <div
+            className="glass p-6 w-full max-w-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <Wand2 className="h-5 w-5 text-violet-300" />
+                  Ação de IA no texto
+                </h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {aiSelection?.text
+                    ? `${aiSelection.text.length} caracteres selecionados — a IA vai substituir pela nova versão.`
+                    : 'Nenhum texto selecionado — a IA vai gerar e inserir no cursor atual.'}
+                </p>
+              </div>
+              <button
+                onClick={() => !aiProcessing && setShowAiPanel(false)}
+                className="text-muted-foreground hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm mb-2">O que fazer?</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { key: 'improve', label: 'Melhorar' , hint: 'corrige e deixa mais direto', needsSel: true },
+                    { key: 'expand', label: 'Expandir', hint: 'adiciona detalhes', needsSel: true },
+                    { key: 'shorten', label: 'Resumir', hint: 'encurta', needsSel: true },
+                    { key: 'generate', label: 'Gerar novo', hint: 'cria do zero', needsSel: false },
+                  ] as const).map((m) => {
+                    const disabled = m.needsSel && !aiSelection?.text
+                    return (
+                      <button
+                        key={m.key}
+                        type="button"
+                        onClick={() => setAiMode(m.key)}
+                        disabled={disabled}
+                        className={`text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
+                          aiMode === m.key
+                            ? 'bg-violet-500/20 border-violet-500/40 text-violet-100'
+                            : 'border-white/10 bg-white/5 hover:bg-white/10'
+                        } ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                      >
+                        <div className="font-medium">{m.label}</div>
+                        <div className="text-[11px] text-muted-foreground">{m.hint}</div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm mb-1">
+                  Instrução opcional
+                  <span className="text-xs text-muted-foreground"> (orientação extra pra IA)</span>
+                </label>
+                <textarea
+                  value={aiInstruction}
+                  onChange={(e) => setAiInstruction(e.target.value)}
+                  rows={3}
+                  placeholder={
+                    aiMode === 'generate'
+                      ? 'Ex: escreva um parágrafo sobre como escolher stack pra MVP'
+                      : 'Ex: deixe mais técnico, use exemplo do setor bancário'
+                  }
+                  className="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-sm outline-none focus:border-white/25 resize-y"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end mt-6">
+              <button
+                onClick={() => setShowAiPanel(false)}
+                disabled={aiProcessing}
+                className="px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-sm disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={runAi}
+                disabled={aiProcessing || (aiMode === 'generate' && !aiInstruction)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-500/20 border border-violet-500/40 text-violet-200 hover:bg-violet-500/30 text-sm disabled:opacity-60"
+              >
+                {aiProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> Processando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" /> Aplicar
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

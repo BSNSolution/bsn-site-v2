@@ -656,3 +656,23 @@ model FooterMenu {
 
   @@map("footer_menus")
 }
+
+// Configurações de provedores de IA (OpenAI, Anthropic, Google)
+// Usadas pelas features de "gerar post com IA" e "melhorar texto com IA"
+model AiConfig {
+  id            String   @id @default(uuid())
+  name          String                                // identificador amigável (ex: "OpenAI Principal")
+  provider      String                                // "openai" | "anthropic" | "google"
+  model         String                                // ex: "gpt-4-turbo", "claude-opus-4-7-20260101", "gemini-1.5-pro"
+  apiKey        String                                // chave da API (texto — TODO: criptografar com KMS)
+  systemPrompt  String?                               // prompt de sistema opcional (padrão do provedor)
+  temperature   Float    @default(0.7)
+  maxTokens     Int      @default(4000)
+  isActive      Boolean  @default(true)
+  isDefault     Boolean  @default(false)              // apenas 1 deve ser default
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("ai_configs")
+}
