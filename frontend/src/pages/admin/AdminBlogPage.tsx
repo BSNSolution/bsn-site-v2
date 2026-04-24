@@ -4,6 +4,8 @@ import { Plus, Edit, Trash2, Star, StarOff, Send, Archive, Search, ChevronLeft, 
 import { blogApi, aiConfigsApi } from '@/lib/api'
 import { toast } from 'sonner'
 import { useAiEnabled } from '@/hooks/use-ai-enabled'
+import { useAuth } from '@/contexts/AuthContext'
+import PermissionGate from '@/components/PermissionGate'
 
 const ADMIN_PAGE_SIZE = 10
 
@@ -35,6 +37,11 @@ export default function AdminBlogPage() {
   const [aiGenerating, setAiGenerating] = useState(false)
   const navigate = useNavigate()
   const { enabled: aiEnabled } = useAiEnabled()
+  const { hasPermission } = useAuth()
+  const canWrite = hasPermission('blog.write')
+  const canPublish = hasPermission('blog.publish')
+  const canDelete = hasPermission('blog.delete')
+  const canUseAi = hasPermission('ai.use')
 
   useEffect(() => { load() }, [])
   useEffect(() => { setPage(1) }, [search, statusFilter, datePreset, dateFrom, dateTo])
@@ -142,7 +149,7 @@ export default function AdminBlogPage() {
           <p className="text-sm text-muted-foreground">Posts exibidos em /blog. Marque um como "Destaque" para aparecer como long-read.</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          {aiEnabled && (
+          {aiEnabled && canWrite && canUseAi && (
             <button
               onClick={() => setShowAiModal(true)}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-violet-500/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20 text-sm"
@@ -150,12 +157,14 @@ export default function AdminBlogPage() {
               <Sparkles className="h-4 w-4" /> Criar novo post com IA
             </button>
           )}
-          <button
-            onClick={() => navigate('/admin/blog/new')}
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90"
-          >
-            <Plus className="h-4 w-4" /> Novo post
-          </button>
+          <PermissionGate permission="blog.write">
+            <button
+              onClick={() => navigate('/admin/blog/new')}
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90"
+            >
+              <Plus className="h-4 w-4" /> Novo post
+            </button>
+          </PermissionGate>
         </div>
       </div>
 
@@ -266,32 +275,40 @@ export default function AdminBlogPage() {
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                {!p.isPublished ? (
-                  <button
-                    onClick={() => togglePublished(p)}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/30 text-sm font-medium"
-                    title="Publicar post"
-                  >
-                    <Send className="h-4 w-4" /> Publicar
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => togglePublished(p)}
-                    className="p-2 hover:bg-amber-500/10 text-amber-300/70 hover:text-amber-300 rounded"
-                    title="Despublicar (voltar a rascunho)"
-                  >
-                    <Archive className="h-4 w-4" />
+                {canPublish && (
+                  !p.isPublished ? (
+                    <button
+                      onClick={() => togglePublished(p)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/30 text-sm font-medium"
+                      title="Publicar post"
+                    >
+                      <Send className="h-4 w-4" /> Publicar
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => togglePublished(p)}
+                      className="p-2 hover:bg-amber-500/10 text-amber-300/70 hover:text-amber-300 rounded"
+                      title="Despublicar (voltar a rascunho)"
+                    >
+                      <Archive className="h-4 w-4" />
+                    </button>
+                  )
+                )}
+                {canPublish && (
+                  <button onClick={() => toggleFeatured(p.id)} className={`p-2 hover:bg-white/10 rounded ${p.isFeatured ? 'text-primary' : ''}`} title={p.isFeatured ? 'Remover destaque' : 'Marcar como destaque'}>
+                    {p.isFeatured ? <Star className="h-4 w-4 fill-current" /> : <StarOff className="h-4 w-4" />}
                   </button>
                 )}
-                <button onClick={() => toggleFeatured(p.id)} className={`p-2 hover:bg-white/10 rounded ${p.isFeatured ? 'text-primary' : ''}`} title={p.isFeatured ? 'Remover destaque' : 'Marcar como destaque'}>
-                  {p.isFeatured ? <Star className="h-4 w-4 fill-current" /> : <StarOff className="h-4 w-4" />}
-                </button>
-                <button onClick={() => navigate(`/admin/blog/${p.id}/edit`)} className="p-2 hover:bg-white/10 rounded" title="Editar">
-                  <Edit className="h-4 w-4" />
-                </button>
-                <button onClick={() => remove(p.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded" title="Remover">
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                {canWrite && (
+                  <button onClick={() => navigate(`/admin/blog/${p.id}/edit`)} className="p-2 hover:bg-white/10 rounded" title="Editar">
+                    <Edit className="h-4 w-4" />
+                  </button>
+                )}
+                {canDelete && (
+                  <button onClick={() => remove(p.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded" title="Remover">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </div>
           ))}

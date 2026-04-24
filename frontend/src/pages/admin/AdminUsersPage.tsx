@@ -133,6 +133,28 @@ export default function AdminUsersPage() {
     }
   }
 
+  function toggleAllPermissions() {
+    setForm((f) => {
+      const allIds = permissions.map((p) => p.id)
+      const allSelected = allIds.every((id) => f.permissionIds.has(id))
+      return { ...f, permissionIds: new Set(allSelected ? [] : allIds) }
+    })
+  }
+
+  function toggleCategoryPermissions(category: string) {
+    setForm((f) => {
+      const catIds = permissions.filter((p) => p.category === category).map((p) => p.id)
+      const allSelected = catIds.every((id) => f.permissionIds.has(id))
+      const next = new Set(f.permissionIds)
+      if (allSelected) {
+        catIds.forEach((id) => next.delete(id))
+      } else {
+        catIds.forEach((id) => next.add(id))
+      }
+      return { ...f, permissionIds: next }
+    })
+  }
+
   function togglePermission(id: string) {
     setForm((f) => {
       const next = new Set(f.permissionIds)
@@ -269,23 +291,60 @@ export default function AdminUsersPage() {
 
               {/* Permissões avulsas */}
               <div>
-                <h3 className="text-sm font-medium mb-2">Permissões avulsas</h3>
-                <p className="text-xs text-muted-foreground mb-2">Adicionadas em cima dos grupos selecionados.</p>
+                <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                  <div>
+                    <h3 className="text-sm font-medium">Permissões avulsas</h3>
+                    <p className="text-xs text-muted-foreground">Adicionadas em cima dos grupos selecionados.</p>
+                  </div>
+                  {permissions.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={toggleAllPermissions}
+                      className="text-xs px-3 py-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 font-mono uppercase tracking-wider"
+                    >
+                      {permissions.every((p) => form.permissionIds.has(p.id))
+                        ? 'Desmarcar todas'
+                        : 'Marcar todas'}
+                    </button>
+                  )}
+                </div>
                 <div className="space-y-3 max-h-80 overflow-y-auto p-3 rounded-lg border border-white/10 bg-black/20">
-                  {Object.entries(permsByCategory).map(([category, perms]) => (
-                    <div key={category}>
-                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">{category}</div>
-                      <div className="grid gap-1 grid-cols-1 md:grid-cols-2">
-                        {perms.map((p) => (
-                          <label key={p.id} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-white/5 px-2 py-1 rounded">
-                            <input type="checkbox" checked={form.permissionIds.has(p.id)} onChange={() => togglePermission(p.id)} />
-                            <span>{p.label}</span>
-                            <span className="text-muted-foreground font-mono text-[10px] ml-auto">{p.slug}</span>
-                          </label>
-                        ))}
+                  {Object.entries(permsByCategory).map(([category, perms]) => {
+                    const allCategorySelected = perms.every((p) => form.permissionIds.has(p.id))
+                    const someCategorySelected = perms.some((p) => form.permissionIds.has(p.id))
+                    return (
+                      <div key={category}>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                            {category}
+                            <span className="ml-2 text-white/40">
+                              {perms.filter((p) => form.permissionIds.has(p.id)).length}/{perms.length}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => toggleCategoryPermissions(category)}
+                            className="text-[10px] font-mono uppercase px-2 py-0.5 rounded hover:bg-white/10 text-white/60 hover:text-white"
+                          >
+                            {allCategorySelected
+                              ? 'Desmarcar'
+                              : someCategorySelected
+                              ? 'Marcar restantes'
+                              : 'Marcar todas'}
+                          </button>
+                        </div>
+                        <div className="grid gap-1 grid-cols-1 md:grid-cols-2">
+                          {perms.map((p) => (
+                            <label key={p.id} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-white/5 px-2 py-1 rounded">
+                              <input type="checkbox" checked={form.permissionIds.has(p.id)} onChange={() => togglePermission(p.id)} />
+                              <span>{p.label}</span>
+                              <span className="text-muted-foreground font-mono text-[10px] ml-auto">{p.slug}</span>
+                            </label>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
 

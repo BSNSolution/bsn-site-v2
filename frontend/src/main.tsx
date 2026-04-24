@@ -11,6 +11,7 @@ import '@/styles/globals.css'
 import App from './App'
 // CustomCursor removed - was causing mouse lag
 import { AnalyticsProvider } from '@/hooks/use-analytics'
+import { AuthProvider } from '@/contexts/AuthContext'
 import { Toaster } from 'sonner'
 
 // Create a client
@@ -178,6 +179,7 @@ root.render(
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
+            <AuthProvider>
             <AnalyticsProvider>
               <App />
             {/* CustomCursor removed - causava lag no mouse */}
@@ -195,6 +197,7 @@ root.render(
               }}
             />
             </AnalyticsProvider>
+            </AuthProvider>
           </BrowserRouter>
         </QueryClientProvider>
       </HelmetProvider>

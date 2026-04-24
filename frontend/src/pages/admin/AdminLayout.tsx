@@ -1,5 +1,6 @@
 import { useEffect, useState, Suspense } from 'react'
 import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
 import {
   Home,
   Settings,
@@ -42,89 +43,99 @@ interface UserPayload {
   role: string
 }
 
+interface SidebarItem {
+  name: string
+  href: string
+  icon: any
+  /** Permissão(ões) necessárias — se undefined, todos autenticados veem */
+  permission?: string | string[]
+  /** Modo de checagem quando permission é array */
+  permissionMode?: 'any' | 'all'
+}
+
 interface SidebarSection {
   label: string
-  items: { name: string; href: string; icon: any }[]
+  items: SidebarItem[]
 }
 
 const SECTIONS: SidebarSection[] = [
   {
     label: 'Visão geral',
     items: [
-      { name: 'Dashboard', href: '/admin', icon: BarChart3 },
-      { name: 'Inbox', href: '/admin/inbox', icon: Inbox },
-      { name: 'Seções das páginas', href: '/admin/pages', icon: Layers },
+      { name: 'Dashboard', href: '/admin', icon: BarChart3, permission: 'dashboard.view' },
+      { name: 'Inbox', href: '/admin/inbox', icon: Inbox, permission: 'inbox.read' },
+      { name: 'Seções das páginas', href: '/admin/pages', icon: Layers, permission: 'page-sections.write' },
     ],
   },
   {
     label: 'Página: Home',
     items: [
-      { name: '1. Hero & seções', href: '/admin/home', icon: Home },
-      { name: '2. KPIs', href: '/admin/kpis', icon: TrendingUp },
-      { name: '3. Stack (marquee)', href: '/admin/stack', icon: Cpu },
-      { name: '7. Banda "Filosofia"', href: '/admin/home-band', icon: MessageSquareQuote },
+      { name: '1. Hero & seções', href: '/admin/home', icon: Home, permission: ['home.read', 'home.write'] },
+      { name: '2. KPIs', href: '/admin/kpis', icon: TrendingUp, permission: 'home.kpis.write' },
+      { name: '3. Stack (marquee)', href: '/admin/stack', icon: Cpu, permission: 'home.kpis.write' },
+      { name: '7. Banda "Filosofia"', href: '/admin/home-band', icon: MessageSquareQuote, permission: 'home.write' },
     ],
   },
   {
     label: 'Página: Serviços',
     items: [
-      { name: 'Serviços (mosaico + lista)', href: '/admin/services', icon: Briefcase },
+      { name: 'Serviços (mosaico + lista)', href: '/admin/services', icon: Briefcase, permission: ['services.read', 'services.write'] },
     ],
   },
   {
     label: 'Página: Soluções',
     items: [
-      { name: 'Soluções verticais', href: '/admin/solutions', icon: LayoutGrid },
+      { name: 'Soluções verticais', href: '/admin/solutions', icon: LayoutGrid, permission: ['solutions.read', 'solutions.write'] },
     ],
   },
   {
     label: 'Página: IA',
     items: [
-      { name: 'Blocos (Benefícios, Etapas, Destaques)', href: '/admin/ai', icon: Sparkles },
+      { name: 'Blocos (Benefícios, Etapas, Destaques)', href: '/admin/ai', icon: Sparkles, permission: ['ai-blocks.read', 'ai-blocks.write'] },
     ],
   },
   {
     label: 'Página: Sobre',
     items: [
-      { name: 'Cards (Missão/Visão/…)', href: '/admin/about-cards', icon: Info },
-      { name: 'Valores (4 princípios)', href: '/admin/values', icon: Award },
-      { name: 'Equipe', href: '/admin/team', icon: Users },
+      { name: 'Cards (Missão/Visão/…)', href: '/admin/about-cards', icon: Info, permission: ['about.read', 'about.write'] },
+      { name: 'Valores (4 princípios)', href: '/admin/values', icon: Award, permission: ['about.read', 'about.write'] },
+      { name: 'Equipe', href: '/admin/team', icon: Users, permission: ['about.read', 'team.write'] },
     ],
   },
   {
     label: 'Página: Blog',
     items: [
-      { name: 'Posts', href: '/admin/blog', icon: BookOpen },
+      { name: 'Posts', href: '/admin/blog', icon: BookOpen, permission: ['blog.read', 'blog.write'] },
     ],
   },
   {
     label: 'Página: Carreiras',
     items: [
-      { name: 'Vagas', href: '/admin/jobs', icon: FileText },
-      { name: 'Benefícios', href: '/admin/perks', icon: Gift },
+      { name: 'Vagas', href: '/admin/jobs', icon: FileText, permission: ['jobs.read', 'jobs.write'] },
+      { name: 'Benefícios', href: '/admin/perks', icon: Gift, permission: 'perks.write' },
     ],
   },
   {
     label: 'Elementos compartilhados',
     items: [
-      { name: 'Depoimentos', href: '/admin/testimonials', icon: Star },
-      { name: 'Clientes', href: '/admin/clients', icon: Handshake },
+      { name: 'Depoimentos', href: '/admin/testimonials', icon: Star, permission: 'testimonials.write' },
+      { name: 'Clientes', href: '/admin/clients', icon: Handshake, permission: 'clients.write' },
     ],
   },
   {
     label: 'Mídia & Sistema',
     items: [
-      { name: 'Uploads de imagens', href: '/admin/uploads', icon: Upload },
-      { name: 'Configurações do site', href: '/admin/settings', icon: Settings },
+      { name: 'Uploads de imagens', href: '/admin/uploads', icon: Upload, permission: ['uploads.read', 'uploads.write'] },
+      { name: 'Configurações do site', href: '/admin/settings', icon: Settings, permission: ['settings.read', 'settings.write'] },
     ],
   },
   {
     label: 'Acesso & usuários',
     items: [
-      { name: 'Usuários', href: '/admin/users', icon: UserCog },
-      { name: 'Grupos de permissões', href: '/admin/permission-groups', icon: Shield },
-      { name: 'Tokens de API', href: '/admin/api-tokens', icon: KeyRound },
-      { name: 'Configurações de IA', href: '/admin/ai-configs', icon: Sparkles },
+      { name: 'Usuários', href: '/admin/users', icon: UserCog, permission: ['users.read', 'users.write'] },
+      { name: 'Grupos de permissões', href: '/admin/permission-groups', icon: Shield, permission: ['groups.read', 'groups.write'] },
+      { name: 'Tokens de API', href: '/admin/api-tokens', icon: KeyRound, permission: ['api-tokens.read', 'api-tokens.write'] },
+      { name: 'Configurações de IA', href: '/admin/ai-configs', icon: Sparkles, permission: ['ai-configs.read', 'ai-configs.write'] },
     ],
   },
 ]
@@ -135,6 +146,21 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const { hasPermission, hasAnyPermission, hasAllPermissions, isAdmin } = useAuth()
+
+  // Filtra seções/itens pelas permissões do usuário logado
+  const visibleSections: SidebarSection[] = SECTIONS.map((sec) => ({
+    ...sec,
+    items: sec.items.filter((item) => {
+      if (isAdmin) return true
+      if (!item.permission) return true
+      if (typeof item.permission === 'string') return hasPermission(item.permission)
+      if (item.permission.length === 0) return true
+      return item.permissionMode === 'all'
+        ? hasAllPermissions(...item.permission)
+        : hasAnyPermission(...item.permission)
+    }),
+  })).filter((sec) => sec.items.length > 0)
 
   useEffect(() => {
     (async () => {
@@ -174,7 +200,7 @@ export default function AdminLayout() {
 
   if (!user) return <Navigate to="/admin/login" replace />
 
-  const currentPage = SECTIONS.flatMap((s) => s.items).find((i) => {
+  const currentPage = visibleSections.flatMap((s) => s.items).find((i) => {
     if (i.href === '/admin') return location.pathname === '/admin'
     return location.pathname.startsWith(i.href)
   })
@@ -206,7 +232,7 @@ export default function AdminLayout() {
           </div>
 
           <nav className="flex-1 overflow-y-auto px-3 pb-3">
-            {SECTIONS.map((section) => (
+            {visibleSections.map((section) => (
               <div key={section.label} className="mb-4">
                 <div className="px-3 py-2 text-[10px] font-mono uppercase tracking-wider text-white/40">
                   {section.label}
