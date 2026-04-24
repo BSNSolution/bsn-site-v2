@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Edit, Trash2, Eye, EyeOff, Star, StarOff } from 'lucide-react'
+import { Plus, Edit, Trash2, Star, StarOff, Send, Archive } from 'lucide-react'
 import { blogApi } from '@/lib/api'
+import { toast } from 'sonner'
 
 interface Post {
   id: string
@@ -40,8 +41,16 @@ export default function AdminBlogPage() {
     await blogApi.admin.deletePost(id); load()
   }
 
-  async function togglePublished(id: string) {
-    await blogApi.admin.togglePublished(id); load()
+  async function togglePublished(post: Post) {
+    const action = post.isPublished ? 'Despublicar' : 'Publicar'
+    if (!confirm(`${action} "${post.title}"?`)) return
+    try {
+      await blogApi.admin.togglePublished(post.id)
+      toast.success(post.isPublished ? 'Post despublicado' : 'Post publicado')
+      load()
+    } catch {
+      toast.error('Erro ao atualizar status')
+    }
   }
 
   async function toggleFeatured(id: string) {
@@ -95,11 +104,25 @@ export default function AdminBlogPage() {
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button onClick={() => toggleFeatured(p.id)} className={`p-2 hover:bg-white/10 rounded ${p.isFeatured ? 'text-primary' : ''}`} title="Destaque">
+                {!p.isPublished ? (
+                  <button
+                    onClick={() => togglePublished(p)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/30 text-sm font-medium"
+                    title="Publicar post"
+                  >
+                    <Send className="h-4 w-4" /> Publicar
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => togglePublished(p)}
+                    className="p-2 hover:bg-amber-500/10 text-amber-300/70 hover:text-amber-300 rounded"
+                    title="Despublicar (voltar a rascunho)"
+                  >
+                    <Archive className="h-4 w-4" />
+                  </button>
+                )}
+                <button onClick={() => toggleFeatured(p.id)} className={`p-2 hover:bg-white/10 rounded ${p.isFeatured ? 'text-primary' : ''}`} title={p.isFeatured ? 'Remover destaque' : 'Marcar como destaque'}>
                   {p.isFeatured ? <Star className="h-4 w-4 fill-current" /> : <StarOff className="h-4 w-4" />}
-                </button>
-                <button onClick={() => togglePublished(p.id)} className="p-2 hover:bg-white/10 rounded" title={p.isPublished ? 'Despublicar' : 'Publicar'}>
-                  {p.isPublished ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </button>
                 <button onClick={() => navigate(`/admin/blog/${p.id}/edit`)} className="p-2 hover:bg-white/10 rounded" title="Editar">
                   <Edit className="h-4 w-4" />
