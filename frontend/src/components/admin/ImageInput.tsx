@@ -50,8 +50,8 @@ export default function ImageInput({
   return (
     <div className={className}>
       {label && <label htmlFor={id} className="block text-sm mb-1">{label}</label>}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
+      <div className="flex items-stretch gap-2 h-10">
+        <div className="relative flex-1 min-w-0">
           <LinkIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             id={id}
@@ -59,7 +59,7 @@ export default function ImageInput({
             value={value ?? ''}
             onChange={(e) => onChange(e.target.value || null)}
             placeholder={placeholder}
-            className="w-full bg-black/30 border border-white/10 rounded-lg pl-10 pr-3 py-2 text-sm"
+            className="w-full h-full bg-black/30 border border-white/10 rounded-lg pl-10 pr-3 text-sm outline-none focus:border-white/25 transition-colors"
           />
         </div>
         <input
@@ -77,7 +77,7 @@ export default function ImageInput({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="btn btn-ghost auto"
+          className="h-full inline-flex items-center gap-1.5 px-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm whitespace-nowrap disabled:opacity-60 transition-colors"
         >
           {uploading ? (
             <>
@@ -93,7 +93,7 @@ export default function ImageInput({
           <button
             type="button"
             onClick={() => onChange(null)}
-            className="btn btn-ghost auto text-red-400"
+            className="h-full inline-flex items-center justify-center w-10 rounded-lg border border-white/10 bg-white/5 hover:bg-red-500/10 text-red-400 transition-colors"
             title="Remover"
           >
             <X className="w-4 h-4" />

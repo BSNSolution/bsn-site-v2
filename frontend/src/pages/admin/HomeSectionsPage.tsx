@@ -2,6 +2,9 @@ import { useState, useEffect, FormEvent } from 'react'
 import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react'
 import { homeApi } from '@/lib/api'
 import { Checkbox } from '@/components/ui/checkbox'
+import DragList from '@/components/admin/DragList'
+import ImageInput from '@/components/admin/ImageInput'
+import { toast } from 'sonner'
 
 interface Section {
   id: string
@@ -101,6 +104,17 @@ export default function HomeSectionsPage() {
   }
   async function toggle(id: string) { await homeApi.admin.toggleSection(id); load() }
 
+  async function handleReorder(next: Section[]) {
+    setItems(next)
+    try {
+      await homeApi.admin.reorderSections(next.map((s, idx) => ({ id: s.id, order: idx + 1 })))
+      toast.success('Ordem salva')
+    } catch {
+      toast.error('Erro ao salvar ordem')
+      load()
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -118,9 +132,10 @@ export default function HomeSectionsPage() {
       ) : items.length === 0 ? (
         <div className="glass p-12 text-center text-muted-foreground">Nenhuma seção.</div>
       ) : (
-        <div className="grid gap-3">
-          {items.map((s) => (
-            <div key={s.id} className="glass p-4 flex items-start justify-between gap-4">
+        <DragList items={items} getKey={(s) => s.id} onReorder={handleReorder} className="grid gap-3">
+          {(s, handle) => (
+            <div className="glass p-4 flex items-start justify-between gap-4">
+              {handle}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground px-2 py-0.5 rounded bg-white/5">{s.type}</span>
@@ -138,8 +153,8 @@ export default function HomeSectionsPage() {
                 <button onClick={() => remove(s.id)} className="p-2 hover:bg-destructive/10 text-destructive rounded"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </DragList>
       )}
 
       {showForm && (
