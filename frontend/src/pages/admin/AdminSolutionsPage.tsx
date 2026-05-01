@@ -53,15 +53,16 @@ export default function AdminSolutionsPage() {
   const [editing, setEditing] = useState<Solution | null>(null)
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load({ silent: false }) }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const res = await solutionsApi.admin.getSolutions()
       setItems(res.solutions ?? [])
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
@@ -218,6 +219,9 @@ export default function AdminSolutionsPage() {
                 label="Imagem de capa"
                 value={form.imageUrl}
                 onChange={(url) => setForm({ ...form, imageUrl: url })}
+                enableCrop
+                cropAspect={16 / 9}
+                cropTitle="Editar capa da solução"
               />
               <div>
                 <label className="text-xs text-muted-foreground">Descrição</label>

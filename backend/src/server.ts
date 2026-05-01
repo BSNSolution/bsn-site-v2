@@ -43,6 +43,7 @@ import aiConfigsRoutes from "./routes/ai-configs";
 import pageSectionsRoutes from "./routes/page-sections";
 import apiTokenRoutes from "./routes/api-tokens";
 import publicApiBlogRoutes from "./routes/public-api-blog";
+import contactConfigRoutes from "./routes/contact-config";
 
 dotenv.config();
 
@@ -115,6 +116,7 @@ fastify.register(aiRoutes, { prefix: "/api" });
 fastify.register(aiConfigsRoutes, { prefix: "/api" });
 fastify.register(pageSectionsRoutes, { prefix: "/api" });
 fastify.register(apiTokenRoutes, { prefix: "/api" });
+fastify.register(contactConfigRoutes, { prefix: "/api" });
 // Rotas externas para automação (AI) — prefixo /api/v1
 fastify.register(publicApiBlogRoutes, { prefix: "/api/v1" });
 

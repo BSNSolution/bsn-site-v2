@@ -53,14 +53,15 @@ export default function AdminTeamPage() {
   const [editing, setEditing] = useState<TeamMember | null>(null)
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load({ silent: false }) }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const res = await teamApi.admin.getTeam()
       setItems(res.team ?? res.members ?? [])
-    } finally { setLoading(false) }
+    } finally { if (!silent) setLoading(false) }
   }
 
   function openCreate() {
@@ -203,6 +204,10 @@ export default function AdminTeamPage() {
                 value={form.imageUrl}
                 onChange={(url) => setForm({ ...form, imageUrl: url ?? '' })}
                 previewHeight={120}
+                enableCrop
+                cropAspect={1}
+                cropShape="round"
+                cropTitle="Editar foto do membro"
               />
               <div>
                 <label className="text-xs text-muted-foreground">Variante do avatar (se sem foto)</label>

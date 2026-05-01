@@ -1,8 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
-import { ArrowLeft, Clock, Share2, Twitter, Linkedin, Link as LinkIcon } from 'lucide-react'
+import {
+  ArrowLeft,
+  Clock,
+  Share2,
+  Twitter,
+  Linkedin,
+  Link as LinkIcon,
+  Eye,
+  X,
+} from 'lucide-react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import Seo from '@/components/Seo'
@@ -45,6 +54,12 @@ function calcReadTime(content: string) {
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
+  const [searchParams] = useSearchParams()
+  // Modo preview: `/blog/<slug>?preview=1&id=<uuid>`
+  // Aberto pelo botão "Ver prévia no site" do AdminBlogEditorPage.
+  // Usa endpoint admin (autenticado via JWT no localStorage) que ignora isPublished.
+  const isPreview = searchParams.get('preview') === '1'
+  const previewId = searchParams.get('id')
   const [post, setPost] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
@@ -64,7 +79,38 @@ export default function BlogPostPage() {
       try {
         setLoading(true)
         setError('')
-        // Backend retorna o post achatado (sem wrapper { post })
+
+        // Modo preview: usa endpoint admin (autenticado), retorna mesmo
+        // posts não publicados. Falha 401/403 caso usuário não esteja
+        // logado como admin.
+        if (isPreview && previewId) {
+          try {
+            const previewData = await blogApi.admin.getPreview(previewId)
+            const p: BlogPost | null = previewData?.post ?? previewData
+            if (p && p.id && p.title) {
+              setPost(p)
+              document.title = `[PREVIEW] ${p.title} — BSN Solution`
+            } else {
+              setError('Post não encontrado')
+            }
+          } catch (err: any) {
+            const code = err?.response?.status
+            if (code === 401 || code === 403) {
+              setError(
+                'Você precisa estar logado no admin (mesma janela/sessão) para ver a prévia.'
+              )
+            } else if (code === 404) {
+              setError('Post não encontrado')
+            } else {
+              setError('Erro ao carregar prévia')
+            }
+          } finally {
+            setLoading(false)
+          }
+          return
+        }
+
+        // Modo público normal — Backend retorna o post achatado (sem wrapper { post })
         const [data, listData] = await Promise.all([
           blogApi.getPost(slug),
           blogApi.getPosts({ limit: 100 }),
@@ -84,7 +130,7 @@ export default function BlogPostPage() {
       }
     })()
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
-  }, [slug])
+  }, [slug, isPreview, previewId])
 
   const related = useMemo(() => {
     if (!post || allPosts.length === 0) return []
@@ -292,6 +338,51 @@ export default function BlogPostPage() {
         />
       )}
       <Header />
+
+      {isPreview && (
+        <div
+          className="glass"
+          style={{
+            margin: '90px auto 0',
+            maxWidth: 1200,
+            padding: '12px 18px',
+            borderRadius: 12,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+            border: '1px solid rgba(167, 139, 250, 0.4)',
+            background:
+              'linear-gradient(90deg, rgba(167,139,250,0.12), rgba(34,211,238,0.08))',
+          }}
+        >
+          <Eye className="h-4 w-4" style={{ color: '#c4b5fd' }} />
+          <div style={{ flex: 1 }}>
+            <div className="mono" style={{ fontSize: 11, color: '#c4b5fd' }}>
+              MODO PREVIEW
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--ink)', marginTop: 2 }}>
+              Este post pode estar não publicado — apenas administradores
+              autenticados conseguem ver esta página.
+            </div>
+          </div>
+          <Link
+            to={`/blog/${slug}`}
+            style={{
+              fontSize: 12,
+              color: 'var(--ink-dim)',
+              textDecoration: 'none',
+              padding: '6px 10px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: 8,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <X className="h-3.5 w-3.5" /> Sair do preview
+          </Link>
+        </div>
+      )}
 
       <article className="shell blog-post-shell" style={{ padding: '80px 32px 40px' }}>
         <Link to="/blog" className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none', marginBottom: 32 }}>

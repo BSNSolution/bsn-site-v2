@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { ChevronDown, Check } from 'lucide-react'
 
 export interface SelectOption<V = string> {
@@ -58,26 +59,58 @@ export default function Select<V extends string | number = string>({
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [highlightIdx, setHighlightIdx] = useState<number>(-1)
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({})
   const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const selected = options.find((o) => o.value === value)
   const heightCls = size === 'sm' ? 'h-8 text-xs' : 'h-10 text-sm'
 
-  // Fecha ao clicar fora
+  // Calcula posição/largura do menu em relação ao trigger (viewport coords).
+  // Detecta se deve abrir pra cima quando não há espaço abaixo.
+  const updateMenuPosition = () => {
+    const trigger = triggerRef.current
+    if (!trigger) return
+    const rect = trigger.getBoundingClientRect()
+    const menuHeight = menuRef.current?.offsetHeight ?? 320
+    const spaceBelow = window.innerHeight - rect.bottom
+    const openUpward = spaceBelow < Math.min(menuHeight + 16, 320) && rect.top > menuHeight + 16
+    setMenuStyle({
+      position: 'fixed',
+      left: rect.left,
+      width: rect.width,
+      ...(openUpward
+        ? { bottom: window.innerHeight - rect.top + 4 }
+        : { top: rect.bottom + 4 }),
+      zIndex: 9999,
+    })
+  }
+
+  // Fecha ao clicar fora + recalcula posição em scroll/resize
   useEffect(() => {
     if (!open) return
+    updateMenuPosition()
     const onClick = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false)
+      const target = e.target as Node
+      if (rootRef.current?.contains(target)) return
+      if (menuRef.current?.contains(target)) return
+      setOpen(false)
     }
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false)
     }
+    const onReflow = () => updateMenuPosition()
     window.addEventListener('mousedown', onClick)
     window.addEventListener('keydown', onEsc)
+    window.addEventListener('scroll', onReflow, true)
+    window.addEventListener('resize', onReflow)
     return () => {
       window.removeEventListener('mousedown', onClick)
       window.removeEventListener('keydown', onEsc)
+      window.removeEventListener('scroll', onReflow, true)
+      window.removeEventListener('resize', onReflow)
     }
   }, [open])
 
@@ -144,6 +177,7 @@ export default function Select<V extends string | number = string>({
       {name && <input type="hidden" name={name} value={String(value ?? '')} />}
       <button
         id={id}
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setOpen((v) => !v)}
@@ -160,15 +194,19 @@ export default function Select<V extends string | number = string>({
           {selected ? selected.label : placeholder}
         </span>
         {selected?.hint && showVisualOnTrigger && (
-          <span className="text-[11px] font-mono text-white/40">{selected.hint}</span>
+          <span className="text-[11px] font-mono text-white/40 shrink-0">{selected.hint}</span>
         )}
         <ChevronDown className={`w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {error && <p className="text-[11px] text-red-400 mt-1">{error}</p>}
 
-      {open && !disabled && (
-        <div className="absolute z-50 mt-1 w-full min-w-[220px] rounded-lg border border-white/15 bg-[#0c0c10] shadow-xl backdrop-blur overflow-hidden">
+      {open && !disabled && createPortal(
+        <div
+          ref={menuRef}
+          style={menuStyle}
+          className="min-w-[220px] rounded-lg border border-white/15 bg-[#0c0c10] shadow-2xl backdrop-blur overflow-hidden"
+        >
           {searchable && (
             <div className="p-2 border-b border-white/10">
               <input
@@ -226,7 +264,8 @@ export default function Select<V extends string | number = string>({
               </div>
             ))}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

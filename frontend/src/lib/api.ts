@@ -15,9 +15,32 @@ export const api = axios.create({
   },
 })
 
+/**
+ * Decide se uma URL precisa do header Authorization.
+ * Por default, NÃO envia em rotas públicas — evita 401 desnecessário em
+ * visitantes do site que tenham token expirado no localStorage.
+ *
+ * Rotas que precisam de token:
+ *   - /admin/*  (todo o painel)
+ *   - endpoints de auth do usuário logado: /me, /change-password, /logout
+ *
+ * Tudo o resto (home, services, blog, kpis, analytics, etc.) é público.
+ */
+function needsAuth(url?: string): boolean {
+  if (!url) return false
+  // Normaliza pra path (sem domínio) — axios pode passar URL completa ou relativa
+  const path = url.startsWith('http') ? new URL(url).pathname : url
+  // O baseURL já contém /api, então as URLs aqui são relativas tipo "/admin/foo"
+  if (path.includes('/admin/')) return true
+  // Endpoints de auth do usuário logado (não admin-prefixed)
+  const authedPaths = ['/me', '/change-password', '/logout']
+  return authedPaths.some((p) => path === p || path.endsWith(p))
+}
+
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
+    if (!needsAuth(config.url)) return config
     const token = localStorage.getItem('bsn-auth-token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -34,9 +57,16 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Unauthorized - clear token and redirect to login
+      // Limpa token expirado/inválido sempre.
       localStorage.removeItem('bsn-auth-token')
-      window.location.href = '/admin/login'
+      // Só redireciona pro login se o usuário ESTIVER em uma rota admin.
+      // Em rotas públicas (/, /servicos, etc.), um 401 pode ser ruído de
+      // alguma query — não faz sentido jogar o visitante pra tela de login.
+      const path = typeof window !== 'undefined' ? window.location.pathname : ''
+      const onAdmin = path.startsWith('/admin') && path !== '/admin/login'
+      if (onAdmin) {
+        window.location.href = '/admin/login'
+      }
     }
     return Promise.reject(error)
   }
@@ -85,6 +115,7 @@ export const homeExtrasApi = {
   getLiveCard: async () => (await api.get('/home/live-card')).data,
   getBrandPill: async () => (await api.get('/home/brand-pill')).data,
   getBand: async () => (await api.get('/home/band')).data,
+  getHero: async () => (await api.get('/home/hero')).data,
   admin: {
     getLiveCard: async () => (await api.get('/admin/home/live-card')).data,
     saveLiveCard: async (data: any) => (await api.put('/admin/home/live-card', data)).data,
@@ -92,6 +123,22 @@ export const homeExtrasApi = {
     saveBrandPill: async (data: any) => (await api.put('/admin/home/brand-pill', data)).data,
     getBand: async () => (await api.get('/admin/home/band')).data,
     saveBand: async (data: any) => (await api.put('/admin/home/band', data)).data,
+    getHero: async () => (await api.get('/admin/home/hero')).data,
+    saveHero: async (data: any) => (await api.put('/admin/home/hero', data)).data,
+  },
+}
+
+// ===== Process Steps (timeline da home) =====
+export const processStepsApi = {
+  getSteps: async () => (await api.get('/process-steps')).data,
+  admin: {
+    list: async () => (await api.get('/admin/process-steps')).data,
+    create: async (data: any) => (await api.post('/admin/process-steps', data)).data,
+    update: async (id: string, data: any) => (await api.put(`/admin/process-steps/${id}`, data)).data,
+    remove: async (id: string) => (await api.delete(`/admin/process-steps/${id}`)).data,
+    toggle: async (id: string) => (await api.patch(`/admin/process-steps/${id}/toggle`)).data,
+    reorder: async (items: { id: string; order: number }[]) =>
+      (await api.patch('/admin/process-steps/reorder', { items })).data,
   },
 }
 
@@ -383,6 +430,63 @@ export const contactApi = {
   },
 }
 
+// ===== Página de Contato (CMS) =====
+export interface ContactPageConfig {
+  id?: string
+  pageTitle: string
+  pageSubtitle: string
+  email: string
+  phone: string
+  whatsappNumber: string
+  address: string
+  addressLat?: number | null
+  addressLng?: number | null
+  businessHours: string
+  responseTimeText: string
+  showMap: boolean
+  showBriefForm: boolean
+  showProjectTypes: boolean
+  isActive: boolean
+}
+
+export interface ContactProjectType {
+  id: string
+  label: string
+  description?: string | null
+  order: number
+  isActive: boolean
+}
+
+export const contactConfigApi = {
+  get: async (): Promise<{ config: ContactPageConfig | null }> =>
+    (await api.get('/contact-config')).data,
+  admin: {
+    get: async (): Promise<{ config: ContactPageConfig | null }> =>
+      (await api.get('/admin/contact-config')).data,
+    save: async (data: ContactPageConfig): Promise<ContactPageConfig> =>
+      (await api.put('/admin/contact-config', data)).data,
+  },
+}
+
+export const contactProjectTypesApi = {
+  list: async (): Promise<{ types: ContactProjectType[] }> =>
+    (await api.get('/contact-project-types')).data,
+  admin: {
+    list: async (): Promise<{ types: ContactProjectType[] }> =>
+      (await api.get('/admin/contact-project-types')).data,
+    create: async (data: Partial<ContactProjectType>): Promise<ContactProjectType> =>
+      (await api.post('/admin/contact-project-types', data)).data,
+    update: async (id: string, data: Partial<ContactProjectType>): Promise<ContactProjectType> =>
+      (await api.put(`/admin/contact-project-types/${id}`, data)).data,
+    remove: async (id: string) =>
+      (await api.delete(`/admin/contact-project-types/${id}`)).data,
+    toggle: async (id: string): Promise<ContactProjectType> =>
+      (await api.patch(`/admin/contact-project-types/${id}/toggle`)).data,
+    reorder: async (items: { id: string; order: number }[]) =>
+      (await api.patch('/admin/contact-project-types/reorder', { items })).data,
+  },
+}
+
 // Blog API
 export const blogApi = {
   getPosts: async (params?: { page?: number; limit?: number; tag?: string; featured?: boolean }) => {
@@ -409,6 +513,14 @@ export const blogApi = {
 
     getPost: async (id: string) => {
       const response = await api.get(`/admin/blog/${id}`)
+      return response.data
+    },
+
+    // Preview admin: retorna o post mesmo se isPublished=false.
+    // Usado pelo botão "Ver prévia no site" do AdminBlogEditorPage,
+    // consumido pelo BlogPostPage quando ?preview=1&id=<uuid>.
+    getPreview: async (id: string) => {
+      const response = await api.get(`/admin/blog/${id}/preview`)
       return response.data
     },
 
@@ -712,10 +824,16 @@ export const inboxApi = {
 export const analyticsApi = {
   track: async (event: string, data?: any) => {
     try {
+      // Extrai campos top-level (sessionId, referrer, page) — o backend
+      // os armazena em colunas dedicadas para queries eficientes.
+      // O resto continua em `data` (JSON) para compat com payloads legacy.
+      const { sessionId, referrer, page, ...rest } = data ?? {}
       await api.post('/analytics/track', {
         event,
-        page: window.location.pathname,
-        data,
+        page: page ?? window.location.pathname,
+        sessionId,
+        referrer: referrer ?? document.referrer ?? null,
+        data: rest,
       })
     } catch (error) {
       // Silently fail analytics
@@ -751,6 +869,37 @@ export const analyticsApi = {
         data: { daysToKeep },
       })
       return response.data
+    },
+
+    // ── Dashboard novo ──
+    getSummary: async (period: 'today' | '7d' | '30d' | '90d' | '1y' = '30d') => {
+      const response = await api.get('/admin/analytics/summary', { params: { period } })
+      return response.data as {
+        period: string
+        totals: { today: number; week: number; month: number; year: number; allTime: number }
+        online: number
+        topPages: Array<{ page: string; views: number }>
+        topReferrers: Array<{ referrer: string; count: number }>
+        byDay: Array<{ date: string; count: number }>
+        totalSessions: number
+        bouncedCount: number
+        bounceRate: number
+      }
+    },
+
+    getRealtime: async () => {
+      const response = await api.get('/admin/analytics/realtime')
+      return response.data as {
+        online: number
+        recentEvents: Array<{
+          id: string
+          event: string
+          page: string | null
+          sessionId: string | null
+          referrer: string | null
+          createdAt: string
+        }>
+      }
     },
   },
 }

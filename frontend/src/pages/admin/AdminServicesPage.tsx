@@ -26,16 +26,17 @@ export default function AdminServicesPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('main')
 
   useEffect(() => {
-    load()
+    load({ silent: false })
   }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const res = await servicesApi.admin.getServices()
       setItems(res.services ?? [])
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 

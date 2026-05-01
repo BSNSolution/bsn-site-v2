@@ -71,6 +71,26 @@ async function main() {
         { category: 'Inbox', slug: 'inbox.read', label: 'Ver mensagens de contato' },
         { category: 'Inbox', slug: 'inbox.reply', label: 'Responder mensagens' },
         { category: 'Inbox', slug: 'inbox.delete', label: 'Excluir mensagens' },
+        // Equipe (separado de about pra granularidade)
+        { category: 'Sobre', slug: 'team.write', label: 'Editar equipe' },
+        // Página de IA (blocos de conteúdo — benefícios, etapas, destaques)
+        { category: 'Página IA', slug: 'ai-blocks.read', label: 'Ver blocos da página IA' },
+        { category: 'Página IA', slug: 'ai-blocks.write', label: 'Editar blocos da página IA' },
+        // Configurações de IA (OpenAI, Anthropic, Google — usado por gerar/melhorar post)
+        { category: 'IA / LLM', slug: 'ai-configs.read', label: 'Ver configurações de IA' },
+        { category: 'IA / LLM', slug: 'ai-configs.write', label: 'Criar/editar configurações de IA' },
+        { category: 'IA / LLM', slug: 'ai-configs.delete', label: 'Excluir configurações de IA' },
+        { category: 'IA / LLM', slug: 'ai.use', label: 'Usar IA (gerar/melhorar texto, gerar post via URL)' },
+        // Tokens de API (integração externa com /api/v1)
+        { category: 'Sistema', slug: 'api-tokens.read', label: 'Ver tokens de API' },
+        { category: 'Sistema', slug: 'api-tokens.write', label: 'Criar/revogar tokens de API' },
+        // Seções de página (visibilidade/ordem das sections por rota pública)
+        { category: 'Sistema', slug: 'page-sections.write', label: 'Editar visibilidade/ordem de seções das páginas' },
+        // Infra de conteúdo extra
+        { category: 'Serviços', slug: 'process-steps.write', label: 'Editar etapas do processo' },
+        // Página de Contato (CMS)
+        { category: 'Contato', slug: 'contact.read', label: 'Ver configurações de contato' },
+        { category: 'Contato', slug: 'contact.write', label: 'Editar página de contato e tipos de projeto' },
     ];
     await prisma.permission.createMany({
         data: permissionDefs.map((p) => ({ ...p, description: null })),
@@ -88,7 +108,7 @@ async function main() {
         },
     });
     const developerPerms = allPermissions
-        .filter((p) => !['users.delete', 'groups.delete'].includes(p.slug))
+        .filter((p) => !['users.delete', 'groups.delete', 'ai-configs.delete'].includes(p.slug))
         .map((p) => ({ id: p.id }));
     const developerGroup = await prisma.permissionGroup.create({
         data: {
@@ -109,12 +129,16 @@ async function main() {
                     'home.read', 'home.write', 'home.kpis.write',
                     'services.read', 'services.write',
                     'solutions.read', 'solutions.write',
-                    'about.read', 'about.write',
+                    'about.read', 'about.write', 'team.write',
+                    'process-steps.write',
                     'blog.read', 'blog.write', 'blog.publish',
                     'jobs.read', 'jobs.write', 'perks.write',
                     'testimonials.write', 'clients.write',
                     'inbox.read', 'inbox.reply',
                     'uploads.read', 'uploads.write',
+                    'ai-blocks.read', 'ai-blocks.write',
+                    'ai.use',
+                    'contact.read', 'contact.write',
                 ]),
             },
         },
@@ -132,6 +156,9 @@ async function main() {
                     'about.read', 'blog.read', 'jobs.read',
                     'uploads.read', 'settings.read',
                     'inbox.read',
+                    'ai-blocks.read', 'ai-configs.read',
+                    'groups.read', 'users.read',
+                    'contact.read',
                 ]),
             },
         },
@@ -245,7 +272,7 @@ async function main() {
             title: 'Squads ágeis multidisciplinares',
             subtitle: 'multidisciplinares',
             description: 'Times plug-and-play com devs, QAs, POs, designers e DevOps — montados no tamanho certo para o seu desafio e integrados em até 5 dias úteis.',
-            iconName: 'squad',
+            iconName: 'users',
             anchor: 'squads',
             slug: 'squads',
             numLabel: 'SVC · 02',
@@ -296,7 +323,7 @@ async function main() {
             title: 'Automação de processos',
             subtitle: 'de processos',
             description: 'Mapeamos fluxos manuais, orquestramos integrações e entregamos horas de volta à sua equipe. Ideal para operações com alto custo de repetição.',
-            iconName: 'auto',
+            iconName: 'workflow',
             anchor: 'automacao',
             slug: 'automacao',
             numLabel: 'SVC · 03',
@@ -347,7 +374,7 @@ async function main() {
             title: 'Consultoria em tecnologia',
             subtitle: 'em tecnologia',
             description: 'Diagnóstico preciso que alinha processos, infraestrutura e inovação. Ajudamos sua liderança a tomar decisões técnicas mais inteligentes — e mais baratas.',
-            iconName: 'box',
+            iconName: 'compass',
             anchor: 'consultoria',
             slug: 'consultoria',
             numLabel: 'SVC · 04',
@@ -449,7 +476,7 @@ async function main() {
             title: 'Suporte e evolução contínua',
             subtitle: 'evolução contínua',
             description: 'Planos que acompanham seu crescimento. Adicione funcionalidades, corrija rotas ou faça upgrades técnicos a qualquer momento — sem reiniciar o relacionamento.',
-            iconName: 'support',
+            iconName: 'life-buoy',
             anchor: 'suporte',
             slug: 'suporte',
             numLabel: 'SVC · 06',
@@ -500,7 +527,7 @@ async function main() {
             title: 'Outsourcing estratégico de TI',
             subtitle: 'estratégico de TI',
             description: 'Mantenha o foco no core do seu negócio. Nossos especialistas assumem demandas específicas — com previsibilidade de custo, prazo e qualidade superior à contratação interna.',
-            iconName: 'build',
+            iconName: 'handshake',
             anchor: 'outsourcing',
             slug: 'outsourcing',
             numLabel: 'SVC · 07',
@@ -704,7 +731,7 @@ async function main() {
             title: 'Design de Serviço',
             subtitle: 'de serviço',
             description: 'Mapeamos a jornada completa — do primeiro contato ao pós-venda — e redesenhamos touchpoints, processos e papéis. Menos atrito, mais experiência memorável.',
-            iconName: 'sparkles',
+            iconName: 'palette',
             anchor: 'design-servico',
             slug: 'design-servico',
             numLabel: 'SVC · 11',
@@ -1092,6 +1119,24 @@ async function main() {
             isActive: true,
         },
     });
+    // 17b. Home Hero (singleton — valores idênticos ao hardcoded de HeroOrbitSection.tsx)
+    await prisma.homeHero.create({
+        data: {
+            eyebrowTemplate: '{count} capacidades · 1 parceiro',
+            title: 'Tudo que sua operação precisa <em>girando</em> no mesmo eixo.',
+            subtitle: 'Desenvolvimento, cloud, automação e suporte 24/7 sob a mesma governança. Um ponto de contato, um SLA, um time que fala a mesma língua.',
+            ctaPrimaryLabel: 'Começar',
+            ctaPrimaryUrl: '/contato',
+            ctaPrimaryIcon: '↗',
+            ctaSecondaryLabel: 'Explorar capacidades',
+            ctaSecondaryUrl: '/servicos',
+            badge1Text: 'Resposta em até 24h úteis',
+            badge1HasPulse: true,
+            badge2Text: '🔒 LGPD-ready',
+            showFloatingNodes: true,
+            isActive: true,
+        },
+    });
     // 18. Stack items (marquee)
     await prisma.stackItem.createMany({
         data: [
@@ -1322,13 +1367,11 @@ async function main() {
         // Home
         { page: 'home', sectionKey: 'hero-orbit', label: 'Hero + Orbit de Serviços', order: 0 },
         { page: 'home', sectionKey: 'kpis', label: 'KPIs Strip', order: 1 },
-        { page: 'home', sectionKey: 'live-strip', label: 'Live Card + Brand Pill', order: 2 },
-        { page: 'home', sectionKey: 'scroll-hint', label: 'Scroll Hint + Section Star', order: 3 },
-        { page: 'home', sectionKey: 'vitral', label: 'Vitral de Serviços', order: 4 },
-        { page: 'home', sectionKey: 'timeline', label: 'Timeline do Processo', order: 5 },
-        { page: 'home', sectionKey: 'clients', label: 'Clientes (Marquee)', order: 6 },
-        { page: 'home', sectionKey: 'band', label: 'Band (Filosofia + CTA)', order: 7 },
-        { page: 'home', sectionKey: 'stack', label: 'Stack Marquee', order: 8 },
+        { page: 'home', sectionKey: 'stack', label: 'Stack Marquee', order: 2 },
+        { page: 'home', sectionKey: 'vitral', label: 'Vitral de Serviços', order: 3 },
+        { page: 'home', sectionKey: 'timeline', label: 'Timeline do Processo', order: 4 },
+        { page: 'home', sectionKey: 'clients', label: 'Clientes (Marquee)', order: 5 },
+        { page: 'home', sectionKey: 'band', label: 'Band (Filosofia + CTA)', order: 6 },
         // Services
         { page: 'services', sectionKey: 'hero', label: 'Hero', order: 0 },
         { page: 'services', sectionKey: 'grid', label: 'Grid de Serviços', order: 1 },
@@ -1351,12 +1394,13 @@ async function main() {
         // Contact
         { page: 'contact', sectionKey: 'hero', label: 'Hero', order: 0 },
         { page: 'contact', sectionKey: 'wrap', label: 'Canais + Formulário', order: 1 },
+        { page: 'contact', sectionKey: 'map', label: 'Mapa (onde estamos)', order: 2 },
         // AI
         { page: 'ai', sectionKey: 'hero', label: 'Hero', order: 0 },
         { page: 'ai', sectionKey: 'benefits', label: 'Benefícios (strip)', order: 1 },
         { page: 'ai', sectionKey: 'cases', label: 'Cases com IA', order: 2 },
-        { page: 'ai', sectionKey: 'stages', label: 'Etapas / Escopo', order: 3 },
-        { page: 'ai', sectionKey: 'data', label: 'Dados Orbital', order: 4 },
+        { page: 'ai', sectionKey: 'data', label: 'Dados Orbital', order: 3 },
+        { page: 'ai', sectionKey: 'stages', label: 'Etapas / Escopo', order: 4 },
         { page: 'ai', sectionKey: 'cta-band', label: 'CTA Band final', order: 5 },
     ];
     for (const sec of pageSectionsSeed) {
@@ -1372,6 +1416,39 @@ async function main() {
             },
         });
     }
+    // ─────────────────────────────────────────────
+    // 23. Página de Contato — Configuração singleton + tipos de projeto
+    // ─────────────────────────────────────────────
+    await prisma.contactPageConfig.create({
+        data: {
+            pageTitle: 'Vamos conversar sobre seu projeto.',
+            pageSubtitle: 'Conte o desafio em linguagem de humano. Sem tecniquês, sem lengalenga comercial — respondemos em até 24 horas úteis com um próximo passo concreto.',
+            email: 'contato@bsnsolution.com.br',
+            phone: '+55 65 9000-0000',
+            whatsappNumber: '5565900000000',
+            address: 'Cuiabá · MT · Brasil',
+            // Coordenadas aproximadas do centro de Cuiabá (admin pode ajustar pra endereço real)
+            addressLat: -15.601411,
+            addressLng: -56.097892,
+            businessHours: 'Seg–Sex · 09h–18h',
+            responseTimeText: 'Resposta em até 24h úteis',
+            showMap: true,
+            showBriefForm: true,
+            showProjectTypes: true,
+            isActive: true,
+        },
+    });
+    await prisma.contactProjectType.createMany({
+        data: [
+            { label: 'Sob medida', description: 'Sistemas e produtos digitais novos do zero', order: 1 },
+            { label: 'Squad', description: 'Time dedicado integrado ao seu negócio', order: 2 },
+            { label: 'Automação', description: 'Robôs, integrações e fluxos sem intervenção humana', order: 3 },
+            { label: 'IA & Dados', description: 'LLMs, RAG, ML e plataformas de dados', order: 4 },
+            { label: 'Consultoria', description: 'Diagnóstico técnico e roadmap', order: 5 },
+            { label: 'Infra / DevOps', description: 'Cloud, CI/CD e monitoramento 24/7', order: 6 },
+            { label: 'Outro', description: null, order: 7 },
+        ],
+    });
     console.log('✅ Seed concluído com sucesso!');
     console.log('👤 Admin criado:', {
         email: 'admin@bsnsolution.com.br',

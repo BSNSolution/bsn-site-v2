@@ -42,14 +42,15 @@ export default function AdminAboutCardsPage() {
   const [editing, setEditing] = useState<Card | null>(null)
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load({ silent: false }) }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const res = await aboutCardsApi.admin.getCards()
       setItems(res.cards ?? [])
-    } finally { setLoading(false) }
+    } finally { if (!silent) setLoading(false) }
   }
 
   function openCreate() { setEditing(null); setForm(EMPTY_FORM); setShowForm(true) }

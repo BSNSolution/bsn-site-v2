@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useRef, useState, Suspense } from 'react'
 import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import {
@@ -33,6 +33,9 @@ import {
   Shield,
   Layers,
   KeyRound,
+  ChevronRight,
+  Clock,
+  Mail,
 } from 'lucide-react'
 import { authApi } from '@/lib/api'
 
@@ -70,10 +73,12 @@ const SECTIONS: SidebarSection[] = [
   {
     label: 'Página: Home',
     items: [
-      { name: '1. Hero & seções', href: '/admin/home', icon: Home, permission: ['home.read', 'home.write'] },
+      { name: '1. Hero', href: '/admin/home', icon: Home, permission: ['home.read', 'home.write'] },
       { name: '2. KPIs', href: '/admin/kpis', icon: TrendingUp, permission: 'home.kpis.write' },
       { name: '3. Stack (marquee)', href: '/admin/stack', icon: Cpu, permission: 'home.kpis.write' },
-      { name: '7. Banda "Filosofia"', href: '/admin/home-band', icon: MessageSquareQuote, permission: 'home.write' },
+      { name: '4. Mosaico de serviços', href: '/admin/home-mosaic', icon: LayoutGrid, permission: 'services.write' },
+      { name: '5. Timeline (ritmo)', href: '/admin/home-timeline', icon: Clock, permission: 'process-steps.write' },
+      { name: '6. Banda "Filosofia"', href: '/admin/home-band', icon: MessageSquareQuote, permission: 'home.write' },
     ],
   },
   {
@@ -116,6 +121,13 @@ const SECTIONS: SidebarSection[] = [
     ],
   },
   {
+    label: 'Página: Contato',
+    items: [
+      { name: 'Configurações', href: '/admin/contact-config', icon: Mail, permission: ['contact.read', 'contact.write'] },
+      { name: 'Tipos de projeto', href: '/admin/contact-project-types', icon: LayoutGrid, permission: 'contact.write' },
+    ],
+  },
+  {
     label: 'Elementos compartilhados',
     items: [
       { name: 'Depoimentos', href: '/admin/testimonials', icon: Star, permission: 'testimonials.write' },
@@ -140,13 +152,43 @@ const SECTIONS: SidebarSection[] = [
   },
 ]
 
+const COLLAPSED_SECTIONS_KEY = 'bsn-admin-sidebar-collapsed'
+
+function loadCollapsedSections(): Record<string, boolean> {
+  try {
+    const raw = localStorage.getItem(COLLAPSED_SECTIONS_KEY)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw)
+    return typeof parsed === 'object' && parsed !== null ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
 export default function AdminLayout() {
   const [user, setUser] = useState<UserPayload | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [collapsedSections, setCollapsedSections] =
+    useState<Record<string, boolean>>(() => loadCollapsedSections())
   const navigate = useNavigate()
   const location = useLocation()
   const { hasPermission, hasAnyPermission, hasAllPermissions, isAdmin } = useAuth()
+  const contentRef = useRef<HTMLElement>(null)
+
+  // Reset scroll da área de conteúdo APENAS ao trocar o pathname.
+  // Rerenders da mesma página (ex: refetch pós-ação) não disparam aqui.
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0, behavior: 'instant' })
+  }, [location.pathname])
+
+  const toggleSection = (label: string) => {
+    setCollapsedSections((prev) => {
+      const next = { ...prev, [label]: !prev[label] }
+      try { localStorage.setItem(COLLAPSED_SECTIONS_KEY, JSON.stringify(next)) } catch { /* ignore */ }
+      return next
+    })
+  }
 
   // Filtra seções/itens pelas permissões do usuário logado
   const visibleSections: SidebarSection[] = SECTIONS.map((sec) => ({
@@ -232,37 +274,56 @@ export default function AdminLayout() {
           </div>
 
           <nav className="flex-1 overflow-y-auto px-3 pb-3">
-            {visibleSections.map((section) => (
-              <div key={section.label} className="mb-4">
-                <div className="px-3 py-2 text-[10px] font-mono uppercase tracking-wider text-white/40">
-                  {section.label}
+            {visibleSections.map((section) => {
+              // Auto-expande seção que tem item ativo (mesmo se o user tiver colapsado antes)
+              const hasActive = section.items.some((item) =>
+                item.href === '/admin'
+                  ? location.pathname === '/admin'
+                  : location.pathname.startsWith(item.href),
+              )
+              const isCollapsed = !hasActive && !!collapsedSections[section.label]
+              return (
+                <div key={section.label} className="mb-4">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(section.label)}
+                    className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-[10px] font-mono uppercase tracking-wider text-white/40 hover:text-white/70 hover:bg-white/5 transition-colors"
+                    aria-expanded={!isCollapsed}
+                  >
+                    <span className="truncate text-left">{section.label}</span>
+                    <ChevronRight
+                      className={`h-3 w-3 shrink-0 transition-transform ${isCollapsed ? '' : 'rotate-90'}`}
+                    />
+                  </button>
+                  {!isCollapsed && (
+                    <ul className="space-y-0.5 mt-1">
+                      {section.items.map((item) => {
+                        const Icon = item.icon
+                        const isActive =
+                          item.href === '/admin'
+                            ? location.pathname === '/admin'
+                            : location.pathname.startsWith(item.href)
+                        return (
+                          <li key={item.href}>
+                            <button
+                              onClick={() => navigate(item.href)}
+                              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                                isActive
+                                  ? 'bg-white/10 text-white'
+                                  : 'text-white/70 hover:bg-white/5 hover:text-white'
+                              }`}
+                            >
+                              <Icon className="h-4 w-4 shrink-0" />
+                              <span className="truncate">{item.name}</span>
+                            </button>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  )}
                 </div>
-                <ul className="space-y-0.5">
-                  {section.items.map((item) => {
-                    const Icon = item.icon
-                    const isActive =
-                      item.href === '/admin'
-                        ? location.pathname === '/admin'
-                        : location.pathname.startsWith(item.href)
-                    return (
-                      <li key={item.href}>
-                        <button
-                          onClick={() => navigate(item.href)}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                            isActive
-                              ? 'bg-white/10 text-white'
-                              : 'text-white/70 hover:bg-white/5 hover:text-white'
-                          }`}
-                        >
-                          <Icon className="h-4 w-4 shrink-0" />
-                          <span className="truncate">{item.name}</span>
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            ))}
+              )
+            })}
           </nav>
 
           <div className="border-t border-white/10 p-4">
@@ -309,7 +370,7 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        <main className="admin-content">
+        <main ref={contentRef} className="admin-content">
           <Suspense fallback={<AdminContentLoader />}>
             <Outlet />
           </Suspense>
@@ -321,7 +382,7 @@ export default function AdminLayout() {
 
 function AdminContentLoader() {
   return (
-    <div className="flex items-center justify-center w-full" style={{ minHeight: 'calc(100vh - 140px)' }}>
+    <div className="flex items-center justify-center w-full h-full min-h-[300px]">
       <div className="animate-spin rounded-full h-10 w-10 border-2 border-white/20 border-t-white" />
     </div>
   )

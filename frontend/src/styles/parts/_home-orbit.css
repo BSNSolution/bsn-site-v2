@@ -10,6 +10,19 @@
   align-items: center;
   justify-content: center;
   overflow: visible;
+  /* CSS vars atualizadas via JS (useHeroParallax). Range: -1 a 1.
+     Default 0 (cursor no centro / fora) — sem efeito. */
+  --mx: 0;
+  --my: 0;
+  /* Perspective forte + origem central — base do 3D real */
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+/* Cada camada do hero precisa preservar o contexto 3D pro translateZ funcionar */
+.hero-orbit > * {
+  transform-style: preserve-3d;
 }
 
 .orbit-sun {
@@ -22,7 +35,8 @@
   pointer-events: none;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  /* Sun bem ao fundo (camada mais profunda) */
+  transform: translate(-50%, -50%) translateZ(-280px);
   z-index: 0;
 }
 
@@ -34,43 +48,75 @@
   align-items: center;
   justify-content: center;
   z-index: 1;
+  transform-style: preserve-3d;
 }
 .orbit-ring {
   position: absolute;
   border-radius: 50%;
   border: 1px dashed rgba(255, 255, 255, 0.08);
+  transform-origin: center;
+  /* Parallax via 'translate' shorthand (não conflita com 'transform' usado
+     pelo ringRotate). Cada ring tem fatores próprios pra dar profundidade. */
+  transition: translate 0.12s linear;
+  /* Rotação contínua + pulso sequencial (4.5s, atrasos por ring) */
   animation:
     ringRotate 60s linear infinite,
-    ringPulse 4s ease-in-out infinite;
+    ringPulse 4.5s ease-in-out infinite;
+  animation-delay: 0s, 0s;
 }
 .orbit-ring.r1 {
   width: 520px;
   height: 520px;
-  animation-duration: 80s, 4s;
+  animation-duration: 80s, 4.5s;
+  animation-delay: 0s, 0s;
+  translate: calc(var(--mx, 0) * 8px) calc(var(--my, 0) * 8px) -180px;
+  /* Levemente fora de foco — está ao fundo */
+  filter: blur(0.4px);
 }
 .orbit-ring.r2 {
   width: 720px;
   height: 720px;
   border-style: solid;
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
   animation:
     ringRotate 120s linear infinite reverse,
-    ringPulse 5s ease-in-out infinite;
-  animation-delay: 0s, -1.5s;
+    ringPulse 4.5s ease-in-out infinite;
+  animation-delay: 0s, 1.5s;
+  translate: calc(var(--mx, 0) * 14px + 2px) calc(var(--my, 0) * 12px) -240px;
+  filter: blur(0.7px);
 }
 .orbit-ring.r3 {
   width: 920px;
   height: 920px;
-  border-color: rgba(255, 255, 255, 0.05);
-  animation-duration: 160s, 6s;
-  animation-delay: 0s, -3s;
+  border-color: rgba(255, 255, 255, 0.06);
+  animation-duration: 160s, 4.5s;
+  animation-delay: 0s, 3s;
+  translate: calc(var(--mx, 0) * 20px) calc(var(--my, 0) * 18px - 2px) -320px;
+  filter: blur(1.1px);
 }
 @keyframes ringRotate {
   to { transform: rotate(360deg); }
 }
+/* Pulso discreto: a opacity ondula sutilmente e a borda fica um pouquinho
+   mais nítida no pico. Sem glow forte (box-shadow leve só pra um hint).
+   NÃO mexe em transform pra não conflitar com o ringRotate.
+   Cada ring entra com 1.5s de delay → onda do interior pro exterior. */
 @keyframes ringPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.55; }
+  0%, 100% {
+    opacity: 0.45;
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: none;
+  }
+  30% {
+    opacity: 0.95;
+    border-color: rgba(180, 200, 255, 0.22);
+    box-shadow: 0 0 10px rgba(122, 91, 255, 0.06);
+  }
+  60% {
+    opacity: 0.65;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+  }
 }
 
 .orbit-center {
@@ -79,6 +125,10 @@
   z-index: 5;
   max-width: 900px;
   padding: 0 20px;
+  /* Texto/CTA fica ESTÁTICO — não acompanha o mouse.
+     Mantém só um pequeno offset Z fixo pra ficar à frente dos rings. */
+  transform-style: preserve-3d;
+  translate: 0 0 20px;
 }
 .orbit-center .eyebrow {
   justify-content: center;
@@ -124,25 +174,59 @@
   inset: 0;
   pointer-events: none;
   z-index: 3;
+  transform-style: preserve-3d;
+}
+/* Slot é o container que carrega a posição absoluta + parallax 3D.
+   Cada slot tem seus próprios fatores (--px, --py, --pz, --rx, --ry) pra
+   responder ao mouse de forma única → cria dispersão e profundidade.
+   --baseZ define o plano fixo do node (à frente dos rings/centro).
+   O .node interno mantém o seu próprio nodeFloat (transform translateY). */
+.node-slot {
+  position: absolute;
+  pointer-events: auto;
+  transform-style: preserve-3d;
+  /* Defaults — sobrescritos por .node-slot.nN abaixo */
+  --px: 22;   /* fator translate X (px) */
+  --py: 22;   /* fator translate Y (px) */
+  --pz: 0;    /* fator translate Z extra com mouse (px) */
+  --rx: -6;   /* fator rotateX (deg) */
+  --ry: 6;    /* fator rotateY (deg) */
+  --baseZ: 100px; /* profundidade de base — nodes ficam à frente do centro */
+  transform:
+    translate3d(
+      calc(var(--mx, 0) * var(--px) * 1px),
+      calc(var(--my, 0) * var(--py) * 1px),
+      calc(var(--baseZ) + var(--mx, 0) * var(--pz) * 1px)
+    )
+    rotateX(calc(var(--my, 0) * var(--rx) * 1deg))
+    rotateY(calc(var(--mx, 0) * var(--ry) * 1deg));
+  transition: transform 0.12s linear;
+  will-change: transform;
 }
 .node {
-  position: absolute !important;
-  padding: 14px 18px;
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 14px 18px;
   min-width: 200px;
   max-width: 260px;
-  width: auto !important;
   pointer-events: auto;
-  transition: 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
   animation: nodeFloat 6s ease-in-out infinite;
   text-decoration: none;
   color: var(--ink);
+  /* Sombra "no ar" — dá sensação de objeto flutuando à frente */
+  box-shadow:
+    0 18px 40px -18px rgba(0, 0, 0, 0.55),
+    0 6px 16px -8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 .node:hover {
-  transform: translateY(-3px);
   border-color: var(--line-strong);
+  box-shadow:
+    0 26px 60px -18px rgba(0, 0, 0, 0.7),
+    0 10px 24px -8px rgba(122, 91, 255, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 .node .ico {
   width: 34px;
@@ -181,36 +265,66 @@
   color: var(--ink-faint);
   text-transform: uppercase;
 }
-/* posição dos 6 nodes + ícone com gradiente colorido */
+/* posição dos 6 nodes (no slot externo) + ícone com gradiente colorido */
 /* Formato de "banana" leve acompanhando o ring — centros mais pra fora que
    as pontas (topo/base), criando um arco suave em cada lado */
-.node.n1 { top: 14%; left: -5%; animation-delay: 0s; }
-.node.n1 .ico { background: linear-gradient(135deg, var(--violet), #5637d4); }
-.node.n2 { top: 14%; right: -5%; animation-delay: -1s; }
-.node.n2 .ico { background: linear-gradient(135deg, var(--cyan), #0aa6c9); }
-.node.n3 { bottom: 10%; left: -5%; animation-delay: -2s; }
-.node.n3 .ico { background: linear-gradient(135deg, var(--magenta), #c93191); }
-.node.n4 { bottom: 4%; right: -5%; animation-delay: -3s; }
-.node.n4 .ico { background: linear-gradient(135deg, var(--amber), #d98f1f); }
-.node.n5 { top: 48%; left: -11%; animation-delay: -4s; }
-.node.n5 .ico { background: linear-gradient(135deg, var(--emerald), #1fa57a); }
-.node.n6 { top: 48%; right: -11%; animation-delay: -5s; }
-.node.n6 .ico { background: linear-gradient(135deg, var(--violet), var(--magenta)); }
+/* Cada slot tem fatores próprios → dispersão natural sem parecer "engessado".
+   Variáveis: --px/--py (translate X/Y), --pz (depth Z),
+              --rx/--ry (rotateX/Y, sinais ajustados por slot). */
+/* Cada slot tem fatores únicos + base Z própria (varia 80px–140px) →
+   profundidade dispersa entre os 6 cards. Os mais à frente (--baseZ alto)
+   aparecem maiores; os mais ao fundo, menores. */
+.node-slot.n1 {
+  top: 14%; left: -5%;
+  --px: 28; --py: 18; --pz: 14; --rx: -8; --ry: 5;
+  --baseZ: 120px;
+}
+.node-slot.n1 .node { animation-delay: 0s; }
+.node-slot.n1 .node .ico { background: linear-gradient(135deg, var(--violet), #5637d4); }
+
+.node-slot.n2 {
+  top: 14%; right: -5%;
+  --px: 18; --py: 26; --pz: 8; --rx: -5; --ry: 9;
+  --baseZ: 95px;
+}
+.node-slot.n2 .node { animation-delay: -1s; }
+.node-slot.n2 .node .ico { background: linear-gradient(135deg, var(--cyan), #0aa6c9); }
+
+.node-slot.n3 {
+  bottom: 10%; left: -5%;
+  --px: 24; --py: 30; --pz: 18; --rx: -10; --ry: 4;
+  --baseZ: 140px;
+}
+.node-slot.n3 .node { animation-delay: -2s; }
+.node-slot.n3 .node .ico { background: linear-gradient(135deg, var(--magenta), #c93191); }
+
+.node-slot.n4 {
+  bottom: 4%; right: -5%;
+  --px: 32; --py: 16; --pz: 12; --rx: -4; --ry: 8;
+  --baseZ: 110px;
+}
+.node-slot.n4 .node { animation-delay: -3s; }
+.node-slot.n4 .node .ico { background: linear-gradient(135deg, var(--amber), #d98f1f); }
+
+.node-slot.n5 {
+  top: 48%; left: -11%; transform-origin: center;
+  --px: 14; --py: 22; --pz: 22; --rx: -7; --ry: 3;
+  --baseZ: 80px;
+}
+.node-slot.n5 .node { animation-delay: -4s; }
+.node-slot.n5 .node .ico { background: linear-gradient(135deg, var(--emerald), #1fa57a); }
+
+.node-slot.n6 {
+  top: 48%; right: -11%; transform-origin: center;
+  --px: 20; --py: 12; --pz: 6; --rx: -3; --ry: 7;
+  --baseZ: 130px;
+}
+.node-slot.n6 .node { animation-delay: -5s; }
+.node-slot.n6 .node .ico { background: linear-gradient(135deg, var(--violet), var(--magenta)); }
 
 @keyframes nodeFloat {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
-}
-/* nodes que têm translateY(-50%) para centralizar verticalmente mantêm */
-.node.n5 { animation-name: nodeFloat5; }
-.node.n6 { animation-name: nodeFloat6; }
-@keyframes nodeFloat5 {
-  0%, 100% { transform: translateY(-50%); }
-  50% { transform: translateY(calc(-50% - 8px)); }
-}
-@keyframes nodeFloat6 {
-  0%, 100% { transform: translateY(-50%); }
-  50% { transform: translateY(calc(-50% - 8px)); }
 }
 
 /* ============================================================
@@ -244,6 +358,12 @@
     gap: 12px;
     pointer-events: auto;
   }
+  /* Em mobile: desliga parallax 3D e posicionamento absoluto */
+  .node-slot {
+    position: static !important;
+    transform: none !important;
+    inset: auto !important;
+  }
   .node {
     position: static !important;
     min-width: 0;
@@ -253,8 +373,9 @@
     animation: none !important;
     transform: none !important;
   }
-  /* Reset das posições absolute específicas dos 6 nodes */
-  .node.n1, .node.n2, .node.n3, .node.n4, .node.n5, .node.n6 {
+  /* Reset das posições absolute específicas dos 6 slots */
+  .node-slot.n1, .node-slot.n2, .node-slot.n3,
+  .node-slot.n4, .node-slot.n5, .node-slot.n6 {
     top: auto;
     bottom: auto;
     left: auto;

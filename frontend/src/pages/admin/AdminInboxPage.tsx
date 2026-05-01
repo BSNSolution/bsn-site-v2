@@ -32,14 +32,15 @@ export default function AdminInboxPage() {
   const [replyText, setReplyText] = useState('')
   const [sendingReply, setSendingReply] = useState(false)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load({ silent: false }) }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const res = await inboxApi.admin.getMessages({ limit: 100 })
       setItems(Array.isArray(res?.messages) ? res.messages : [])
-    } catch { setItems([]) } finally { setLoading(false) }
+    } catch { setItems([]) } finally { if (!silent) setLoading(false) }
   }
 
   async function openMessage(m: Message) {

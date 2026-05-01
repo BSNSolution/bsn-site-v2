@@ -34,14 +34,15 @@ export default function AdminClientsPage() {
   const [editing, setEditing] = useState<Client | null>(null)
   const [form, setForm] = useState<FormData>(EMPTY)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load({ silent: false }) }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const res = await clientsApi.admin.getClients()
       setItems(Array.isArray(res?.clients) ? res.clients : [])
-    } catch { setItems([]) } finally { setLoading(false) }
+    } catch { setItems([]) } finally { if (!silent) setLoading(false) }
   }
 
   function openCreate() { setEditing(null); setForm(EMPTY); setShowForm(true) }

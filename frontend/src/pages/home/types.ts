@@ -64,6 +64,23 @@ export interface HomeBand {
   mono: string
 }
 
+export interface HomeHero {
+  id: string
+  eyebrowTemplate: string
+  title: string
+  subtitle: string
+  ctaPrimaryLabel: string
+  ctaPrimaryUrl: string
+  ctaPrimaryIcon?: string | null
+  ctaSecondaryLabel?: string | null
+  ctaSecondaryUrl?: string | null
+  badge1Text?: string | null
+  badge1HasPulse: boolean
+  badge2Text?: string | null
+  showFloatingNodes: boolean
+  isActive: boolean
+}
+
 export interface HomeClient {
   id: string
   name: string

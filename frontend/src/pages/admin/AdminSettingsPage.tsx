@@ -115,12 +115,17 @@ export default function AdminSettingsPage() {
             label="Logo"
             value={form.logoUrl}
             onChange={(url) => setField('logoUrl', url ?? '')}
+            enableCrop
+            cropTitle="Editar logo"
           />
           <ImageInput
             label="Favicon"
             value={form.faviconUrl}
             onChange={(url) => setField('faviconUrl', url ?? '')}
             previewHeight={48}
+            enableCrop
+            cropAspect={1}
+            cropTitle="Editar favicon (1:1)"
           />
         </Section>
 

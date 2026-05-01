@@ -22,12 +22,13 @@ export default function AdminApiTokensPage() {
   const [justCreated, setJustCreated] = useState<{ name: string; token: string } | null>(null)
 
   useEffect(() => {
-    load()
+    load({ silent: false })
   }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const [{ tokens }, { scopes }] = await Promise.all([
         apiTokensApi.list(),
         apiTokensApi.scopes(),
@@ -37,7 +38,7 @@ export default function AdminApiTokensPage() {
     } catch {
       toast.error('Erro ao carregar tokens')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 

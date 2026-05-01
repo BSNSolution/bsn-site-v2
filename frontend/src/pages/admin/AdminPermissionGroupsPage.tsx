@@ -35,15 +35,16 @@ export default function AdminPermissionGroupsPage() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<FormData>(EMPTY)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load({ silent: false }) }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const [g, p] = await Promise.all([usersAdminApi.listGroups(), usersAdminApi.listPermissions()])
       setGroups(Array.isArray(g?.groups) ? g.groups : [])
       setPermissions(Array.isArray(p?.permissions) ? p.permissions : [])
-    } finally { setLoading(false) }
+    } finally { if (!silent) setLoading(false) }
   }
 
   function openCreate() {

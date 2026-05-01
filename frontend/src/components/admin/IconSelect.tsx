@@ -46,7 +46,9 @@ export default function IconSelect({
   const options: SelectOption<string>[] = icons.map((i) => ({
     value: i.slug,
     label: i.label ?? i.slug,
-    hint: i.label ? i.slug : undefined,
+    // hint aparece só nas options do dropdown, não no trigger — mantém trigger
+    // visualmente alinhado aos outros selects de texto
+    hint: i.label && i.label !== i.slug ? i.slug : undefined,
     icon: i.render('w-4 h-4'),
   }))
 

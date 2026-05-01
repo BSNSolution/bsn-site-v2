@@ -58,11 +58,12 @@ export default function AdminUsersPage() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<FormData>(EMPTY)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load({ silent: false }) }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const [u, p, g] = await Promise.all([
         usersAdminApi.listUsers(),
         usersAdminApi.listPermissions(),
@@ -73,7 +74,7 @@ export default function AdminUsersPage() {
       setGroups(Array.isArray(g?.groups) ? g.groups : [])
     } catch (err) {
       console.error(err)
-    } finally { setLoading(false) }
+    } finally { if (!silent) setLoading(false) }
   }
 
   function openCreate() {

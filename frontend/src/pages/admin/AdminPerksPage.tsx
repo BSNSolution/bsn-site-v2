@@ -34,16 +34,17 @@ export default function AdminPerksPage() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
 
   useEffect(() => {
-    load()
+    load({ silent: false })
   }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const res = await api.get('/admin/perks')
       setItems(res.data.perks ?? [])
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 

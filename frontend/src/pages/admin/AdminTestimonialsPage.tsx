@@ -47,16 +47,17 @@ export default function AdminTestimonialsPage() {
   const [editing, setEditing] = useState<Testimonial | null>(null)
   const [form, setForm] = useState<FormData>(EMPTY)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load({ silent: false }) }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const res = await testimonialsApi.admin.getTestimonials()
       setItems(Array.isArray(res?.testimonials) ? res.testimonials : [])
     } catch (err) {
       console.error(err); setItems([])
-    } finally { setLoading(false) }
+    } finally { if (!silent) setLoading(false) }
   }
 
   function openCreate() { setEditing(null); setForm(EMPTY); setShowForm(true) }
@@ -198,6 +199,10 @@ export default function AdminTestimonialsPage() {
                 value={form.avatarUrl}
                 onChange={(url) => setForm({ ...form, avatarUrl: url ?? '' })}
                 previewHeight={64}
+                enableCrop
+                cropAspect={1}
+                cropShape="round"
+                cropTitle="Editar avatar"
               />
               <Checkbox label="Ativo" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
               <div className="flex justify-end gap-2 pt-2">

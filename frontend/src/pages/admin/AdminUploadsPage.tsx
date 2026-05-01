@@ -39,11 +39,12 @@ export default function AdminUploadsPage() {
   const [page, setPage] = useState(1)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { load() }, [page])
+  useEffect(() => { load({ silent: false }) }, [page])
 
-  async function load() {
+  // silent=true mantém a grade visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const data = await uploadApi.admin.getUploads({ page, limit: 24 })
       setFiles(Array.isArray(data?.files) ? data.files : [])
       setPagination(data?.pagination ?? null)
@@ -51,7 +52,7 @@ export default function AdminUploadsPage() {
       console.error(err)
       setFiles([])
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 

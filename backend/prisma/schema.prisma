@@ -453,11 +453,66 @@ model AnalyticsEvent {
   event     String
   page      String?
   userAgent String?
-  ip        String?
+  ip        String?  // legacy — manter por backward-compat
+  // Hash SHA256 do IP truncado em 32 chars (LGPD: não armazena IP bruto novo)
+  ipHash    String?
+  // UUID gerado no frontend (localStorage 'bsn-session-id'), usado para
+  // contar visitantes únicos e calcular "online agora" (último evento < 5min)
+  sessionId String?
+  // Referrer (origem do tráfego — Google, LinkedIn, etc.)
+  referrer  String?
   data      Json?
   createdAt DateTime @default(now())
 
+  @@index([createdAt])
+  @@index([event, createdAt])
+  @@index([sessionId])
   @@map("analytics_events")
+}
+
+// Configurações da página de contato (singleton — 1 registro ativo)
+// Editado pelo admin para controlar todo o conteúdo da /contato:
+// títulos, contatos, geolocalização do mapa, atendimento e visibilidade.
+model ContactPageConfig {
+  id                 String   @id @default(uuid())
+  // Cabeçalho
+  pageTitle          String   @default("Vamos conversar sobre seu projeto.")
+  pageSubtitle       String   @default("Conte o desafio em linguagem de humano. Sem tecniquês, sem lengalenga comercial — respondemos em até 24 horas úteis com um próximo passo concreto.")
+  // Contato direto
+  email              String   @default("contato@bsnsolution.com.br")
+  phone              String   @default("+55 11 99000-0000")
+  whatsappNumber     String   @default("5511990000000") // só dígitos para wa.me
+  address            String   @default("Cuiabá · MT · Brasil")
+  // Geolocalização (mapa Leaflet)
+  addressLat         Float?
+  addressLng         Float?
+  // Atendimento
+  businessHours      String   @default("Seg–Sex · 09h–18h")
+  responseTimeText   String   @default("Resposta em até 24h úteis")
+  // Toggles de visibilidade
+  showMap            Boolean  @default(true)
+  showBriefForm      Boolean  @default(true)
+  showProjectTypes   Boolean  @default(true)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("contact_page_configs")
+}
+
+// Tipos de projeto exibidos como "chips" no formulário da /contato.
+// Substitui a derivação automática de Service.subtitle (que gerava lixo
+// porque pegava a primeira palavra: "sob", "&", "de", etc.).
+model ContactProjectType {
+  id          String   @id @default(uuid())
+  label       String   // ex: "Desenvolvimento Web"
+  description String?
+  order       Int
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("contact_project_types")
 }
 
 // Card "ao vivo" exibido no hero direito da home
@@ -486,6 +541,35 @@ model HomeBrandPill {
   updatedAt  DateTime @updatedAt
 
   @@map("home_brand_pills")
+}
+
+// Hero da home pública (singleton — 1 registro ativo, editado pelo admin)
+model HomeHero {
+  id                 String   @id @default(uuid())
+  // Template do eyebrow. {count} é substituído pelo número de services ativos.
+  eyebrowTemplate    String   @default("{count} capacidades · 1 parceiro")
+  // Título (aceita HTML simples — <em> e <br>)
+  title              String   @default("Tudo que sua operação precisa <em>girando</em> no mesmo eixo.")
+  // Subtítulo (lede abaixo do h1)
+  subtitle           String   @default("Desenvolvimento, cloud, automação e suporte 24/7 sob a mesma governança. Um ponto de contato, um SLA, um time que fala a mesma língua.")
+  // CTA primária
+  ctaPrimaryLabel    String   @default("Começar")
+  ctaPrimaryUrl      String   @default("/contato")
+  ctaPrimaryIcon     String?  @default("↗")
+  // CTA secundária (ghost) — opcional
+  ctaSecondaryLabel  String?  @default("Explorar capacidades")
+  ctaSecondaryUrl    String?  @default("/servicos")
+  // Badges flutuantes
+  badge1Text         String?  @default("Resposta em até 24h úteis")
+  badge1HasPulse     Boolean  @default(true)
+  badge2Text         String?  @default("🔒 LGPD-ready")
+  // Cards flutuantes em órbita (orbit-nodes) — dados vêm de Service
+  showFloatingNodes  Boolean  @default(true)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("home_heroes")
 }
 
 // Seção "Filosofia" (band) da home

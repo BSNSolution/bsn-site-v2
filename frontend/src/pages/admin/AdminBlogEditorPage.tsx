@@ -21,6 +21,7 @@ import {
   Loader2,
   Wand2,
   X,
+  ExternalLink,
 } from 'lucide-react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
@@ -319,6 +320,25 @@ export default function AdminBlogEditorPage() {
           </button>
           <button
             type="button"
+            onClick={() => {
+              if (!isEditing || !id || !form.slug) return
+              const url = `/blog/${form.slug}?preview=1&id=${id}`
+              window.open(url, '_blank', 'noopener,noreferrer')
+            }}
+            disabled={!isEditing || !form.slug}
+            title={
+              !isEditing
+                ? 'Salve o rascunho antes de visualizar'
+                : !form.slug
+                ? 'Defina um slug antes de visualizar'
+                : 'Abrir prévia em nova aba'
+            }
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ExternalLink className="h-4 w-4" /> Ver prévia no site
+          </button>
+          <button
+            type="button"
             onClick={(e) => handlePublish(e as any)}
             disabled={saving}
             className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 text-sm"
@@ -463,6 +483,9 @@ export default function AdminBlogEditorPage() {
               value={form.coverImage}
               onChange={(url) => setField('coverImage', url ?? '')}
               previewHeight={180}
+              enableCrop
+              cropAspect={16 / 9}
+              cropTitle="Editar capa do post"
             />
           </div>
 

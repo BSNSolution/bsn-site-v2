@@ -94,4 +94,31 @@ export default async function processStepsRoutes(fastify: FastifyInstance) {
     await invalidateCache(CacheKeys.processSteps);
     return updated;
   });
+
+  // Reorder (drag & drop no admin)
+  fastify.patch("/admin/process-steps/reorder", {
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("process-steps.write")],
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const body = z.object({
+        items: z.array(z.object({ id: z.string(), order: z.number() })),
+      }).parse(request.body);
+
+      await prisma.$transaction(
+        body.items.map((item) =>
+          prisma.processStep.update({
+            where: { id: item.id },
+            data: { order: item.order },
+          })
+        )
+      );
+      await invalidateCache(CacheKeys.processSteps);
+      return { success: true };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return reply.code(400).send({ error: "Dados inválidos", details: error.errors });
+      }
+      return reply.code(500).send({ error: "Erro ao reordenar etapas" });
+    }
+  });
 }

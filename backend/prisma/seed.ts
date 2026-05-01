@@ -4,92 +4,180 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 /**
+ * Lista de permissões do sistema. Mantida como constante top-level
+ * pra ser usada tanto no seed completo quanto no safeSeed (idempotente).
+ * SEMPRE que adicionar uma feature nova com permissão, adicionar aqui.
+ */
+const PERMISSION_DEFS: Array<{ category: string; slug: string; label: string }> = [
+  // Dashboard / sistema
+  { category: 'Sistema', slug: 'dashboard.view', label: 'Ver dashboard' },
+  { category: 'Sistema', slug: 'settings.read', label: 'Ver configurações' },
+  { category: 'Sistema', slug: 'settings.write', label: 'Editar configurações' },
+  { category: 'Sistema', slug: 'uploads.read', label: 'Ver uploads' },
+  { category: 'Sistema', slug: 'uploads.write', label: 'Enviar e remover uploads' },
+  { category: 'Sistema', slug: 'analytics.view', label: 'Ver analytics' },
+  // Usuários & permissões
+  { category: 'Usuários', slug: 'users.read', label: 'Listar usuários' },
+  { category: 'Usuários', slug: 'users.write', label: 'Criar/editar usuários' },
+  { category: 'Usuários', slug: 'users.delete', label: 'Excluir usuários' },
+  { category: 'Usuários', slug: 'groups.read', label: 'Listar grupos de permissões' },
+  { category: 'Usuários', slug: 'groups.write', label: 'Criar/editar grupos' },
+  { category: 'Usuários', slug: 'groups.delete', label: 'Excluir grupos' },
+  // Conteúdo — Home
+  { category: 'Home', slug: 'home.read', label: 'Ver seções da home' },
+  { category: 'Home', slug: 'home.write', label: 'Editar seções da home' },
+  { category: 'Home', slug: 'home.kpis.write', label: 'Editar KPIs, live card, pill, band e stack' },
+  // Conteúdo — Serviços
+  { category: 'Serviços', slug: 'services.read', label: 'Ver serviços' },
+  { category: 'Serviços', slug: 'services.write', label: 'Criar/editar serviços' },
+  // Conteúdo — Soluções
+  { category: 'Soluções', slug: 'solutions.read', label: 'Ver soluções' },
+  { category: 'Soluções', slug: 'solutions.write', label: 'Criar/editar soluções' },
+  // Conteúdo — Sobre
+  { category: 'Sobre', slug: 'about.read', label: 'Ver página Sobre' },
+  { category: 'Sobre', slug: 'about.write', label: 'Editar cards, valores e equipe' },
+  // Blog
+  { category: 'Blog', slug: 'blog.read', label: 'Ver posts' },
+  { category: 'Blog', slug: 'blog.write', label: 'Criar/editar posts' },
+  { category: 'Blog', slug: 'blog.publish', label: 'Publicar / destacar posts' },
+  { category: 'Blog', slug: 'blog.delete', label: 'Excluir posts' },
+  // Carreiras
+  { category: 'Carreiras', slug: 'jobs.read', label: 'Ver vagas' },
+  { category: 'Carreiras', slug: 'jobs.write', label: 'Criar/editar vagas' },
+  { category: 'Carreiras', slug: 'perks.write', label: 'Editar benefícios' },
+  // Testemunhos & clientes
+  { category: 'Social proof', slug: 'testimonials.write', label: 'Editar depoimentos' },
+  { category: 'Social proof', slug: 'clients.write', label: 'Editar clientes' },
+  // Inbox
+  { category: 'Inbox', slug: 'inbox.read', label: 'Ver mensagens de contato' },
+  { category: 'Inbox', slug: 'inbox.reply', label: 'Responder mensagens' },
+  { category: 'Inbox', slug: 'inbox.delete', label: 'Excluir mensagens' },
+  // Equipe (separado de about pra granularidade)
+  { category: 'Sobre', slug: 'team.write', label: 'Editar equipe' },
+  // Página de IA (blocos de conteúdo — benefícios, etapas, destaques)
+  { category: 'Página IA', slug: 'ai-blocks.read', label: 'Ver blocos da página IA' },
+  { category: 'Página IA', slug: 'ai-blocks.write', label: 'Editar blocos da página IA' },
+  // Configurações de IA (OpenAI, Anthropic, Google — usado por gerar/melhorar post)
+  { category: 'IA / LLM', slug: 'ai-configs.read', label: 'Ver configurações de IA' },
+  { category: 'IA / LLM', slug: 'ai-configs.write', label: 'Criar/editar configurações de IA' },
+  { category: 'IA / LLM', slug: 'ai-configs.delete', label: 'Excluir configurações de IA' },
+  { category: 'IA / LLM', slug: 'ai.use', label: 'Usar IA (gerar/melhorar texto, gerar post via URL)' },
+  // Tokens de API (integração externa com /api/v1)
+  { category: 'Sistema', slug: 'api-tokens.read', label: 'Ver tokens de API' },
+  { category: 'Sistema', slug: 'api-tokens.write', label: 'Criar/revogar tokens de API' },
+  // Seções de página (visibilidade/ordem das sections por rota pública)
+  { category: 'Sistema', slug: 'page-sections.write', label: 'Editar visibilidade/ordem de seções das páginas' },
+  // Infra de conteúdo extra
+  { category: 'Serviços', slug: 'process-steps.write', label: 'Editar etapas do processo' },
+  // Página de Contato (CMS)
+  { category: 'Contato', slug: 'contact.read', label: 'Ver configurações de contato' },
+  { category: 'Contato', slug: 'contact.write', label: 'Editar página de contato e tipos de projeto' },
+];
+
+/**
+ * Seed idempotente para banco já populado.
+ * - Faz upsert de todas as permissões (cria as que faltam, atualiza label/category).
+ * - Garante que o grupo "Administrador" existe e tem TODAS as permissões.
+ * - Garante que o usuário admin@bsnsolution.com.br existe e está no grupo Admin.
+ * - NÃO toca em nenhum conteúdo editável (posts, services, solutions, etc.)
+ */
+async function safeSeed() {
+  // 1. Upsert de permissões
+  for (const def of PERMISSION_DEFS) {
+    await prisma.permission.upsert({
+      where: { slug: def.slug },
+      update: { category: def.category, label: def.label },
+      create: { ...def, description: null },
+    });
+  }
+  const allPermissions = await prisma.permission.findMany();
+
+  // 2. Garante grupo Administrador com todas as permissões (connect — não desfaz)
+  const adminGroup = await prisma.permissionGroup.upsert({
+    where: { name: 'Administrador' },
+    update: {
+      permissions: { connect: allPermissions.map((p) => ({ id: p.id })) },
+    },
+    create: {
+      name: 'Administrador',
+      description: 'Acesso total ao painel e todos os recursos.',
+      isSystem: true,
+      permissions: { connect: allPermissions.map((p) => ({ id: p.id })) },
+    },
+  });
+
+  // 3. Garante usuário admin
+  const hashedPassword = await bcrypt.hash('bsn2024@admin', 10);
+  await prisma.user.upsert({
+    where: { email: 'admin@bsnsolution.com.br' },
+    update: {
+      // não sobrescreve a senha se o admin já existe (preserva alterações)
+      groups: { connect: { id: adminGroup.id } },
+    },
+    create: {
+      email: 'admin@bsnsolution.com.br',
+      password: hashedPassword,
+      name: 'Administrador BSN',
+      role: 'ADMIN',
+      groups: { connect: { id: adminGroup.id } },
+    },
+  });
+}
+
+/**
  * Seed 100% alinhada ao layout oficial do site (new-layout/).
  * Todo texto, número, tag, lista etc. vem do HTML do design.
+ *
+ * COMPORTAMENTO POR PADRÃO (safe):
+ *  - Se já existem dados (qualquer User no banco), NÃO apaga nada e NÃO repopula
+ *    o conteúdo de exemplo (posts, services, etc) — só garante que as
+ *    estruturas críticas do sistema (permissões + admin user) existam via
+ *    `upsert` para suportar novos features adicionados ao schema.
+ *  - Se o banco está vazio (primeira execução / dev novo), faz seed COMPLETO
+ *    populando todas as tabelas com o conteúdo de exemplo.
+ *
+ * RESET DESTRUTIVO (apaga e recria tudo):
+ *  - Setar env var SEED_RESET=true antes de rodar.
+ *    ex: `SEED_RESET=true npm run prisma:seed`
+ *  - USE COM CUIDADO: TRUNCATE em todas as tabelas, perde tudo que foi editado
+ *    via admin. Só use em dev novo / banco descartável.
  */
 async function main() {
-  console.log('🌱 Iniciando seed do banco de dados (conteúdo do new-layout)...');
+  const wantsReset = process.env.SEED_RESET === 'true';
+  const userCount = await prisma.user.count().catch(() => 0);
+  const isFreshDb = userCount === 0;
 
-  // Limpeza completa
-  const tablenames = await prisma.$queryRaw<Array<{ tablename: string }>>`
-    SELECT tablename FROM pg_tables WHERE schemaname='public'
-  `;
-  for (const { tablename } of tablenames) {
-    if (tablename !== '_prisma_migrations') {
-      try {
-        await prisma.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" CASCADE;`);
-      } catch (error) {
-        console.log(`Error truncating ${tablename}:`, error);
+  console.log('🌱 Iniciando seed do banco de dados...');
+
+  if (wantsReset && !isFreshDb) {
+    console.log('⚠️  SEED_RESET=true — TRUNCATE em todas as tabelas (modo destrutivo)');
+    const tablenames = await prisma.$queryRaw<Array<{ tablename: string }>>`
+      SELECT tablename FROM pg_tables WHERE schemaname='public'
+    `;
+    for (const { tablename } of tablenames) {
+      if (tablename !== '_prisma_migrations') {
+        try {
+          await prisma.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" CASCADE;`);
+        } catch (error) {
+          console.log(`Error truncating ${tablename}:`, error);
+        }
       }
     }
+  } else if (isFreshDb) {
+    console.log('📦 Banco vazio detectado — seed completo (primeira vez)');
+  } else {
+    console.log(
+      `🛡️  Banco com ${userCount} usuário(s) — modo SAFE: garantindo apenas permissões + admin user via upsert.`
+    );
+    console.log('   Conteúdo (posts, services, etc.) NÃO será re-populado. Use SEED_RESET=true para forçar reset.');
+    await safeSeed();
+    console.log('✅ Safe seed concluída.');
+    return;
   }
 
-  // 0. Permissões do sistema
-  const permissionDefs = [
-    // Dashboard / sistema
-    { category: 'Sistema', slug: 'dashboard.view', label: 'Ver dashboard' },
-    { category: 'Sistema', slug: 'settings.read', label: 'Ver configurações' },
-    { category: 'Sistema', slug: 'settings.write', label: 'Editar configurações' },
-    { category: 'Sistema', slug: 'uploads.read', label: 'Ver uploads' },
-    { category: 'Sistema', slug: 'uploads.write', label: 'Enviar e remover uploads' },
-    { category: 'Sistema', slug: 'analytics.view', label: 'Ver analytics' },
-    // Usuários & permissões
-    { category: 'Usuários', slug: 'users.read', label: 'Listar usuários' },
-    { category: 'Usuários', slug: 'users.write', label: 'Criar/editar usuários' },
-    { category: 'Usuários', slug: 'users.delete', label: 'Excluir usuários' },
-    { category: 'Usuários', slug: 'groups.read', label: 'Listar grupos de permissões' },
-    { category: 'Usuários', slug: 'groups.write', label: 'Criar/editar grupos' },
-    { category: 'Usuários', slug: 'groups.delete', label: 'Excluir grupos' },
-    // Conteúdo — Home
-    { category: 'Home', slug: 'home.read', label: 'Ver seções da home' },
-    { category: 'Home', slug: 'home.write', label: 'Editar seções da home' },
-    { category: 'Home', slug: 'home.kpis.write', label: 'Editar KPIs, live card, pill, band e stack' },
-    // Conteúdo — Serviços
-    { category: 'Serviços', slug: 'services.read', label: 'Ver serviços' },
-    { category: 'Serviços', slug: 'services.write', label: 'Criar/editar serviços' },
-    // Conteúdo — Soluções
-    { category: 'Soluções', slug: 'solutions.read', label: 'Ver soluções' },
-    { category: 'Soluções', slug: 'solutions.write', label: 'Criar/editar soluções' },
-    // Conteúdo — Sobre
-    { category: 'Sobre', slug: 'about.read', label: 'Ver página Sobre' },
-    { category: 'Sobre', slug: 'about.write', label: 'Editar cards, valores e equipe' },
-    // Blog
-    { category: 'Blog', slug: 'blog.read', label: 'Ver posts' },
-    { category: 'Blog', slug: 'blog.write', label: 'Criar/editar posts' },
-    { category: 'Blog', slug: 'blog.publish', label: 'Publicar / destacar posts' },
-    { category: 'Blog', slug: 'blog.delete', label: 'Excluir posts' },
-    // Carreiras
-    { category: 'Carreiras', slug: 'jobs.read', label: 'Ver vagas' },
-    { category: 'Carreiras', slug: 'jobs.write', label: 'Criar/editar vagas' },
-    { category: 'Carreiras', slug: 'perks.write', label: 'Editar benefícios' },
-    // Testemunhos & clientes
-    { category: 'Social proof', slug: 'testimonials.write', label: 'Editar depoimentos' },
-    { category: 'Social proof', slug: 'clients.write', label: 'Editar clientes' },
-    // Inbox
-    { category: 'Inbox', slug: 'inbox.read', label: 'Ver mensagens de contato' },
-    { category: 'Inbox', slug: 'inbox.reply', label: 'Responder mensagens' },
-    { category: 'Inbox', slug: 'inbox.delete', label: 'Excluir mensagens' },
-    // Equipe (separado de about pra granularidade)
-    { category: 'Sobre', slug: 'team.write', label: 'Editar equipe' },
-    // Página de IA (blocos de conteúdo — benefícios, etapas, destaques)
-    { category: 'Página IA', slug: 'ai-blocks.read', label: 'Ver blocos da página IA' },
-    { category: 'Página IA', slug: 'ai-blocks.write', label: 'Editar blocos da página IA' },
-    // Configurações de IA (OpenAI, Anthropic, Google — usado por gerar/melhorar post)
-    { category: 'IA / LLM', slug: 'ai-configs.read', label: 'Ver configurações de IA' },
-    { category: 'IA / LLM', slug: 'ai-configs.write', label: 'Criar/editar configurações de IA' },
-    { category: 'IA / LLM', slug: 'ai-configs.delete', label: 'Excluir configurações de IA' },
-    { category: 'IA / LLM', slug: 'ai.use', label: 'Usar IA (gerar/melhorar texto, gerar post via URL)' },
-    // Tokens de API (integração externa com /api/v1)
-    { category: 'Sistema', slug: 'api-tokens.read', label: 'Ver tokens de API' },
-    { category: 'Sistema', slug: 'api-tokens.write', label: 'Criar/revogar tokens de API' },
-    // Seções de página (visibilidade/ordem das sections por rota pública)
-    { category: 'Sistema', slug: 'page-sections.write', label: 'Editar visibilidade/ordem de seções das páginas' },
-    // Infra de conteúdo extra
-    { category: 'Serviços', slug: 'process-steps.write', label: 'Editar etapas do processo' },
-  ];
-
+  // 0. Permissões do sistema (definidas em PERMISSION_DEFS no topo do arquivo)
   await prisma.permission.createMany({
-    data: permissionDefs.map((p) => ({ ...p, description: null })),
+    data: PERMISSION_DEFS.map((p) => ({ ...p, description: null })),
   });
 
   const allPermissions = await prisma.permission.findMany();
@@ -138,6 +226,7 @@ async function main() {
           'uploads.read', 'uploads.write',
           'ai-blocks.read', 'ai-blocks.write',
           'ai.use',
+          'contact.read', 'contact.write',
         ]),
       },
     },
@@ -158,6 +247,7 @@ async function main() {
           'inbox.read',
           'ai-blocks.read', 'ai-configs.read',
           'groups.read', 'users.read',
+          'contact.read',
         ]),
       },
     },
@@ -1231,6 +1321,26 @@ async function main() {
     },
   });
 
+  // 17b. Home Hero (singleton — valores idênticos ao hardcoded de HeroOrbitSection.tsx)
+  await prisma.homeHero.create({
+    data: {
+      eyebrowTemplate: '{count} capacidades · 1 parceiro',
+      title: 'Tudo que sua operação precisa <em>girando</em> no mesmo eixo.',
+      subtitle:
+        'Desenvolvimento, cloud, automação e suporte 24/7 sob a mesma governança. Um ponto de contato, um SLA, um time que fala a mesma língua.',
+      ctaPrimaryLabel: 'Começar',
+      ctaPrimaryUrl: '/contato',
+      ctaPrimaryIcon: '↗',
+      ctaSecondaryLabel: 'Explorar capacidades',
+      ctaSecondaryUrl: '/servicos',
+      badge1Text: 'Resposta em até 24h úteis',
+      badge1HasPulse: true,
+      badge2Text: '🔒 LGPD-ready',
+      showFloatingNodes: true,
+      isActive: true,
+    },
+  });
+
   // 18. Stack items (marquee)
   await prisma.stackItem.createMany({
     data: [
@@ -1515,6 +1625,7 @@ async function main() {
     // Contact
     { page: 'contact', sectionKey: 'hero', label: 'Hero', order: 0 },
     { page: 'contact', sectionKey: 'wrap', label: 'Canais + Formulário', order: 1 },
+    { page: 'contact', sectionKey: 'map', label: 'Mapa (onde estamos)', order: 2 },
     // AI
     { page: 'ai', sectionKey: 'hero', label: 'Hero', order: 0 },
     { page: 'ai', sectionKey: 'benefits', label: 'Benefícios (strip)', order: 1 },
@@ -1537,6 +1648,42 @@ async function main() {
       },
     })
   }
+
+  // ─────────────────────────────────────────────
+  // 23. Página de Contato — Configuração singleton + tipos de projeto
+  // ─────────────────────────────────────────────
+  await prisma.contactPageConfig.create({
+    data: {
+      pageTitle: 'Vamos conversar sobre seu projeto.',
+      pageSubtitle:
+        'Conte o desafio em linguagem de humano. Sem tecniquês, sem lengalenga comercial — respondemos em até 24 horas úteis com um próximo passo concreto.',
+      email: 'contato@bsnsolution.com.br',
+      phone: '+55 65 9000-0000',
+      whatsappNumber: '5565900000000',
+      address: 'Cuiabá · MT · Brasil',
+      // Coordenadas aproximadas do centro de Cuiabá (admin pode ajustar pra endereço real)
+      addressLat: -15.601411,
+      addressLng: -56.097892,
+      businessHours: 'Seg–Sex · 09h–18h',
+      responseTimeText: 'Resposta em até 24h úteis',
+      showMap: true,
+      showBriefForm: true,
+      showProjectTypes: true,
+      isActive: true,
+    },
+  });
+
+  await prisma.contactProjectType.createMany({
+    data: [
+      { label: 'Sob medida', description: 'Sistemas e produtos digitais novos do zero', order: 1 },
+      { label: 'Squad', description: 'Time dedicado integrado ao seu negócio', order: 2 },
+      { label: 'Automação', description: 'Robôs, integrações e fluxos sem intervenção humana', order: 3 },
+      { label: 'IA & Dados', description: 'LLMs, RAG, ML e plataformas de dados', order: 4 },
+      { label: 'Consultoria', description: 'Diagnóstico técnico e roadmap', order: 5 },
+      { label: 'Infra / DevOps', description: 'Cloud, CI/CD e monitoramento 24/7', order: 6 },
+      { label: 'Outro', description: null, order: 7 },
+    ],
+  });
 
   console.log('✅ Seed concluído com sucesso!');
   console.log('👤 Admin criado:', {

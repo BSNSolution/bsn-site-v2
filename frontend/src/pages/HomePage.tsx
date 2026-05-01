@@ -20,6 +20,7 @@ import type {
   Service,
   KPI,
   HomeBand,
+  HomeHero,
   HomeClient,
   StackItem,
   ProcessStep,
@@ -56,15 +57,22 @@ export default function HomePage() {
     queryFn: homeExtrasApi.getBand,
     staleTime: 5 * 60 * 1000,
   })
+  const heroQuery = useQuery<{ hero: HomeHero | null }>({
+    queryKey: ['home-hero'],
+    queryFn: homeExtrasApi.getHero,
+    staleTime: 5 * 60 * 1000,
+  })
   const stackQuery = useQuery<{ items: StackItem[] }>({
     queryKey: ['stack-items'],
     queryFn: stackApi.getItems,
     staleTime: 5 * 60 * 1000,
   })
 
-  const services = (servicesQuery.data?.services ?? []).slice(0, 7)
+  const allServices = servicesQuery.data?.services ?? []
+  const services = allServices.slice(0, 7)
   const kpis = kpiQuery.data?.kpis ?? []
   const band = bandQuery.data?.band
+  const hero = heroQuery.data?.hero ?? null
   const stack = stackQuery.data?.items ?? []
   const steps = stepsQuery.data?.steps ?? []
   const clients = clientsQuery.data?.clients ?? []
@@ -74,7 +82,13 @@ export default function HomePage() {
   // Mapeia cada key de section do admin para o componente responsável
   // por renderizar o bloco correspondente.
   const sectionRenderers: Record<string, () => JSX.Element | null> = {
-    'hero-orbit': () => <HeroOrbitSection services={services} />,
+    'hero-orbit': () => (
+      <HeroOrbitSection
+        services={services}
+        servicesCount={allServices.length}
+        hero={hero}
+      />
+    ),
     kpis: () => <KpisSection kpis={kpis} />,
     vitral: () => <VitralSection services={services} />,
     timeline: () => <TimelineSection steps={steps} />,

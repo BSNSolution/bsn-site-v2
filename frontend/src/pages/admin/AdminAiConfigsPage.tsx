@@ -58,11 +58,12 @@ export default function AdminAiConfigsPage() {
   const [form, setForm] = useState<FormState>(EMPTY)
 
   useEffect(() => {
-    load()
+    load({ silent: false })
   }, [])
 
-  async function load() {
-    setLoading(true)
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
+    if (!silent) setLoading(true)
     try {
       const res = await aiConfigsApi.list()
       setItems(res.configs ?? [])
@@ -70,7 +71,7 @@ export default function AdminAiConfigsPage() {
       console.error(err)
       toast.error('Falha ao carregar configurações')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 

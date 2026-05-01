@@ -21,7 +21,9 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout'))
 const AdminLogin = lazy(() => import('@/pages/admin/LoginPage'))
 const AdminDashboard = lazy(() => import('@/pages/admin/DashboardPage'))
-const HomeSectionsPage = lazy(() => import('@/pages/admin/HomeSectionsPage'))
+const AdminHomeHeroPage = lazy(() => import('@/pages/admin/AdminHomeHeroPage'))
+const AdminHomeServicesMosaicPage = lazy(() => import('@/pages/admin/AdminHomeServicesMosaicPage'))
+const AdminHomeTimelinePage = lazy(() => import('@/pages/admin/AdminHomeTimelinePage'))
 const AdminServicesPage = lazy(() => import('@/pages/admin/AdminServicesPage'))
 const AdminSolutionsPage = lazy(() => import('@/pages/admin/AdminSolutionsPage'))
 const AdminTestimonialsPage = lazy(() => import('@/pages/admin/AdminTestimonialsPage'))
@@ -48,6 +50,8 @@ const AdminAiConfigsPage = lazy(() => import('@/pages/admin/AdminAiConfigsPage')
 const AdminAIPage = lazy(() => import('@/pages/admin/AdminAIPage'))
 const AdminPagesPage = lazy(() => import('@/pages/admin/AdminPagesPage'))
 const AdminPageSectionsPage = lazy(() => import('@/pages/admin/AdminPageSectionsPage'))
+const AdminContactConfigPage = lazy(() => import('@/pages/admin/AdminContactConfigPage'))
+const AdminContactProjectTypesPage = lazy(() => import('@/pages/admin/AdminContactProjectTypesPage'))
 
 // Components
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -141,8 +145,11 @@ function App() {
     document.title = getPageTitle(location.pathname)
   }, [location])
 
-  // Scroll to top on route change
+  // Scroll to top on route change — apenas no site público.
+  // No admin, o scroll é do .admin-content (tratado no AdminLayout via
+  // admin-scroll-manager); mexer no window aqui reseta scroll indevido.
   useEffect(() => {
+    if (location.pathname.startsWith('/admin')) return
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [location.pathname])
 
@@ -316,7 +323,9 @@ function App() {
             }
           >
             <Route index element={<AdminDashboard />} />
-            <Route path="home" element={<HomeSectionsPage />} />
+            <Route path="home" element={<AdminHomeHeroPage />} />
+            <Route path="home-mosaic" element={<AdminHomeServicesMosaicPage />} />
+            <Route path="home-timeline" element={<AdminHomeTimelinePage />} />
             <Route path="services" element={<AdminServicesPage />} />
             <Route path="solutions" element={<AdminSolutionsPage />} />
             <Route path="ai" element={<AdminAIPage />} />
@@ -344,6 +353,8 @@ function App() {
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="pages" element={<AdminPagesPage />} />
             <Route path="pages/:page" element={<AdminPageSectionsPage />} />
+            <Route path="contact-config" element={<AdminContactConfigPage />} />
+            <Route path="contact-project-types" element={<AdminContactProjectTypesPage />} />
           </Route>
 
           {/* 404 page */}

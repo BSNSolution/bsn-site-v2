@@ -33,6 +33,22 @@ const homeBandSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
+const homeHeroSchema = z.object({
+  eyebrowTemplate: z.string().min(1),
+  title: z.string().min(1),
+  subtitle: z.string().min(1),
+  ctaPrimaryLabel: z.string().min(1),
+  ctaPrimaryUrl: z.string().min(1),
+  ctaPrimaryIcon: z.string().nullable().optional(),
+  ctaSecondaryLabel: z.string().nullable().optional(),
+  ctaSecondaryUrl: z.string().nullable().optional(),
+  badge1Text: z.string().nullable().optional(),
+  badge1HasPulse: z.boolean().optional(),
+  badge2Text: z.string().nullable().optional(),
+  showFloatingNodes: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+});
+
 export default async function homeExtrasRoutes(fastify: FastifyInstance) {
   // ===== LIVE CARD =====
   fastify.get("/home/live-card", async () => {
@@ -154,6 +170,54 @@ export default async function homeExtrasRoutes(fastify: FastifyInstance) {
         return reply.code(400).send({ error: "Dados inválidos", details: error.errors });
       }
       return reply.code(500).send({ error: "Erro ao salvar band" });
+    }
+  });
+
+  // ===== HERO (home pública) =====
+  // Singleton: sempre retorna o registro mais recente (sem filtro isActive —
+  // o hero é parte obrigatória da home, não tem opção de "esconder").
+  fastify.get("/home/hero", async () => {
+    return withCache(
+      CacheKeys.homeHero,
+      async () => {
+        const hero = await prisma.homeHero.findFirst({
+          orderBy: { updatedAt: "desc" },
+        });
+        return { hero };
+      },
+      3600
+    );
+  });
+
+  fastify.get("/admin/home/hero", {
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.read")],
+  }, async () => {
+    const hero = await prisma.homeHero.findFirst({ orderBy: { updatedAt: "desc" } });
+    return { hero };
+  });
+
+  fastify.put("/admin/home/hero", {
+    preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("home.write")],
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const parsed = homeHeroSchema.parse(request.body);
+      // Hero é singleton obrigatório — força isActive=true independente do payload
+      const data = { ...parsed, isActive: true };
+      const existing = await prisma.homeHero.findFirst({ orderBy: { updatedAt: "desc" } });
+      const saved = existing
+        ? await prisma.homeHero.update({ where: { id: existing.id }, data: data as any })
+        : await prisma.homeHero.create({ data: data as any });
+      await invalidateCache(CacheKeys.homeHero);
+      return saved;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return reply.code(400).send({ error: "Dados inválidos", details: error.errors });
+      }
+      fastify.log.error({ err: error, body: request.body }, "Erro ao salvar hero");
+      return reply.code(500).send({
+        error: "Erro ao salvar hero",
+        message: error instanceof Error ? error.message : String(error),
+      });
     }
   });
 }

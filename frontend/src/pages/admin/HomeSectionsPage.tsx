@@ -52,14 +52,15 @@ export default function HomeSectionsPage() {
   const [editing, setEditing] = useState<Section | null>(null)
   const [form, setForm] = useState<FormData>(EMPTY)
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load({ silent: false }) }, [])
 
-  async function load() {
+  // silent=true mantém a lista visível durante refetch pós-ação (preserva scroll)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const res = await homeApi.admin.getSections()
       setItems(Array.isArray(res?.sections) ? res.sections : [])
-    } catch { setItems([]) } finally { setLoading(false) }
+    } catch { setItems([]) } finally { if (!silent) setLoading(false) }
   }
 
   function openCreate() { setEditing(null); setForm(EMPTY); setShowForm(true) }

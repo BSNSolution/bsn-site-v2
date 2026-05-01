@@ -248,6 +248,41 @@ export default async function blogRoutes(fastify: FastifyInstance) {
     return post;
   });
 
+  // ────────────────────────────────────────────────────────────
+  // Preview admin: retorna o post completo IGNORANDO isPublished.
+  // Usado pelo botão "Ver prévia no site" do AdminBlogEditorPage,
+  // que abre /blog/<slug>?preview=1&id=<uuid> em nova aba.
+  // Sem cache (preview deve sempre refletir o DB atual).
+  // ────────────────────────────────────────────────────────────
+  fastify.get(
+    "/admin/blog/:id/preview",
+    {
+      preHandler: [
+        fastify.authenticate,
+        fastify.requireAdmin,
+        fastify.requirePermission("blog.read"),
+      ],
+    },
+    async (
+      request: FastifyRequest<{ Params: { id: string } }>,
+      reply: FastifyReply
+    ) => {
+      const post = await prisma.blogPost.findUnique({
+        where: { id: request.params.id },
+        include: {
+          author: { select: { id: true, name: true } },
+        },
+      });
+
+      if (!post) {
+        reply.code(404).send({ error: "Post não encontrado" });
+        return;
+      }
+
+      return post;
+    }
+  );
+
   fastify.post("/admin/blog", {
     preHandler: [fastify.authenticate, fastify.requireAdmin, fastify.requirePermission("blog.write")],
   }, async (request: FastifyRequest, reply: FastifyReply) => {

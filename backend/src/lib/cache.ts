@@ -197,10 +197,11 @@ export const CacheKeys = {
   // Perks (benefícios carreira)
   perks: "perks",
 
-  // Home Live Card / Brand Pill / Band / Stack items
+  // Home Live Card / Brand Pill / Band / Hero / Stack items
   homeLive: "home-live",
   homePill: "home-pill",
   homeBand: "home-band",
+  homeHero: "home-hero",
   stack: "stack",
 
   // About cards
@@ -217,4 +218,8 @@ export const CacheKeys = {
 
   // Page sections (home, services, solutions, about, blog, careers, contact, ai)
   pageSections: (page: string) => `page-sections:${page}`,
+
+  // Contact page CMS (singleton config + tipos de projeto)
+  contactConfig: "contact-config",
+  contactProjectTypes: "contact-project-types",
 };

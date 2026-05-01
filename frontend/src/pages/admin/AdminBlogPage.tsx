@@ -44,18 +44,19 @@ export default function AdminBlogPage() {
   const canDelete = hasPermission('blog.delete')
   const canUseAi = hasPermission('ai.use')
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load({ silent: false }) }, [])
   useEffect(() => { setPage(1) }, [search, statusFilter, datePreset, dateFrom, dateTo])
 
-  async function load() {
+  // silent=true faz refresh sem trocar pra tela de loading (preserva scroll/UI)
+  async function load({ silent = true }: { silent?: boolean } = {}) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const res = await blogApi.admin.getPosts({ limit: 500 })
       setItems(Array.isArray(res?.posts) ? res.posts : [])
     } catch (err) {
       console.error(err)
       setItems([])
-    } finally { setLoading(false) }
+    } finally { if (!silent) setLoading(false) }
   }
 
   const filtered = useMemo(() => {

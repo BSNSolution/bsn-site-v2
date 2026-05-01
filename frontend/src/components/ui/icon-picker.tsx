@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { ChevronDown, Search } from 'lucide-react'
+import { createPortal } from 'react-dom'
+import { ChevronDown, Search, Check } from 'lucide-react'
 import { SERVICE_ICONS } from './service-icons'
 
 export interface IconPickerProps {
@@ -13,11 +14,10 @@ export interface IconPickerProps {
 }
 
 /**
- * Seletor visual de ícone. Mostra o ícone atual num trigger estilo input e
- * abre um dropdown com grid de ícones + busca.
- *
- * Usage:
- *   <IconPicker value={form.iconName} onChange={(name) => setForm({ ...form, iconName: name })} />
+ * Seletor visual de ícone com layout idêntico ao Select base (h-10, trigger
+ * simples com swatch à esquerda). Dropdown abre via portal com grid 4-col
+ * e busca — preserva a UX rica do picker mas em tamanho alinhado aos outros
+ * selects do admin.
  */
 export function IconPicker({
   value,
@@ -29,15 +29,10 @@ export function IconPicker({
 }: IconPickerProps) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function onClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    if (open) document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
-  }, [open])
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({})
+  const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const entries = Object.entries(icons)
   const filtered = query
@@ -50,39 +45,83 @@ export function IconPicker({
 
   const currentIcon = value && icons[value] ? icons[value] : null
 
+  const updateMenuPosition = () => {
+    const trigger = triggerRef.current
+    if (!trigger) return
+    const rect = trigger.getBoundingClientRect()
+    const menuHeight = menuRef.current?.offsetHeight ?? 340
+    const spaceBelow = window.innerHeight - rect.bottom
+    const openUpward = spaceBelow < Math.min(menuHeight + 16, 340) && rect.top > menuHeight + 16
+    setMenuStyle({
+      position: 'fixed',
+      left: rect.left,
+      width: rect.width,
+      ...(openUpward
+        ? { bottom: window.innerHeight - rect.top + 4 }
+        : { top: rect.bottom + 4 }),
+      zIndex: 9999,
+    })
+  }
+
+  useEffect(() => {
+    if (!open) return
+    updateMenuPosition()
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (rootRef.current?.contains(target)) return
+      if (menuRef.current?.contains(target)) return
+      setOpen(false)
+    }
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    const onReflow = () => updateMenuPosition()
+    window.addEventListener('mousedown', onClick)
+    window.addEventListener('keydown', onEsc)
+    window.addEventListener('scroll', onReflow, true)
+    window.addEventListener('resize', onReflow)
+    return () => {
+      window.removeEventListener('mousedown', onClick)
+      window.removeEventListener('keydown', onEsc)
+      window.removeEventListener('scroll', onReflow, true)
+      window.removeEventListener('resize', onReflow)
+    }
+  }, [open])
+
   return (
-    <div ref={ref} className={`relative ${className}`}>
+    <div ref={rootRef} className={`relative ${className}`}>
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-3 px-3 py-2 bg-black/40 border border-white/10 rounded hover:border-white/20 transition disabled:opacity-50"
+        onClick={() => !disabled && setOpen((o) => !o)}
+        className={`w-full h-10 text-sm px-3 pr-9 rounded-lg border transition-colors text-left inline-flex items-center gap-2 border-white/10 ${
+          disabled
+            ? 'bg-black/20 text-white/40 cursor-not-allowed'
+            : 'bg-black/30 hover:bg-black/40 focus:border-white/25 outline-none'
+        }`}
       >
-        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 border border-white/10 shrink-0">
-          {currentIcon ? (
-            <span style={{ width: 18, height: 18, display: 'block', color: 'var(--ink)' }}>
-              {currentIcon.svg}
-            </span>
-          ) : (
-            <span className="text-white/30 text-xs">?</span>
-          )}
+        {currentIcon ? (
+          <span className="w-5 h-5 inline-flex items-center justify-center text-white/90 shrink-0">
+            {currentIcon.svg}
+          </span>
+        ) : null}
+        <span className={`flex-1 truncate ${currentIcon ? '' : 'text-white/40'}`}>
+          {currentIcon ? currentIcon.label : placeholder}
         </span>
-        <span className="flex-1 text-left text-sm">
-          {currentIcon ? (
-            <>
-              <span className="block">{currentIcon.label}</span>
-              <span className="block text-[10px] text-muted-foreground font-mono">{value}</span>
-            </>
-          ) : (
-            <span className="text-muted-foreground">{placeholder}</span>
-          )}
-        </span>
-        <ChevronDown className={`h-4 w-4 text-muted-foreground transition ${open ? 'rotate-180' : ''}`} />
+        {currentIcon && value && (
+          <span className="text-[11px] font-mono text-white/40">{value}</span>
+        )}
+        <ChevronDown
+          className={`w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform ${open ? 'rotate-180' : ''}`}
+        />
       </button>
 
-      {open && (
-        <div className="absolute top-full left-0 right-0 mt-1 z-50 rounded-lg border border-white/15 shadow-xl overflow-hidden"
-          style={{ background: 'rgba(10,10,16,0.98)', backdropFilter: 'blur(20px)' }}
+      {open && !disabled && createPortal(
+        <div
+          ref={menuRef}
+          style={menuStyle}
+          className="min-w-[280px] rounded-lg border border-white/15 bg-[#0c0c10] shadow-2xl backdrop-blur overflow-hidden"
         >
           <div className="p-2 border-b border-white/10">
             <div className="relative">
@@ -93,7 +132,7 @@ export function IconPicker({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Buscar ícone..."
                 autoFocus
-                className="w-full pl-7 pr-2 py-1.5 bg-black/40 border border-white/10 rounded text-xs"
+                className="w-full pl-7 pr-2 py-1.5 bg-black/40 border border-white/10 rounded text-xs outline-none focus:border-white/25"
               />
             </div>
           </div>
@@ -110,12 +149,15 @@ export function IconPicker({
                     setQuery('')
                   }}
                   title={data.label}
-                  className={`flex flex-col items-center gap-1 p-2 rounded-lg transition ${
+                  className={`relative flex flex-col items-center gap-1 p-2 rounded-lg transition ${
                     active
                       ? 'bg-primary/20 border border-primary/40 text-white'
                       : 'border border-transparent hover:bg-white/5 hover:border-white/10 text-white/80'
                   }`}
                 >
+                  {active && (
+                    <Check className="absolute top-1 right-1 w-3 h-3 text-violet-300" />
+                  )}
                   <span style={{ width: 22, height: 22, display: 'block' }}>{data.svg}</span>
                   <span className="text-[10px] truncate w-full text-center">{data.label}</span>
                 </button>
@@ -127,7 +169,8 @@ export function IconPicker({
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

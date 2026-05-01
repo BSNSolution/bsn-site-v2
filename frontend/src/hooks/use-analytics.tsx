@@ -2,6 +2,30 @@ import { useEffect, useCallback } from 'react'
 import { analyticsApi } from '@/lib/api'
 import { debounce } from '@/lib/utils'
 
+const SESSION_KEY = 'bsn-session-id'
+
+/**
+ * Retorna (e cria, se necessário) um sessionId UUID persistente em
+ * localStorage. Usado pelo backend para contar visitantes únicos e
+ * calcular "online agora" no dashboard de analytics.
+ */
+function getSessionId(): string {
+  if (typeof window === 'undefined') return ''
+  try {
+    let id = localStorage.getItem(SESSION_KEY)
+    if (!id) {
+      id =
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : `s-${Math.random().toString(36).slice(2)}-${Date.now()}`
+      localStorage.setItem(SESSION_KEY, id)
+    }
+    return id
+  } catch {
+    return ''
+  }
+}
+
 /**
  * Analytics hook for tracking user interactions
  * AWWWARDS-level analytics tracking
@@ -13,6 +37,7 @@ export function useAnalytics() {
       page: page || window.location.pathname,
       title: document.title,
       referrer: document.referrer,
+      sessionId: getSessionId(),
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),
     })
@@ -22,6 +47,7 @@ export function useAnalytics() {
   const trackEvent = useCallback((event: string, data?: any) => {
     analyticsApi.track(event, {
       ...data,
+      sessionId: getSessionId(),
       timestamp: new Date().toISOString(),
       page: window.location.pathname,
     })
