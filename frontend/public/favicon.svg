@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1170" height="520" viewBox="0 0 1170 520">
+<svg xmlns="http://www.w3.org/2000/svg" width="1170" height="355" viewBox="0 0 1170 355">
 <defs><mask id="gap17"><rect width="1170" height="520" fill="white"/><polygon points="793.0,87.0 953.0,87.0 953.0,293.0 988.1,293.0" fill="black"/></mask></defs>
-<g mask="url(#gap17)"><g transform="translate(40,40)"><g transform="translate(0.000000,275.000000) scale(0.100000,-0.100000)" fill="#FFFFFF"><path d="M8120 2269 c0 -23 920 -1296 950 -1314 7 -4 10 217 10 659 l0 666
+<g mask="url(#gap17)"><g transform="translate(40,40)"><g transform="translate(0.000000,275.000000) scale(0.100000,-0.100000)" fill="#15161A"><path d="M8120 2269 c0 -23 920 -1296 950 -1314 7 -4 10 217 10 659 l0 666
 -480 0 c-348 0 -480 -3 -480 -11z"/><path d="M1500 2070 l0 -200 865 0 c956 0 898 4 950 -64 14 -18 31 -58 37 -89
 10 -47 9 -61 -6 -101 -23 -60 -58 -101 -110 -129 l-41 -22 -847 -3 -848 -3 0
 -625 0 -625 903 3 902 3 74 27 c168 61 293 185 357 353 21 55 27 94 31 180 9
@@ -17,4 +17,4 @@ m1737 -1045 c81 -41 123 -109 123 -201 0 -85 -51 -164 -125 -195 -23 -10 -185
 473 -476 817 -847 150 -162 287 -306 304 -320 l31 -25 264 -3 c163 -2 263 0
 263 6 0 24 -293 365 -590 686 -443 482 -1278 1332 -1327 1352 -24 10 -87 14
 -233 14 l-200 0 2 -1027z"/></g></g></g>
-<polygon points="827.0,87.0 947.0,87.0 947.0,213.7" fill="#552BD7"/><text x="211.8" y="388" text-anchor="middle" font-family="Poppins" font-weight="300" font-size="64" fill="#552BD7">S</text><text x="313.7" y="388" text-anchor="middle" font-family="Poppins" font-weight="300" font-size="64" fill="#552BD7">O</text><text x="415.6" y="388" text-anchor="middle" font-family="Poppins" font-weight="300" font-size="64" fill="#552BD7">L</text><text x="517.5" y="388" text-anchor="middle" font-family="Poppins" font-weight="300" font-size="64" fill="#552BD7">U</text><text x="619.5" y="388" text-anchor="middle" font-family="Poppins" font-weight="300" font-size="64" fill="#552BD7">T</text><text x="721.4" y="388" text-anchor="middle" font-family="Poppins" font-weight="300" font-size="64" fill="#552BD7">I</text><text x="823.3" y="388" text-anchor="middle" font-family="Poppins" font-weight="300" font-size="64" fill="#552BD7">O</text><text x="925.2" y="388" text-anchor="middle" font-family="Poppins" font-weight="300" font-size="64" fill="#552BD7">N</text></svg>
+<polygon points="827.0,87.0 947.0,87.0 947.0,213.7" fill="#552BD7"/></svg>

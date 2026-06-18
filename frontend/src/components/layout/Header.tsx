@@ -37,13 +37,13 @@ export default function Header() {
           <div className="nav-inner glass">
             <Link to="/" className="brand">
               <img
-                src="/assets/logo.png"
+                src="/assets/logo.svg"
                 alt="BSN Solution"
                 fetchPriority="high"
                 decoding="async"
-                width={140}
-                height={44}
-                style={{ height: 44, width: 'auto', display: 'block' }}
+                width={160}
+                height={36}
+                style={{ height: 36, width: 'auto', display: 'block' }}
               />
             </Link>
 
