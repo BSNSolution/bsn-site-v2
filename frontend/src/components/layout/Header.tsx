@@ -37,7 +37,7 @@ export default function Header() {
           <div className="nav-inner glass">
             <Link to="/" className="brand">
               <img
-                src="/assets/logo.svg"
+                src="/assets/logo.png"
                 alt="BSN Solution"
                 fetchPriority="high"
                 decoding="async"
